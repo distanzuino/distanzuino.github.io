@@ -8,26 +8,103 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
+            padding: 20px;
         }
         button {
             padding: 10px 20px;
             font-size: 16px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        #status {
+            margin-top: 20px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-    <h1>Connect to Bluetooth Device</h1>
+    <h1>Connect to Bluetooth Device and Play Sound Effects</h1>
     <button id="connectButton">Connect to Arduino</button>
     <p id="status">Status: Not Connected</p>
 
+    <!-- Audio elements for different sound effects -->
     <audio id="audio0" src="sounds/sound0.mp3"></audio>
     <audio id="audio1" src="sounds/sound1.mp3"></audio>
     <audio id="audio2" src="sounds/sound2.mp3"></audio>
     <audio id="audio3" src="sounds/sound3.mp3"></audio>
     <audio id="audio4" src="sounds/sound4.mp3"></audio>
 
-    <script src="app.js"></script>
+    <script>
+        const connectButton = document.getElementById('connectButton');
+        const statusText = document.getElementById('status');
+
+        // Store the audio elements for easy access
+        const soundEffects = [
+            document.getElementById('audio0'),
+            document.getElementById('audio1'),
+            document.getElementById('audio2'),
+            document.getElementById('audio3'),
+            document.getElementById('audio4'),
+        ];
+
+        let bluetoothDevice;
+        let characteristic;
+
+        // Event listener for the connect button
+        connectButton.addEventListener('click', async () => {
+            try {
+                // Request a Bluetooth device
+                bluetoothDevice = await navigator.bluetooth.requestDevice({
+                    filters: [{ name: 'HM-10' }], // Adjust this for your Bluetooth module
+                    optionalServices: ['0000ffe0-0000-1000-8000-00805f9b34fb'] // HM-10 service UUID
+                });
+                statusText.textContent = 'Status: Connecting...';
+
+                // Connect to GATT server on the Bluetooth device
+                const server = await bluetoothDevice.gatt.connect();
+                const service = await server.getPrimaryService('0000ffe0-0000-1000-8000-00805f9b34fb');
+                characteristic = await service.getCharacteristic('0000ffe1-0000-1000-8000-00805f9b34fb'); // HM-10 characteristic UUID
+
+                statusText.textContent = 'Status: Connected';
+                
+                // Start listening for data from the Bluetooth device
+                listenToCharacteristic();
+            } catch (error) {
+                console.error(error);
+                statusText.textContent = 'Status: Failed to Connect';
+            }
+        });
+
+        // Function to listen for characteristic changes (data from Arduino)
+        async function listenToCharacteristic() {
+            characteristic.addEventListener('characteristicvaluechanged', handleData);
+            await characteristic.startNotifications();
+            statusText.textContent = 'Status: Listening for Data...';
+        }
+
+        // Function to handle the received data
+        function handleData(event) {
+            const value = new TextDecoder().decode(event.target.value);
+            const number = parseInt(value.trim(), 10); // Parse the received number
+
+            if (!isNaN(number) && number >= 0 && number < soundEffects.length) {
+                playSound(number);
+            }
+        }
+
+        // Function to play sound based on the received number
+        function playSound(number) {
+            // Stop any sound that is currently playing
+            soundEffects.forEach(sound => sound.pause());
+            
+            const soundEffect = soundEffects[number];
+            if (soundEffect) {
+                soundEffect.currentTime = 0;
+                soundEffect.play();
+            }
+        }
+    </script>
 
 </body>
 </html>
