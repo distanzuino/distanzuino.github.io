@@ -53,7 +53,7 @@
       try {
         // Request the Bluetooth device with a specific service (UUID 0xFFE0 used by many Bluetooth modules)
         bluetoothDevice = await navigator.bluetooth.requestDevice({
-          filters: [{ namePrefix: "HC-05" }], // Replace this with your device name, if needed
+          //filters: [{ namePrefix: "HC-05" }], // Replace this with your device name, if needed
           optionalServices: [0xFFE0] // Service UUID commonly used by HC-05/HC-06 modules
         });
 
