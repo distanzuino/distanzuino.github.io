@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Distanzuino</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    h1 {
+      color: red;
+      font-size: 48px;
+    }
+    #connectButton {
+      padding: 10px 20px;
+      font-size: 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    #connectButton:hover {
+      background-color: #45a049;
+    }
+    #output {
+      margin-top: 30px;
+      font-size: 24px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Distanzuino</h1>
+
+  <button id="connectButton">Connect to Arduino</button>
+
+  <div id="output">
+    Waiting for random numbers...
+  </div>
+
+  <script>
+    const connectButton = document.getElementById('connectButton');
+    const outputDiv = document.getElementById('output');
+
+    let bluetoothDevice;
+    let bluetoothCharacteristic;
+
+    connectButton.addEventListener('click', async () => {
+      try {
+        // Request the Bluetooth device with a specific service (UUID 0xFFE0 used by many Bluetooth modules)
+        bluetoothDevice = await navigator.bluetooth.requestDevice({
+          filters: [{ namePrefix: "HC-05" }], // Replace this with your device name, if needed
+          optionalServices: [0xFFE0] // Service UUID commonly used by HC-05/HC-06 modules
+        });
+
+        // Connect to the GATT server
+        const server = await bluetoothDevice.gatt.connect();
+
+        // Get the primary service from the server (UUID 0xFFE0)
+        const service = await server.getPrimaryService(0xFFE0);
+
+        // Get the characteristic for reading data (UUID 0xFFE1 commonly used by HC-05/HC-06)
+        bluetoothCharacteristic = await service.getCharacteristic(0xFFE1);
+
+        // Start receiving notifications for incoming data
+        await bluetoothCharacteristic.startNotifications();
+        bluetoothCharacteristic.addEventListener('characteristicvaluechanged', handleCharacteristicValueChanged);
+
+        outputDiv.innerText = "Connected! Waiting for data...";
+      } catch (error) {
+        console.log('Error: ' + error);
+        outputDiv.innerText = "Failed to connect.";
+      }
+    });
+
+    function handleCharacteristicValueChanged(event) {
+      const value = new TextDecoder().decode(event.target.value); // Decode incoming bytes as text
+      outputDiv.innerText = "Received random number: " + value.trim(); // Display received value
+    }
+  </script>
+
+</body>
+</html>
