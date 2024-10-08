@@ -18,11 +18,13 @@
 </head>
 <body>
   <h1>Random Frequency Player</h1>
-  <p>This page plays two frequencies: one random and another double the first with half the volume.</p>
+  <p>This page plays four frequencies based on a random base frequency.</p>
 
   <div class="frequency-display">
     <p>Frequency 1: <span id="freq1">--</span> Hz</p>
     <p>Frequency 2 (double): <span id="freq2">--</span> Hz</p>
+    <p>Frequency 3 (triple): <span id="freq3">--</span> Hz</p>
+    <p>Frequency 4 (quadruple): <span id="freq4">--</span> Hz</p>
   </div>
 
   <script>
@@ -33,49 +35,71 @@
       // Generate a random frequency between 200 and 2000 Hz
       const frequency1 = Math.random() * (2000 - 200) + 200;
       const frequency2 = frequency1 * 2;  // The second frequency is double the first
+      const frequency3 = frequency1 * 3;  // The third frequency is triple the first
+      const frequency4 = frequency1 * 4;  // The fourth frequency is quadruple the first
 
       // Update the displayed frequencies on the webpage
       document.getElementById('freq1').textContent = frequency1.toFixed(2);
       document.getElementById('freq2').textContent = frequency2.toFixed(2);
+      document.getElementById('freq3').textContent = frequency3.toFixed(2);
+      document.getElementById('freq4').textContent = frequency4.toFixed(2);
 
-      // Create two oscillator nodes
+      // Create oscillator nodes for each frequency
       const oscillator1 = audioContext.createOscillator();
       const oscillator2 = audioContext.createOscillator();
+      const oscillator3 = audioContext.createOscillator();
+      const oscillator4 = audioContext.createOscillator();
 
       // Set the frequency for each oscillator
       oscillator1.type = 'sine';
       oscillator1.frequency.setValueAtTime(frequency1, audioContext.currentTime);
       oscillator2.type = 'sine';
       oscillator2.frequency.setValueAtTime(frequency2, audioContext.currentTime);
+      oscillator3.type = 'sine';
+      oscillator3.frequency.setValueAtTime(frequency3, audioContext.currentTime);
+      oscillator4.type = 'sine';
+      oscillator4.frequency.setValueAtTime(frequency4, audioContext.currentTime);
 
       // Create gain nodes for volume control
       const gainNode1 = audioContext.createGain();
       const gainNode2 = audioContext.createGain();
+      const gainNode3 = audioContext.createGain();
+      const gainNode4 = audioContext.createGain();
 
       // Set the gain (volume) for each oscillator
-      gainNode1.gain.setValueAtTime(1, audioContext.currentTime); // Full volume for the first frequency
+      gainNode1.gain.setValueAtTime(1, audioContext.currentTime);  // Full volume for the first frequency
       gainNode2.gain.setValueAtTime(0.5, audioContext.currentTime); // Half volume for the second frequency
+      gainNode3.gain.setValueAtTime(1, audioContext.currentTime);  // Full volume for the third frequency
+      gainNode4.gain.setValueAtTime(0.25, audioContext.currentTime); // One-fourth volume for the fourth frequency
 
       // Connect the oscillators to their respective gain nodes
       oscillator1.connect(gainNode1);
       oscillator2.connect(gainNode2);
+      oscillator3.connect(gainNode3);
+      oscillator4.connect(gainNode4);
 
       // Connect the gain nodes to the audio context's destination (speakers)
       gainNode1.connect(audioContext.destination);
       gainNode2.connect(audioContext.destination);
+      gainNode3.connect(audioContext.destination);
+      gainNode4.connect(audioContext.destination);
 
       // Start the oscillators
       oscillator1.start();
       oscillator2.start();
+      oscillator3.start();
+      oscillator4.start();
 
       // Stop the oscillators after 1 second
       oscillator1.stop(audioContext.currentTime + 1);
       oscillator2.stop(audioContext.currentTime + 1);
+      oscillator3.stop(audioContext.currentTime + 1);
+      oscillator4.stop(audioContext.currentTime + 1);
 
-      console.log(`Playing frequencies: ${frequency1.toFixed(2)} Hz and ${frequency2.toFixed(2)} Hz with half volume`);
+      console.log(`Playing frequencies: ${frequency1.toFixed(2)} Hz, ${frequency2.toFixed(2)} Hz, ${frequency3.toFixed(2)} Hz, and ${frequency4.toFixed(2)} Hz with respective volumes`);
     }
 
-    // Play two random frequencies every 5 seconds
+    // Play the frequencies every 5 seconds
     setInterval(playRandomFrequencies, 5000);
   </script>
 </body>
