@@ -1,60 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Distanzuino</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Random Frequencies</title>
 </head>
 <body>
+  <h1>Random Frequency Player</h1>
+  <p>This page plays a random frequency every 5 seconds.</p>
 
-    <h1>Distanzuino</h1>
-    <p id="status">Status: Not Connected</p>
-    <p id="random-number">Waiting for Data...</p>
-    <button onclick="connectBluetooth()">Connect to HC-05</button>
+  <script>
+    // Create an AudioContext
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-    <script>
-        let bluetoothDevice;
-        let reader;
+    function playRandomFrequency() {
+      // Generate a random frequency between 200 and 2000 Hz
+      const frequency = Math.random() * (2000 - 200) + 200;
 
-        async function connectBluetooth() {
-            try {
-                // Request device with Bluetooth
-                bluetoothDevice = await navigator.bluetooth.requestDevice({
-                    filters: [{ name: 'HC-05' }],
-                    optionalServices: ['00001101-0000-1000-8000-00805f9b34fb'] // Standard SPP UUID
-                });
+      // Create an oscillator node
+      const oscillator = audioContext.createOscillator();
+      oscillator.type = 'sine';  // You can change this to 'square', 'sawtooth', or 'triangle'
+      oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
 
-                const server = await bluetoothDevice.gatt.connect();
-                const service = await server.getPrimaryService('00001101-0000-1000-8000-00805f9b34fb');
-                const characteristic = await service.getCharacteristic('00001101-0000-1000-8000-00805f9b34fb');
+      // Connect the oscillator to the audio context's destination (speakers)
+      oscillator.connect(audioContext.destination);
 
-                reader = characteristic.readValue();
+      // Start the oscillator
+      oscillator.start();
 
-                document.getElementById("status").innerText = "Status: Connected";
+      // Stop the oscillator after 1 second
+      oscillator.stop(audioContext.currentTime + 1);
 
-                listenToBluetooth(characteristic);
-            } catch (error) {
-                console.error(error);
-                document.getElementById("status").innerText = "Status: Connection Failed";
-            }
-        }
+      console.log(`Playing frequency: ${frequency.toFixed(2)} Hz`);
+    }
 
-        async function listenToBluetooth(characteristic) {
-            try {
-                characteristic.addEventListener('characteristicvaluechanged', handleCharacteristicValueChanged);
-                await characteristic.startNotifications();
-            } catch (error) {
-                console.error('Error while reading:', error);
-            }
-        }
-
-        function handleCharacteristicValueChanged(event) {
-            const value = new TextDecoder().decode(event.target.value);
-            console.log("Received:", value);
-            document.getElementById("random-number").innerText = "Random Number: " + value;
-        }
-    </script>
-
+    // Play a random frequency every 5 seconds
+    setInterval(playRandomFrequency, 5000);
+  </script>
 </body>
 </html>
