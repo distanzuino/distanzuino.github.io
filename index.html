@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distanzuino</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <h1>Distanzuino</h1>
+    <p id="status">Status: Not Connected</p>
+    <p id="random-number">Waiting for Data...</p>
+    <button onclick="connectBluetooth()">Connect to HC-05</button>
+
+    <script>
+        let bluetoothDevice;
+        let reader;
+
+        async function connectBluetooth() {
+            try {
+                // Request device with Bluetooth
+                bluetoothDevice = await navigator.bluetooth.requestDevice({
+                    filters: [{ name: 'HC-05' }],
+                    optionalServices: ['00001101-0000-1000-8000-00805f9b34fb'] // Standard SPP UUID
+                });
+
+                const server = await bluetoothDevice.gatt.connect();
+                const service = await server.getPrimaryService('00001101-0000-1000-8000-00805f9b34fb');
+                const characteristic = await service.getCharacteristic('00001101-0000-1000-8000-00805f9b34fb');
+
+                reader = characteristic.readValue();
+
+                document.getElementById("status").innerText = "Status: Connected";
+
+                listenToBluetooth(characteristic);
+            } catch (error) {
+                console.error(error);
+                document.getElementById("status").innerText = "Status: Connection Failed";
+            }
+        }
+
+        async function listenToBluetooth(characteristic) {
+            try {
+                characteristic.addEventListener('characteristicvaluechanged', handleCharacteristicValueChanged);
+                await characteristic.startNotifications();
+            } catch (error) {
+                console.error('Error while reading:', error);
+            }
+        }
+
+        function handleCharacteristicValueChanged(event) {
+            const value = new TextDecoder().decode(event.target.value);
+            console.log("Received:", value);
+            document.getElementById("random-number").innerText = "Random Number: " + value;
+        }
+    </script>
+
+</body>
+</html>
