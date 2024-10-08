@@ -18,11 +18,11 @@
 </head>
 <body>
   <h1>Random Frequency Player</h1>
-  <p>This page plays two random frequencies at the same time every 5 seconds.</p>
+  <p>This page plays two frequencies: one random and another double the first with half the volume.</p>
 
   <div class="frequency-display">
     <p>Frequency 1: <span id="freq1">--</span> Hz</p>
-    <p>Frequency 2: <span id="freq2">--</span> Hz</p>
+    <p>Frequency 2 (double): <span id="freq2">--</span> Hz</p>
   </div>
 
   <script>
@@ -30,9 +30,9 @@
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
     function playRandomFrequencies() {
-      // Generate two random frequencies between 200 and 2000 Hz
+      // Generate a random frequency between 200 and 2000 Hz
       const frequency1 = Math.random() * (2000 - 200) + 200;
-      const frequency2 = Math.random() * (2000 - 200) + 200;
+      const frequency2 = frequency1 * 2;  // The second frequency is double the first
 
       // Update the displayed frequencies on the webpage
       document.getElementById('freq1').textContent = frequency1.toFixed(2);
@@ -48,9 +48,21 @@
       oscillator2.type = 'sine';
       oscillator2.frequency.setValueAtTime(frequency2, audioContext.currentTime);
 
-      // Connect the oscillators to the audio context's destination (speakers)
-      oscillator1.connect(audioContext.destination);
-      oscillator2.connect(audioContext.destination);
+      // Create gain nodes for volume control
+      const gainNode1 = audioContext.createGain();
+      const gainNode2 = audioContext.createGain();
+
+      // Set the gain (volume) for each oscillator
+      gainNode1.gain.setValueAtTime(1, audioContext.currentTime); // Full volume for the first frequency
+      gainNode2.gain.setValueAtTime(0.5, audioContext.currentTime); // Half volume for the second frequency
+
+      // Connect the oscillators to their respective gain nodes
+      oscillator1.connect(gainNode1);
+      oscillator2.connect(gainNode2);
+
+      // Connect the gain nodes to the audio context's destination (speakers)
+      gainNode1.connect(audioContext.destination);
+      gainNode2.connect(audioContext.destination);
 
       // Start the oscillators
       oscillator1.start();
@@ -60,7 +72,7 @@
       oscillator1.stop(audioContext.currentTime + 1);
       oscillator2.stop(audioContext.currentTime + 1);
 
-      console.log(`Playing frequencies: ${frequency1.toFixed(2)} Hz and ${frequency2.toFixed(2)} Hz`);
+      console.log(`Playing frequencies: ${frequency1.toFixed(2)} Hz and ${frequency2.toFixed(2)} Hz with half volume`);
     }
 
     // Play two random frequencies every 5 seconds
