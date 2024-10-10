@@ -22,9 +22,9 @@
 
     document.getElementById('connect').addEventListener('click', async () => {
       try {
-        // Request the Bluetooth device
+        // Request the Bluetooth device (Distanzuino)
         bluetoothDevice = await navigator.bluetooth.requestDevice({
-          filters: [{ namePrefix: 'Distanzuino' }],
+          filters: [{ name: 'Distanzuino' }], // Change 'Distanzuino' to the correct HM-10 name
           optionalServices: [HM10_SERVICE_UUID]
         });
 
@@ -40,17 +40,27 @@
         characteristic.addEventListener('characteristicvaluechanged', handleData);
 
         document.getElementById('distance').innerText = "Connected. Waiting for data...";
-
       } catch (error) {
         console.error('Error connecting to HM-10:', error);
+        document.getElementById('distance').innerText = 'Error connecting';
       }
     });
 
     // Handle received data from HM-10
     function handleData(event) {
       const decoder = new TextDecoder();
-      const value = decoder.decode(event.target.value);
-      document.getElementById('distance').innerText = Distance: ${value};
+      const rawData = decoder.decode(event.target.value);
+      const cleanData = rawData.trim();  // Clean up the data by trimming white spaces or newline characters
+
+      // Try to parse the distance data
+      const distance = parseFloat(cleanData);
+
+      // Check if the parsed distance is a valid number
+      if (!isNaN(distance)) {
+        document.getElementById('distance').innerText = `Distance: ${distance} cm`;
+      } else {
+        document.getElementById('distance').innerText = 'Distance: Invalid data';
+      }
     }
   </script>
 </body>
