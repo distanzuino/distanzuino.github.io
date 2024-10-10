@@ -7,7 +7,7 @@
 </head>
 <body>
   <h1>Ultrasonic Sensor Distance</h1>
-  <button id="connect">Connect to HM-10</button>
+  <button id="connect">Connect to Distanzuino</button>
   <p id="distance">Distance: Not connected</p>
 
   <script>
@@ -61,10 +61,13 @@
     // Handle received data from HM-10
     function handleData(event) {
       const decoder = new TextDecoder();
-      const value = decoder.decode(event.target.value);
-      const distance = parseFloat(value.trim());
+      const rawData = decoder.decode(event.target.value);
+      const cleanData = rawData.trim();  // Clean up the data by trimming white spaces or newline characters
 
-      // Update the distance display
+      // Try to parse the distance data
+      const distance = parseFloat(cleanData);
+
+      // Check if the parsed distance is a valid number
       if (!isNaN(distance)) {
         document.getElementById('distance').innerText = `Distance: ${distance} cm`;
 
