@@ -3,108 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Distance to Frequency Generator</title>
+  <title>Ultrasonic Sensor Data</title>
 </head>
 <body>
-  <h1>Distance to Frequency Generator</h1>
-  <button id="connect">Connect to Distanzuino</button>
+  <h1>Ultrasonic Sensor Distance</h1>
+  <button id="connect">Connect to HM-10</button>
   <p id="distance">Distance: Not connected</p>
 
   <script>
     let bluetoothDevice;
+    let server;
+    let service;
     let characteristic;
-    let audioContext;
-    let oscillator;
 
-    // Bluetooth Service and Characteristic UUIDs for HM-10
-    const SERVICE_UUID = '0000ffe0-0000-1000-8000-00805f9b34fb';
-    const CHARACTERISTIC_UUID = '0000ffe1-0000-1000-8000-00805f9b34fb';
+    // Bluetooth Service and Characteristic UUIDs
+    const HM10_SERVICE_UUID = '0000ffe0-0000-1000-8000-00805f9b34fb';
+    const HM10_CHARACTERISTIC_UUID = '0000ffe1-0000-1000-8000-00805f9b34fb';
 
     document.getElementById('connect').addEventListener('click', async () => {
       try {
-        // Request Bluetooth device
+        // Request the Bluetooth device
         bluetoothDevice = await navigator.bluetooth.requestDevice({
-          filters: [{ namePrefix: 'Distanzuino' }],
-          optionalServices: [SERVICE_UUID]
+          filters: [{ namePrefix: 'Distanzuino' }], // Change 'MyBluetooth' to the name of your HM-10 device
+          optionalServices: [HM10_SERVICE_UUID]
         });
 
-        // Connect to GATT server
-        const server = await bluetoothDevice.gatt.connect();
+        // Connect to the GATT server
+        server = await bluetoothDevice.gatt.connect();
 
         // Get the service and characteristic
-        const service = await server.getPrimaryService(SERVICE_UUID);
-        characteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
+        service = await server.getPrimaryService(HM10_SERVICE_UUID);
+        characteristic = await service.getCharacteristic(HM10_CHARACTERISTIC_UUID);
 
         // Start receiving data
         characteristic.startNotifications();
         characteristic.addEventListener('characteristicvaluechanged', handleData);
 
-        // Initialize Web Audio API for generating sound
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        oscillator = audioContext.createOscillator();
-        oscillator.type = 'sine';  // Use a sine wave for sound
-        oscillator.start();
-
-        let gainNode = audioContext.createGain();
-        gainNode.gain.value = 0.5; // Volume control
-
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-
-        document.getElementById('distance').innerText = 'Connected. Waiting for data...';
+        document.getElementById('distance').innerText = "Connected. Waiting for data...";
 
       } catch (error) {
-        console.error('Error:', error);
+        console.error('Error connecting to HM-10:', error);
       }
     });
 
+    // Handle received data from HM-10
     function handleData(event) {
       const decoder = new TextDecoder();
       const value = decoder.decode(event.target.value);
-
-      // Clean and parse the received distance data
-      let distance = parseFloat(value.trim());
-
-      if (!isNaN(distance)) {
-        // Display the distance
-        document.getElementById('distance').innerText = `Distance: ${distance} cm`;
-
-        // Determine frequency based on the distance
-        let frequency = getFrequencyForDistance(distance);
-
-        // Update the oscillator frequency
-        oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-
-      } else {
-        document.getElementById('distance').innerText = 'Distance: Invalid data';
-      }
-    }
-
-    // Function to determine frequency based on distance ranges
-    function getFrequencyForDistance(distance) {
-      if (distance >= 0 && distance <= 5) {
-        return 200;  // Frequency for 0-5 cm
-      } else if (distance > 5 && distance <= 10) {
-        return 300;  // Frequency for 5-10 cm
-      } else if (distance > 10 && distance <= 15) {
-        return 400;  // Frequency for 10-15 cm
-      } else if (distance > 15 && distance <= 20) {
-        return 500;  // Frequency for 15-20 cm
-      } else if (distance > 20 && distance <= 25) {
-        return 600;  // Frequency for 20-25 cm
-      } else if (distance > 25 && distance <= 30) {
-        return 700;  // Frequency for 25-30 cm
-      } else if (distance > 30 && distance <= 35) {
-        return 800;  // Frequency for 30-35 cm
-      } else if (distance > 35 && distance <= 40) {
-        return 900;  // Frequency for 35-40 cm
-      } else if (distance > 40 && distance <= 45) {
-        return 1000;  // Frequency for 40-45 cm
-      } else if (distance > 45 && distance <= 50) {
-        return 1100;  // Frequency for 45-50 cm
-      } else {
-        return 1200;  // Frequency for distances above 50 cm
-      }
+      document.getElementById('distance').innerText = `Distance: ${value}`;
     }
   </script>
 </body>
