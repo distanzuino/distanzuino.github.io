@@ -64,22 +64,33 @@
     function handleData(event) {
       const decoder = new TextDecoder();
       const value = decoder.decode(event.target.value);
-      const distance = parseFloat(value); // Convert received string to number
 
-      // Display the distance on the webpage
-      document.getElementById('distance').innerText = `Distance: ${distance} cm`;
+      // Clean up the received data (remove any extra characters like newline)
+      let cleanValue = value.trim();
 
-      // Calculate frequency based on distance
-      let minDistance = 2;   // Minimum distance the sensor can measure
-      let maxDistance = 400; // Maximum distance the sensor can measure
-      let minFrequency = 100;  // Minimum frequency (Hz)
-      let maxFrequency = 2000; // Maximum frequency (Hz)
+      // Convert the cleaned data to a number
+      const distance = parseFloat(cleanValue);
 
-      // Scale distance to frequency range
-      let frequency = mapRange(distance, minDistance, maxDistance, minFrequency, maxFrequency);
+      // Check if the distance is a valid number
+      if (!isNaN(distance)) {
+        // Display the distance on the webpage
+        document.getElementById('distance').innerText = `Distance: ${distance} cm`;
 
-      // Set oscillator frequency
-      oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+        // Calculate frequency based on distance
+        let minDistance = 2;   // Minimum distance the sensor can measure
+        let maxDistance = 400; // Maximum distance the sensor can measure
+        let minFrequency = 100;  // Minimum frequency (Hz)
+        let maxFrequency = 2000; // Maximum frequency (Hz)
+
+        // Scale distance to frequency range
+        let frequency = mapRange(distance, minDistance, maxDistance, minFrequency, maxFrequency);
+
+        // Set oscillator frequency
+        oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+      } else {
+        // If distance is not a valid number, display an error
+        document.getElementById('distance').innerText = `Distance: Invalid data`;
+      }
     }
 
     // Function to map a number from one range to another
