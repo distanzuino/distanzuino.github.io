@@ -7,7 +7,7 @@
 </head>
 <body>
   <h1>Ultrasonic Sensor Distance</h1>
-  <button id="connect">Connect to Distanzuino</button>
+  <button id="connect">Connect to HM-10</button>
   <p id="distance">Distance: Not connected</p>
 
   <script>
@@ -22,9 +22,9 @@
 
     document.getElementById('connect').addEventListener('click', async () => {
       try {
-        // Request the Bluetooth device (Distanzuino)
+        // Request the Bluetooth device
         bluetoothDevice = await navigator.bluetooth.requestDevice({
-          filters: [{ name: 'Distanzuino' }],
+          filters: [{ namePrefix: 'Distanzuino' }], // Change 'MyBluetooth' to the name of your HM-10 device
           optionalServices: [HM10_SERVICE_UUID]
         });
 
@@ -40,32 +40,17 @@
         characteristic.addEventListener('characteristicvaluechanged', handleData);
 
         document.getElementById('distance').innerText = "Connected. Waiting for data...";
+
       } catch (error) {
         console.error('Error connecting to HM-10:', error);
-        document.getElementById('distance').innerText = 'Error connecting';
       }
     });
 
     // Handle received data from HM-10
     function handleData(event) {
       const decoder = new TextDecoder();
-      const rawData = decoder.decode(event.target.value); // Decode data
-      console.log('Raw data received:', rawData); // Log the raw data to the console for debugging
-
-      const cleanData = rawData.trim(); // Remove spaces/newlines
-
-      console.log('Cleaned data:', cleanData); // Log cleaned data
-
-      // Try to parse the distance data as a float number
-      const distance = parseFloat(cleanData);
-
-      // Check if the parsed distance is a valid number
-      if (!isNaN(distance)) {
-        document.getElementById('distance').innerText = `Distance: ${distance} cm`;
-      } else {
-        document.getElementById('distance').innerText = 'Distance: Invalid data';
-        console.error('Invalid data received:', cleanData); // Log the invalid data
-      }
+      const value = decoder.decode(event.target.value);
+      document.getElementById('distance').innerText = `Distance: ${value}`;
     }
   </script>
 </body>
