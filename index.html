@@ -15,6 +15,9 @@
     let server;
     let service;
     let characteristic;
+    let audioContext;
+    let oscillator;
+    let gainNode;
 
     // Bluetooth Service and Characteristic UUIDs
     const HM10_SERVICE_UUID = '0000ffe0-0000-1000-8000-00805f9b34fb';
@@ -39,8 +42,17 @@
         characteristic.startNotifications();
         characteristic.addEventListener('characteristicvaluechanged', handleData);
 
-        document.getElementById('distance').innerText = "Connected. Waiting for data...";
+        // Initialize the audio context
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        oscillator = audioContext.createOscillator();
+        gainNode = audioContext.createGain();
 
+        oscillator.type = 'sine';
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        oscillator.start();
+
+        document.getElementById('distance').innerText = "Connected. Waiting for data...";
       } catch (error) {
         console.error('Error connecting to HM-10:', error);
       }
@@ -50,7 +62,51 @@
     function handleData(event) {
       const decoder = new TextDecoder();
       const value = decoder.decode(event.target.value);
-      document.getElementById('distance').innerText = `Distance: ${value}`;
+      const distance = parseFloat(value.trim());
+
+      // Update the distance display
+      if (!isNaN(distance)) {
+        document.getElementById('distance').innerText = `Distance: ${distance} cm`;
+
+        // Get the corresponding frequency for the distance
+        const frequency = getFrequencyForDistance(distance);
+
+        // If a valid frequency is returned, play the sound
+        if (frequency !== null) {
+          oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+          gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);  // Set volume
+        } else {
+          // Stop the sound if the distance is out of range
+          gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        }
+      } else {
+        document.getElementById('distance').innerText = 'Distance: Invalid data';
+      }
+    }
+
+    // Function to determine the frequency based on distance ranges
+    function getFrequencyForDistance(distance) {
+      if (distance >= 5 && distance < 10) {
+        return 500;  // Frequency for 5-10 cm
+      } else if (distance >= 10 && distance < 15) {
+        return 550;  // Frequency for 10-15 cm
+      } else if (distance >= 15 && distance < 20) {
+        return 600;  // Frequency for 15-20 cm
+      } else if (distance >= 20 && distance < 25) {
+        return 650;  // Frequency for 20-25 cm
+      } else if (distance >= 25 && distance < 30) {
+        return 700;  // Frequency for 25-30 cm
+      } else if (distance >= 30 && distance < 35) {
+        return 750;  // Frequency for 30-35 cm
+      } else if (distance >= 35 && distance < 40) {
+        return 800;  // Frequency for 35-40 cm
+      } else if (distance >= 40 && distance < 45) {
+        return 850;  // Frequency for 40-45 cm
+      } else if (distance >= 45 && distance < 50) {
+        return 900;  // Frequency for 45-50 cm
+      } else {
+        return null;  // No sound for distances < 5 cm or > 50 cm
+      }
     }
   </script>
 </body>
