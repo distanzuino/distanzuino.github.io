@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Distance to Frequency</title>
+  <title>Distance to Frequency Generator</title>
 </head>
 <body>
   <h1>Distance to Frequency Generator</h1>
-  <button id="connect">Connect to HM-10</button>
+  <button id="connect">Connect to Distanzuino</button>
   <p id="distance">Distance: Not connected</p>
 
   <script>
@@ -42,7 +42,7 @@
         // Initialize Web Audio API for generating sound
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
         oscillator = audioContext.createOscillator();
-        oscillator.type = 'sine';
+        oscillator.type = 'sine';  // Use a sine wave for sound
         oscillator.start();
 
         let gainNode = audioContext.createGain();
@@ -69,25 +69,42 @@
         // Display the distance
         document.getElementById('distance').innerText = `Distance: ${distance} cm`;
 
-        // Map the distance to a frequency range
-        const minDistance = 2;  // cm
-        const maxDistance = 400;  // cm
-        const minFrequency = 100;  // Hz
-        const maxFrequency = 2000;  // Hz
-
-        // Scale the distance to a frequency
-        const frequency = mapRange(distance, minDistance, maxDistance, minFrequency, maxFrequency);
+        // Determine frequency based on the distance
+        let frequency = getFrequencyForDistance(distance);
 
         // Update the oscillator frequency
         oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+
       } else {
         document.getElementById('distance').innerText = 'Distance: Invalid data';
       }
     }
 
-    // Function to map the distance to a frequency range
-    function mapRange(value, inMin, inMax, outMin, outMax) {
-      return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+    // Function to determine frequency based on distance ranges
+    function getFrequencyForDistance(distance) {
+      if (distance >= 0 && distance <= 5) {
+        return 200;  // Frequency for 0-5 cm
+      } else if (distance > 5 && distance <= 10) {
+        return 300;  // Frequency for 5-10 cm
+      } else if (distance > 10 && distance <= 15) {
+        return 400;  // Frequency for 10-15 cm
+      } else if (distance > 15 && distance <= 20) {
+        return 500;  // Frequency for 15-20 cm
+      } else if (distance > 20 && distance <= 25) {
+        return 600;  // Frequency for 20-25 cm
+      } else if (distance > 25 && distance <= 30) {
+        return 700;  // Frequency for 25-30 cm
+      } else if (distance > 30 && distance <= 35) {
+        return 800;  // Frequency for 30-35 cm
+      } else if (distance > 35 && distance <= 40) {
+        return 900;  // Frequency for 35-40 cm
+      } else if (distance > 40 && distance <= 45) {
+        return 1000;  // Frequency for 40-45 cm
+      } else if (distance > 45 && distance <= 50) {
+        return 1100;  // Frequency for 45-50 cm
+      } else {
+        return 1200;  // Frequency for distances above 50 cm
+      }
     }
   </script>
 </body>
