@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ultrasonic Sensor Data</title>
+  <title>Distance to Frequency</title>
 </head>
 <body>
-  <h1>Ultrasonic Sensor Distance</h1>
+  <h1>Ultrasonic Sensor Distance to Frequency</h1>
   <button id="connect">Connect to HM-10</button>
   <p id="distance">Distance: Not connected</p>
 
@@ -15,6 +15,8 @@
     let server;
     let service;
     let characteristic;
+    let audioContext;
+    let oscillator;
 
     // Bluetooth Service and Characteristic UUIDs
     const HM10_SERVICE_UUID = '0000ffe0-0000-1000-8000-00805f9b34fb';
@@ -24,7 +26,7 @@
       try {
         // Request the Bluetooth device
         bluetoothDevice = await navigator.bluetooth.requestDevice({
-          filters: [{ namePrefix: 'Distanzuino' }], // Change 'MyBluetooth' to the name of your HM-10 device
+          filters: [{ namePrefix: 'MyBluetooth' }], // Change 'MyBluetooth' to your HM-10's name
           optionalServices: [HM10_SERVICE_UUID]
         });
 
@@ -39,6 +41,18 @@
         characteristic.startNotifications();
         characteristic.addEventListener('characteristicvaluechanged', handleData);
 
+        // Initialize Web Audio API
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        oscillator = audioContext.createOscillator();
+        oscillator.type = 'sine';  // Sine wave sound
+        oscillator.start();
+
+        let gainNode = audioContext.createGain();
+        gainNode.gain.value = 0.5;  // Set initial volume (can adjust this if needed)
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
         document.getElementById('distance').innerText = "Connected. Waiting for data...";
 
       } catch (error) {
@@ -50,7 +64,27 @@
     function handleData(event) {
       const decoder = new TextDecoder();
       const value = decoder.decode(event.target.value);
-      document.getElementById('distance').innerText = `Distance: ${value}`;
+      const distance = parseFloat(value); // Convert received string to number
+
+      // Display the distance on the webpage
+      document.getElementById('distance').innerText = `Distance: ${distance} cm`;
+
+      // Calculate frequency based on distance
+      let minDistance = 2;   // Minimum distance the sensor can measure
+      let maxDistance = 400; // Maximum distance the sensor can measure
+      let minFrequency = 100;  // Minimum frequency (Hz)
+      let maxFrequency = 2000; // Maximum frequency (Hz)
+
+      // Scale distance to frequency range
+      let frequency = mapRange(distance, minDistance, maxDistance, minFrequency, maxFrequency);
+
+      // Set oscillator frequency
+      oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+    }
+
+    // Function to map a number from one range to another
+    function mapRange(value, inMin, inMax, outMin, outMax) {
+      return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
     }
   </script>
 </body>
