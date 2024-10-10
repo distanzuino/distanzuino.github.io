@@ -3,44 +3,55 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Distanzuino BLE</title>
+  <title>Distanzuino</title>
 </head>
 <body>
-  <h1>Distanzuino BLE</h1>
+  <h1>Distanzuino</h1>
   <button id="connect">Connect to Distanzuino</button>
   <p id="distance">Distance: Not connected</p>
 
-  <script type="module">
-    import { BleClient, numberToUUID, dataViewToText } from '@capacitor-community/bluetooth-le';
+  <script>
+    let bluetoothDevice;
+    let server;
+    let service;
+    let characteristic;
 
-    const DISTANZUINO_SERVICE_UUID = '0000ffe0-0000-1000-8000-00805f9b34fb';
-    const DISTANZUINO_CHARACTERISTIC_UUID = '0000ffe1-0000-1000-8000-00805f9b34fb';
+    // Bluetooth Service and Characteristic UUIDs
+    const HM10_SERVICE_UUID = '0000ffe0-0000-1000-8000-00805f9b34fb';
+    const HM10_CHARACTERISTIC_UUID = '0000ffe1-0000-1000-8000-00805f9b34fb';
 
     document.getElementById('connect').addEventListener('click', async () => {
       try {
-        // Initialize BLE client
-        await BleClient.initialize();
-
-        // Request the BLE device by name (Distanzuino)
-        const device = await BleClient.requestDevice({
-          services: [DISTANZUINO_SERVICE_UUID],
-          name: 'Distanzuino'
+        // Request the Bluetooth device
+        bluetoothDevice = await navigator.bluetooth.requestDevice({
+          filters: [{ namePrefix: 'Distanzuino' }], // Change 'MyBluetooth' to the name of your HM-10 device
+          optionalServices: [HM10_SERVICE_UUID]
         });
 
-        // Connect to the device
-        await BleClient.connect(device.deviceId);
+        // Connect to the GATT server
+        server = await bluetoothDevice.gatt.connect();
 
-        // Read the distance from the characteristic
-        BleClient.startNotifications(device.deviceId, DISTANZUINO_SERVICE_UUID, DISTANZUINO_CHARACTERISTIC_UUID, (value) => {
-          const distance = dataViewToText(value);
-          document.getElementById('distance').innerText = `Distance: ${distance} cm`;
-        });
+        // Get the service and characteristic
+        service = await server.getPrimaryService(HM10_SERVICE_UUID);
+        characteristic = await service.getCharacteristic(HM10_CHARACTERISTIC_UUID);
+
+        // Start receiving data
+        characteristic.startNotifications();
+        characteristic.addEventListener('characteristicvaluechanged', handleData);
+
+        document.getElementById('distance').innerText = "Connected. Waiting for data...";
 
       } catch (error) {
         console.error('Error connecting to Distanzuino:', error);
-        document.getElementById('distance').innerText = 'Error connecting';
       }
     });
+
+    // Handle received data from HM-10
+    function handleData(event) {
+      const decoder = new TextDecoder();
+      const value = decoder.decode(event.target.value);
+      document.getElementById('distance').innerText = Distance: ${value};
+    }
   </script>
 </body>
 </html>
