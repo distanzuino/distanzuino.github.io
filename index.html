@@ -3,103 +3,55 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bluetooth Frequency Player</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin-top: 50px;
-    }
-    .frequency-display {
-      font-size: 1.5em;
-      margin: 20px 0;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 1.2em;
-    }
-  </style>
+  <title>Ultrasonic Sensor Data</title>
 </head>
 <body>
-  <h1>Bluetooth Frequency Player</h1>
-  <p>Click the button to connect to the HM-10 module and play frequencies.</p>
-
-  <button id="connectButton">Connect to Bluetooth</button>
-
-  <div class="frequency-display">
-    <p>Received Number: <span id="receivedNumber">--</span></p>
-    <p>Playing Frequency: <span id="playingFrequency">--</span> Hz</p>
-  </div>
+  <h1>Ultrasonic Sensor Distance</h1>
+  <button id="connect">Connect to HM-10</button>
+  <p id="distance">Distance: Not connected</p>
 
   <script>
     let bluetoothDevice;
+    let server;
+    let service;
     let characteristic;
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-    // Function to map received number to frequency
-    function numberToFrequency(number) {
-      switch (number) {
-        case 1: return 500;
-        case 2: return 1000;
-        case 3: return 1500;
-        case 4: return 2000;
-        case 5: return 2500;
-        default: return 0;  // Invalid number, no frequency
-      }
-    }
+    // Bluetooth Service and Characteristic UUIDs
+    const HM10_SERVICE_UUID = '0000ffe0-0000-1000-8000-00805f9b34fb';
+    const HM10_CHARACTERISTIC_UUID = '0000ffe1-0000-1000-8000-00805f9b34fb';
 
-    // Function to play a frequency for 1 second
-    function playFrequency(frequency) {
-      const oscillator = audioContext.createOscillator();
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-      oscillator.connect(audioContext.destination);
-      oscillator.start();
-      oscillator.stop(audioContext.currentTime + 1);
-    }
-
-    // Function to handle data received from Bluetooth
-    function handleData(event) {
-      const decoder = new TextDecoder('utf-8');
-      const receivedData = decoder.decode(event.target.value);
-      const receivedNumber = parseInt(receivedData.trim(), 10);
-
-      if (!isNaN(receivedNumber) && receivedNumber >= 1 && receivedNumber <= 5) {
-        const frequency = numberToFrequency(receivedNumber);
-
-        // Update the webpage display
-        document.getElementById('receivedNumber').textContent = receivedNumber;
-        document.getElementById('playingFrequency').textContent = frequency;
-
-        // Play the corresponding frequency
-        playFrequency(frequency);
-      }
-    }
-
-    // Function to connect to Bluetooth device
-    async function connectBluetooth() {
+    document.getElementById('connect').addEventListener('click', async () => {
       try {
-        // Request Bluetooth device
+        // Request the Bluetooth device
         bluetoothDevice = await navigator.bluetooth.requestDevice({
-          filters: [{ services: ['0000ffe0-0000-1000-8000-00805f9b34fb'] }] // HM-10 service UUID
+          filters: [{ namePrefix: 'MyBluetooth' }], // Change 'MyBluetooth' to the name of your HM-10 device
+          optionalServices: [HM10_SERVICE_UUID]
         });
 
-        const server = await bluetoothDevice.gatt.connect();
-        const service = await server.getPrimaryService('0000ffe0-0000-1000-8000-00805f9b34fb');
-        characteristic = await service.getCharacteristic('0000ffe1-0000-1000-8000-00805f9b34fb'); // HM-10 characteristic UUID
+        // Connect to the GATT server
+        server = await bluetoothDevice.gatt.connect();
 
-        // Listen for data
+        // Get the service and characteristic
+        service = await server.getPrimaryService(HM10_SERVICE_UUID);
+        characteristic = await service.getCharacteristic(HM10_CHARACTERISTIC_UUID);
+
+        // Start receiving data
         characteristic.startNotifications();
         characteristic.addEventListener('characteristicvaluechanged', handleData);
 
-        console.log('Connected to Bluetooth device.');
-      } catch (error) {
-        console.log('Error connecting to Bluetooth device:', error);
-      }
-    }
+        document.getElementById('distance').innerText = "Connected. Waiting for data...";
 
-    // Set up the connect button
-    document.getElementById('connectButton').addEventListener('click', connectBluetooth);
+      } catch (error) {
+        console.error('Error connecting to HM-10:', error);
+      }
+    });
+
+    // Handle received data from HM-10
+    function handleData(event) {
+      const decoder = new TextDecoder();
+      const value = decoder.decode(event.target.value);
+      document.getElementById('distance').innerText = `Distance: ${value}`;
+    }
   </script>
 </body>
 </html>
