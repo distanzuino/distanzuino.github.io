@@ -24,7 +24,7 @@
       try {
         // Request the Bluetooth device (Distanzuino)
         bluetoothDevice = await navigator.bluetooth.requestDevice({
-          filters: [{ name: 'Distanzuino' }], // Change 'Distanzuino' to the correct HM-10 name
+          filters: [{ name: 'Distanzuino' }],
           optionalServices: [HM10_SERVICE_UUID]
         });
 
@@ -49,10 +49,14 @@
     // Handle received data from HM-10
     function handleData(event) {
       const decoder = new TextDecoder();
-      const rawData = decoder.decode(event.target.value);
-      const cleanData = rawData.trim();  // Clean up the data by trimming white spaces or newline characters
+      const rawData = decoder.decode(event.target.value); // Decode data
+      console.log('Raw data received:', rawData); // Log the raw data to the console for debugging
 
-      // Try to parse the distance data
+      const cleanData = rawData.trim(); // Remove spaces/newlines
+
+      console.log('Cleaned data:', cleanData); // Log cleaned data
+
+      // Try to parse the distance data as a float number
       const distance = parseFloat(cleanData);
 
       // Check if the parsed distance is a valid number
@@ -60,6 +64,7 @@
         document.getElementById('distance').innerText = `Distance: ${distance} cm`;
       } else {
         document.getElementById('distance').innerText = 'Distance: Invalid data';
+        console.error('Invalid data received:', cleanData); // Log the invalid data
       }
     }
   </script>
