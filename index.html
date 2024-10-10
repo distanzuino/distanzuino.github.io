@@ -26,7 +26,7 @@
       try {
         // Request the Bluetooth device
         bluetoothDevice = await navigator.bluetooth.requestDevice({
-          filters: [{ namePrefix: 'MyBluetooth' }], // Change 'MyBluetooth' to your HM-10's name
+          filters: [{ namePrefix: 'Distanzuino' }], // Change 'MyBluetooth' to your HM-10's name
           optionalServices: [HM10_SERVICE_UUID]
         });
 
