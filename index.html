@@ -15,7 +15,9 @@
     let server;
     let service;
     let characteristic;
-    let distance;  // Variable to store the distance
+
+    // Variable to store the received distance
+    let receivedDistance = "Not available";
 
     // Bluetooth Service and Characteristic UUIDs
     const HM10_SERVICE_UUID = '0000ffe0-0000-1000-8000-00805f9b34fb';
@@ -25,7 +27,7 @@
       try {
         // Request the Bluetooth device
         bluetoothDevice = await navigator.bluetooth.requestDevice({
-          filters: [{ namePrefix: 'Distanzuino' }],
+          filters: [{ namePrefix: 'Distanzuino' }], // Change 'MyBluetooth' to the name of your HM-10 device
           optionalServices: [HM10_SERVICE_UUID]
         });
 
@@ -50,16 +52,13 @@
     // Handle received data from HM-10
     function handleData(event) {
       const decoder = new TextDecoder();
-      let value = decoder.decode(event.target.value).trim();  // Remove any trailing spaces
+      const value = decoder.decode(event.target.value);
 
-      // Ensure the value contains valid numeric data
-      if (!isNaN(value) && value.length > 0) {
-        distance = parseFloat(value);  // Convert the cleaned value to a number
-        document.getElementById('distance').innerText = `Distance: ${distance} cm`;
-      } else {
-        console.warn("Received non-numeric data:", value);  // Log any invalid data
-        document.getElementById('distance').innerText = "Received invalid distance data.";
-      }
+      // Store the received distance
+      receivedDistance = value;
+
+      // Display the distance
+      document.getElementById('distance').innerText = `Distance: ${receivedDistance}`;
     }
   </script>
 </body>
