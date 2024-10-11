@@ -78,7 +78,7 @@
       oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime); // Set the frequency
       oscillator.connect(audioCtx.destination);
       oscillator.start();
-      oscillator.stop(audioCtx.currentTime + 1); // Play for 1 second
+      oscillator.stop(audioCtx.currentTime); // Play for 1 second
     }
   </script>
 </body>
