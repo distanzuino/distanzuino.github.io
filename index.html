@@ -15,6 +15,7 @@
     let server;
     let service;
     let characteristic;
+    let distance;  // Variable to store the distance
 
     // Bluetooth Service and Characteristic UUIDs
     const HM10_SERVICE_UUID = '0000ffe0-0000-1000-8000-00805f9b34fb';
@@ -50,7 +51,10 @@
     function handleData(event) {
       const decoder = new TextDecoder();
       const value = decoder.decode(event.target.value);
-      document.getElementById('distance').innerText = `Distance: ${value}`;
+      
+      // Store the received value in the distance variable
+      distance = parseFloat(value);  // Assuming the value is a numeric distance
+      document.getElementById('distance').innerText = `Distance: ${distance} cm`;
     }
   </script>
 </body>
