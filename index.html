@@ -59,6 +59,25 @@
 
       // Display the distance
       document.getElementById('distance').innerText = `Distance: ${receivedDistance}`;
+
+      // Multiply receivedDistance by 50 and send out as frequency
+      const distanceNumber = parseFloat(receivedDistance); // Convert to number
+      if (!isNaN(distanceNumber)) { // Check if the conversion was successful
+        const frequency = distanceNumber * 50; // Multiply by 50
+
+        // Convert frequency to string to send as data
+        const frequencyString = frequency.toString();
+
+        // Send the frequency back via Bluetooth
+        const frequencyData = new TextEncoder().encode(frequencyString);
+        characteristic.writeValue(frequencyData)
+          .then(() => {
+            console.log(`Sent frequency: ${frequencyString}`);
+          })
+          .catch((error) => {
+            console.error('Error sending frequency:', error);
+          });
+      }
     }
   </script>
 </body>
