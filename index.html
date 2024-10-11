@@ -52,14 +52,22 @@
     // Handle received data from HM-10
     function handleData(event) {
       const decoder = new TextDecoder();
-      const value = decoder.decode(event.target.value);
+      const value = decoder.decode(event.target.value).trim(); // Trim whitespace
 
-      // Store the received distance
+      // Attempt to parse the received distance
       receivedDistance = parseFloat(value);
+
+      // Check if parsing was successful
+      if (isNaN(receivedDistance)) {
+        document.getElementById('distance').innerText = `Distance: Invalid data received`;
+        console.error('Received invalid distance value:', value);
+        return; // Exit if the value is invalid
+      }
 
       // Display the distance
       document.getElementById('distance').innerText = `Distance: ${receivedDistance}`;
 
+      // Call function to update frequency
       updateFrequency();
     }
 
