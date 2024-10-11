@@ -17,7 +17,7 @@
     let characteristic;
 
     // Variable to store the received distance
-    let receivedDistance = 0; // Use a number for calculations
+    let receivedDistance = "Not available";
 
     // Bluetooth Service and Characteristic UUIDs
     const HM10_SERVICE_UUID = '0000ffe0-0000-1000-8000-00805f9b34fb';
@@ -44,9 +44,6 @@
 
         document.getElementById('distance').innerText = "Connected. Waiting for data...";
 
-        // Start a loop to continuously play the frequency
-        setInterval(updateFrequency, 100); // Update every 100 ms
-
       } catch (error) {
         console.error('Error connecting to Distanzuino:', error);
       }
@@ -62,8 +59,11 @@
 
       // Display the distance
       document.getElementById('distance').innerText = `Distance: ${receivedDistance}`;
-    }
 
+      // Call function to update frequency
+      //updateFrequency();
+    }
+    updateFrequency();
     // Function to update and play the frequency based on the received distance
     function updateFrequency() {
       const frequency = receivedDistance * 50; // Multiply by 50
@@ -72,15 +72,13 @@
 
     // Function to play the frequency using Web Audio API
     function playFrequency(frequency) {
-      if (frequency > 0) { // Check if frequency is positive to avoid errors
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioCtx.createOscillator();
-        oscillator.type = 'sine'; // Change the wave type if needed
-        oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime); // Set the frequency
-        oscillator.connect(audioCtx.destination);
-        oscillator.start();
-        oscillator.stop(audioCtx.currentTime + 0.1); // Play for 100 ms
-      }
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      oscillator.type = 'sine'; // You can change the type to 'square', 'sawtooth', or 'triangle'
+      oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime); // Set the frequency
+      oscillator.connect(audioCtx.destination);
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + 1); // Play for 1 second
     }
   </script>
 </body>
