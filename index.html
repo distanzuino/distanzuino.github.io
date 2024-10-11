@@ -23,6 +23,10 @@
     const HM10_SERVICE_UUID = '0000ffe0-0000-1000-8000-00805f9b34fb';
     const HM10_CHARACTERISTIC_UUID = '0000ffe1-0000-1000-8000-00805f9b34fb';
 
+    // Audio context and oscillator
+    let audioCtx;
+    let oscillator;
+
     document.getElementById('connect').addEventListener('click', async () => {
       try {
         // Request the Bluetooth device
@@ -52,33 +56,49 @@
     // Handle received data from HM-10
     function handleData(event) {
       const decoder = new TextDecoder();
-      const value = decoder.decode(event.target.value);
+      const value = decoder.decode(event.target.value).trim(); // Trim whitespace
 
       // Store the received distance
       receivedDistance = parseFloat(value);
 
-      // Display the distance
-      document.getElementById('distance').innerText = `Distance: ${receivedDistance} cm`;
+      // Check if receivedDistance is valid
+      if (!isNaN(receivedDistance)) {
+        // Display the distance
+        document.getElementById('distance').innerText = `Distance: ${receivedDistance} cm`;
 
-      // Call function to update frequency
-      updateFrequency();
+        // Call function to update frequency
+        updateFrequency();
+      } else {
+        console.error('Invalid distance value received:', value);
+      }
     }
 
     // Function to update and play the frequency based on the received distance
     function updateFrequency() {
-      const frequency = receivedDistance * 100; // Multiply by 50
+      const frequency = receivedDistance * 100; // Multiply by 100
+
+      // If there is an existing oscillator, stop it
+      if (oscillator) {
+        oscillator.stop();
+      }
+
+      // Create a new oscillator
       playFrequency(frequency);
     }
 
     // Function to play the frequency using Web Audio API
     function playFrequency(frequency) {
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const oscillator = audioCtx.createOscillator();
+      // Create a new audio context if it doesn't exist
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      
+      oscillator = audioCtx.createOscillator();
       oscillator.type = 'sine'; // You can change the type to 'square', 'sawtooth', or 'triangle'
       oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime); // Set the frequency
       oscillator.connect(audioCtx.destination);
       oscillator.start();
-      oscillator.stop(audioCtx.currentTime + 0.25); // Play for 1 second
+      oscillator.stop(audioCtx.currentTime + 0.25); // Play for 0.25 seconds
     }
   </script>
 </body>
