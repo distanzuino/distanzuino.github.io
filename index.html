@@ -9,7 +9,7 @@
   <h1>Distanzuino</h1>
   <button id="connect">Connect to Distanzuino</button>
   <p id="distance">Distance: Not connected</p>
-  <p id="frequency">Frequency: Waiting for random frequencies...</p> <!-- Added display for frequencies -->
+  <p id="frequency">Frequency: Waiting for data...</p> <!-- Display for the frequency -->
 
   <script>
     let bluetoothDevice;
@@ -25,7 +25,7 @@
       try {
         // Request the Bluetooth device
         bluetoothDevice = await navigator.bluetooth.requestDevice({
-          filters: [{ namePrefix: 'Distanzuino' }], // Change 'MyBluetooth' to the name of your HM-10 device
+          filters: [{ namePrefix: 'Distanzuino' }],
           optionalServices: [HM10_SERVICE_UUID]
         });
 
@@ -51,28 +51,34 @@
     function handleData(event) {
       const decoder = new TextDecoder();
       const value = decoder.decode(event.target.value);
-      document.getElementById('distance').innerText = `Distance: ${value}`;
+      const distance = parseFloat(value);
+
+      if (!isNaN(distance)) {
+        document.getElementById('distance').innerText = `Distance: ${distance} cm`;
+
+        // Calculate frequency based on the distance
+        const frequency = distance * 50;
+
+        // Display the calculated frequency
+        document.getElementById('frequency').innerText = `Frequency: ${frequency} Hz`;
+
+        // Optional: Play the frequency using Web Audio API
+        playFrequency(frequency);
+      } else {
+        document.getElementById('distance').innerText = "Distance: Invalid data";
+      }
     }
 
-    // Function to generate and display random frequencies every 5 seconds
-    function generateRandomFrequencies() {
-      setInterval(() => {
-        const randomFrequency = Math.floor(Math.random() * (3000 - 200) + 200); // Generates a random frequency between 200 and 3000 Hz
-        document.getElementById('frequency').innerText = `Random Frequency: ${randomFrequency} Hz`;
-
-        // Optional: You can play this frequency using the Web Audio API if needed
-        const context = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = context.createOscillator();
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(randomFrequency, context.currentTime); // Set frequency
-        oscillator.connect(context.destination);
-        oscillator.start();
-        oscillator.stop(context.currentTime + 1); // Play the frequency for 1 second
-      }, 5000); // Repeat every 5 seconds
+    // Function to play frequency using Web Audio API
+    function playFrequency(frequency) {
+      const context = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = context.createOscillator();
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(frequency, context.currentTime); // Set frequency
+      oscillator.connect(context.destination);
+      oscillator.start();
+      oscillator.stop(context.currentTime + 1); // Play the frequency for 1 second
     }
-
-    // Start generating random frequencies when the page loads
-    window.onload = generateRandomFrequencies;
   </script>
 </body>
 </html>
