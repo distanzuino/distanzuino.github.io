@@ -10,17 +10,31 @@
       display: block;
       margin: 0 auto; /* Center horizontally */
       width: auto; /* Set width to auto to maintain aspect ratio */
-      max-width: 50%; /* Use a max-width of 80% of the screen */
-      max-height: 15vh; /* Limit height to 30% of viewport height */
+      max-width: 50%; /* Use a max-width of 50% of the screen */
+      max-height: 15vh; /* Limit height to 15% of viewport height */
       height: auto; /* Maintain aspect ratio */
     }
 
-    /* Center the button and distance display */
+    /* Style the button */
     #connect {
       display: block;
       margin: 20px auto; /* Center button */
+      padding: 15px 30px; /* Add padding for size */
+      font-size: 1.5em; /* Increase font size */
+      border: none; /* Remove default border */
+      border-radius: 5px; /* Rounded corners */
+      background-color: #4CAF50; /* Green background */
+      color: white; /* White text color */
+      cursor: pointer; /* Change cursor on hover */
+      transition: background-color 0.3s; /* Smooth transition for background color */
     }
 
+    /* Change button color on hover */
+    #connect:hover {
+      background-color: #45a049; /* Darker green on hover */
+    }
+
+    /* Center the distance display */
     #distance {
       text-align: center; /* Center distance text */
       font-size: 1.5em; /* Make it slightly larger */
