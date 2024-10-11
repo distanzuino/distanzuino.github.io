@@ -55,29 +55,25 @@
       const value = decoder.decode(event.target.value);
 
       // Store the received distance
-      receivedDistance = value;
+      receivedDistance = parseFloat(value);
 
       // Display the distance
       document.getElementById('distance').innerText = `Distance: ${receivedDistance}`;
 
-      // Multiply receivedDistance by 50 and send out as frequency
-      const distanceNumber = parseFloat(receivedDistance); // Convert to number
-      if (!isNaN(distanceNumber)) { // Check if the conversion was successful
-        const frequency = distanceNumber * 50; // Multiply by 50
+      // Calculate frequency and play sound
+      const frequency = receivedDistance * 50; // Multiply by 50
+      playFrequency(frequency);
+    }
 
-        // Convert frequency to string to send as data
-        const frequencyString = frequency.toString();
-
-        // Send the frequency back via Bluetooth
-        const frequencyData = new TextEncoder().encode(frequencyString);
-        characteristic.writeValue(frequencyData)
-          .then(() => {
-            console.log(`Sent frequency: ${frequencyString}`);
-          })
-          .catch((error) => {
-            console.error('Error sending frequency:', error);
-          });
-      }
+    // Function to play the frequency using Web Audio API
+    function playFrequency(frequency) {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      oscillator.type = 'sine'; // You can change the type to 'square', 'sawtooth', or 'triangle'
+      oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime); // Set the frequency
+      oscillator.connect(audioCtx.destination);
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + 1); // Play for 1 second
     }
   </script>
 </body>
