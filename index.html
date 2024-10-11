@@ -4,9 +4,29 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Distanzuino</title>
+  <style>
+    /* Center the logo at the top */
+    #logo {
+      display: block;
+      margin: 0 auto; /* Center horizontally */
+      max-width: 100%; /* Make sure it fits within the viewport */
+      height: auto; /* Maintain aspect ratio */
+    }
+
+    /* Center the button and distance display */
+    #connect {
+      display: block;
+      margin: 20px auto; /* Center button */
+    }
+
+    #distance {
+      text-align: center; /* Center distance text */
+      font-size: 1.5em; /* Make it slightly larger */
+    }
+  </style>
 </head>
 <body>
-  <h1>Distanzuino</h1>
+  <img id="logo" src="path_to_your_logo.png" alt="Distanzuino Logo"> <!-- Update the path to your logo image -->
   <button id="connect">Connect to Distanzuino</button>
   <p id="distance">Distance: Not connected</p>
 
@@ -75,7 +95,13 @@
 
     // Function to update and play the frequency based on the received distance
     function updateFrequency() {
-      const frequency = receivedDistance * 50; // Multiply by 100
+      const frequency = receivedDistance * 50; // Multiply by 50
+
+      // Check if the distance is greater than 50
+      if (receivedDistance > 50) {
+        console.log('Distance exceeds 50 cm; no frequency will be played.');
+        return; // Do not play any frequency
+      }
 
       // If there is an existing oscillator, stop it
       if (oscillator) {
