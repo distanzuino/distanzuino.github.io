@@ -59,6 +59,19 @@
 
       // Display the distance
       document.getElementById('distance').innerText = `Distance: ${receivedDistance}`;
+
+      playFrequency(frequency);
+    }
+
+    // Function to play the frequency using Web Audio API
+    function playFrequency(frequency) {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      oscillator.type = 'sine'; // You can change the type to 'square', 'sawtooth', or 'triangle'
+      oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime); // Set the frequency
+      oscillator.connect(audioCtx.destination);
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + 1); // Play for 1 second
     }
   </script>
 </body>
