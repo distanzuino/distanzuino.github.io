@@ -32,10 +32,7 @@
 
     /* Base button styles */
     .button {
-      position: absolute; /* Absolute positioning for buttons to overlap */
-      top: 0;
-      left: 50%; /* Center the buttons horizontally */
-      transform: translateX(-50%); /* Offset by half the width for proper centering */
+      display: inline-block;
       padding: 15px 30px;
       font-size: 1.2em;
       font-family: 'futura-pt', sans-serif;
@@ -43,30 +40,31 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      transition: transform 0.5s ease, opacity 0.5s ease; /* Transition for transform and opacity */
-      width: 200px; /* Fixed width for buttons */
+      transition: opacity 0.5s ease, visibility 0.5s ease; /* Transition for opacity and visibility */
+      position: absolute; /* Position absolute for overlap */
+      left: 50%; /* Center the buttons horizontally */
+      transform: translateX(-50%); /* Offset by half the width for proper centering */
     }
 
     /* Button colors */
     #connect {
       background-color: #4CAF50; /* Green */
       color: white;
-    }
-
-    #connect:hover {
-      background-color: #45a049; /* Darker green on hover */
+      opacity: 1; /* Fully visible */
+      visibility: visible; /* Make it visible */
     }
 
     #disconnect {
       background-color: red; /* Red */
       color: white;
       opacity: 0; /* Initially hidden */
-      transform: translate(-50%, -20px); /* Position off the top initially */
+      visibility: hidden; /* Hidden initially */
     }
 
-    #disconnect.show {
-      opacity: 1; /* Show when active */
-      transform: translate(-50%, 0); /* Slide into place */
+    /* Button when visible */
+    .visible {
+      opacity: 1; /* Show button */
+      visibility: visible; /* Make button visible */
     }
 
     /* Center the distance display */
@@ -128,13 +126,12 @@
         document.getElementById('distance').innerText = "Connected. Waiting for data...";
         document.getElementById('distance').style.display = 'block'; // Show distance display
 
-        // Transition between buttons
+        // Show disconnect button smoothly
         const connectButton = document.getElementById('connect');
         const disconnectButton = document.getElementById('disconnect');
 
-        // Show disconnect button with sliding effect
-        disconnectButton.classList.add('show'); // Show disconnect button
-        connectButton.style.transform = 'translate(-50%, 20px)'; // Move connect button down
+        connectButton.classList.remove('visible'); // Hide connect button
+        disconnectButton.classList.add('visible'); // Show disconnect button
       } catch (error) {
         console.error('Error connecting to Distanzuino:', error);
       }
@@ -146,13 +143,12 @@
         document.getElementById('distance').innerText = "Disconnected";
         document.getElementById('distance').style.display = 'none'; // Hide distance display on disconnect
 
-        // Transition between buttons
+        // Hide disconnect button smoothly
         const connectButton = document.getElementById('connect');
         const disconnectButton = document.getElementById('disconnect');
 
-        // Hide disconnect button with sliding effect
-        disconnectButton.classList.remove('show'); // Hide disconnect button
-        connectButton.style.transform = 'translate(-50%, 0)'; // Reset connect button position
+        disconnectButton.classList.remove('visible'); // Hide disconnect button
+        connectButton.classList.add('visible'); // Show connect button
       }
     });
 
