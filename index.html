@@ -32,15 +32,18 @@
 
     /* Center buttons container */
     #button-container {
-      margin-top: 20px; /* Space between logo and buttons */
       position: relative; /* Relative positioning for buttons */
+      width: 250px; /* Set a fixed width for the button container */
       height: 60px; /* Set a fixed height for the button container */
+      margin-top: 20px; /* Space between logo and buttons */
     }
 
     /* Base button styles */
     .button {
-      display: block; /* Block display for full width */
-      width: 250px; /* Set a fixed width for both buttons */
+      position: absolute; /* Absolute positioning for buttons */
+      top: 0; /* Aligns both buttons at the same vertical position */
+      left: 0; /* Aligns both buttons to the left of the container */
+      width: 100%; /* Full width of the container */
       padding: 15px; /* Consistent padding */
       font-size: 1.2em;
       font-family: 'futura-pt', sans-serif;
@@ -48,7 +51,7 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      transition: opacity 0.5s ease, background-color 0.5s ease; /* Transition for opacity and background color */
+      transition: opacity 0.5s ease; /* Transition for opacity */
       opacity: 0; /* Initially hidden */
     }
 
