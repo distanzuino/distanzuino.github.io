@@ -53,6 +53,7 @@
       cursor: pointer;
       transition: opacity 0.5s ease; /* Transition for opacity */
       opacity: 0; /* Initially hidden */
+      pointer-events: none; /* Prevent clicks on hidden buttons */
     }
 
     /* Button colors */
@@ -60,6 +61,7 @@
       background-color: #4CAF50; /* Green */
       color: white;
       opacity: 1; /* Initially visible */
+      pointer-events: auto; /* Enable clicks for the connect button */
     }
 
     #connect:hover {
@@ -139,7 +141,9 @@
         const disconnectButton = document.getElementById('disconnect');
         
         connectButton.style.opacity = '0';  // Hide connect button smoothly
+        connectButton.style.pointerEvents = 'none'; // Disable pointer events
         disconnectButton.style.opacity = '1';  // Show disconnect button
+        disconnectButton.style.pointerEvents = 'auto'; // Enable pointer events
 
       } catch (error) {
         console.error('Error connecting to Distanzuino:', error);
@@ -157,7 +161,9 @@
         const disconnectButton = document.getElementById('disconnect');
         
         disconnectButton.style.opacity = '0'; // Hide disconnect button smoothly
+        disconnectButton.style.pointerEvents = 'none'; // Disable pointer events
         connectButton.style.opacity = '1'; // Show connect button
+        connectButton.style.pointerEvents = 'auto'; // Enable pointer events
       }
     });
 
