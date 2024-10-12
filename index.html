@@ -11,6 +11,11 @@
       font-style: normal;
       font-weight: 400; /* Regular weight for the rest of the text */
       text-align: center; /* Center text content */
+      height: 100vh; /* Full viewport height */
+      display: flex; /* Use flexbox for centering */
+      flex-direction: column; /* Stack elements vertically */
+      justify-content: center; /* Center vertically */
+      align-items: center; /* Center horizontally */
     }
 
     /* Center the logo at the top */
@@ -25,8 +30,6 @@
 
     /* Center buttons container */
     #button-container {
-      margin: 20px auto;
-      display: inline-block; /* Inline block to respect text-align center */
       position: relative; /* Relative positioning for buttons */
       height: 60px; /* Set a fixed height for the button container */
     }
@@ -43,14 +46,15 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      transition: opacity 0.5s ease, transform 0.5s ease; /* Transition for opacity and transform */
-      opacity: 1; /* Initial opacity */
+      transition: opacity 0.5s ease; /* Transition for opacity */
+      opacity: 0; /* Initially hidden */
     }
 
     /* Button colors */
     #connect {
       background-color: #4CAF50; /* Green */
       color: white;
+      opacity: 1; /* Initially visible */
     }
 
     #connect:hover {
@@ -60,15 +64,10 @@
     #disconnect {
       background-color: red; /* Red */
       color: white;
-      opacity: 0; /* Initially hidden */
-      visibility: hidden; /* Hidden initially */
-      transform: translateY(20px); /* Slide down effect */
     }
 
-    #disconnect.visible {
-      opacity: 1; /* Show button */
-      visibility: visible; /* Make button visible */
-      transform: translateY(0); /* Slide up to original position */
+    #disconnect:hover {
+      background-color: darkred; /* Darker red on hover */
     }
 
     /* Center the distance display */
@@ -136,7 +135,6 @@
         
         connectButton.style.opacity = '0';  // Hide connect button smoothly
         disconnectButton.style.opacity = '1';  // Show disconnect button
-        disconnectButton.style.visibility = 'visible'; // Ensure the button is visible
 
       } catch (error) {
         console.error('Error connecting to Distanzuino:', error);
@@ -155,7 +153,6 @@
         
         disconnectButton.style.opacity = '0'; // Hide disconnect button smoothly
         connectButton.style.opacity = '1'; // Show connect button
-        connectButton.style.visibility = 'visible'; // Ensure the button is visible
       }
     });
 
