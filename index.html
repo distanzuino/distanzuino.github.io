@@ -5,75 +5,70 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Distanzuino</title>
   <style>
-    /* Global font style using Futura */
-    body, button, p {
-      font-family: 'Futura', sans-serif; /* Futura as primary, sans-serif as fallback */
+    /* Futura Bold font */
+    @font-face {
+      font-family: 'Futura Bold';
+      src: url('futura-bold.woff') format('woff'),
+           url('futura-bold.ttf') format('truetype');
+      font-weight: bold;
+    }
+
+    body {
+      font-family: 'Futura Bold', sans-serif;
     }
 
     /* Center the logo at the top */
     #logo {
       display: block;
-      margin: 0 auto; /* Center horizontally */
-      width: auto; /* Set width to auto to maintain aspect ratio */
-      max-width: 50%; /* Use a max-width of 50% of the screen */
-      max-height: 15vh; /* Limit height to 15% of viewport height */
-      height: auto; /* Maintain aspect ratio */
-    }
-
-    /* Style the button container */
-    .button-container {
-      display: flex; /* Use flex to place buttons next to each other */
-      justify-content: center; /* Center the buttons */
-      gap: 10px; /* Add some space between the buttons */
-      margin-top: 20px; /* Add margin to the top */
+      margin: 0 auto;
+      width: auto;
+      max-width: 50%;
+      max-height: 15vh;
+      height: auto;
     }
 
     /* Style the buttons */
     #connect, #disconnect {
-      padding: 15px 30px; /* Add padding for size */
-      font-size: 1.0em; /* Increase font size */
-      border: none; /* Remove default border */
-      border-radius: 5px; /* Rounded corners */
-      color: white; /* White text color */
-      cursor: pointer; /* Change cursor on hover */
-      transition: background-color 0.3s; /* Smooth transition for background color */
+      display: inline-block;
+      margin: 20px 10px;
+      padding: 15px 30px;
+      font-size: 1.0em;
+      font-family: 'Futura Bold', sans-serif;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
     }
 
-    /* Connect button styling */
     #connect {
-      background-color: #4CAF50; /* Green background */
+      background-color: #4CAF50; /* Green */
+      color: white;
     }
 
     #connect:hover {
       background-color: #45a049; /* Darker green on hover */
     }
 
-    /* Disconnect button styling (initially hidden) */
     #disconnect {
-      background-color: #f44336; /* Red background */
-      display: none; /* Hide by default */
+      background-color: red; /* Red */
+      color: white;
     }
 
     #disconnect:hover {
-      background-color: #d32f2f; /* Darker red on hover */
+      background-color: darkred; /* Darker red on hover */
     }
 
     /* Center the distance display */
     #distance {
-      text-align: center; /* Center distance text */
-      font-size: 1.5em; /* Make it slightly larger */
+      text-align: center;
+      font-size: 1.5em;
     }
   </style>
 </head>
 <body>
-  <img id="logo" src="logoDistanzuino.jpg" alt="Distanzuino Logo"> <!-- Update the path to your logo image -->
-
-  <!-- Button container to hold both buttons next to each other -->
-  <div class="button-container">
-    <button id="connect">Connect to Distanzuino</button>
-    <button id="disconnect">Disconnect from Distanzuino</button>
-  </div>
-
+  <img id="logo" src="logoDistanzuino.jpg" alt="Distanzuino Logo">
+  <button id="connect">Connect to Distanzuino</button>
+  <button id="disconnect" style="display:none;">Disconnect</button>
   <p id="distance">Distance: Not connected</p>
 
   <script>
@@ -112,43 +107,35 @@
         characteristic.startNotifications();
         characteristic.addEventListener('characteristicvaluechanged', handleData);
 
+        // Update UI on connection
         document.getElementById('distance').innerText = "Connected. Waiting for data...";
-
-        // Hide connect button and show disconnect button
-        document.getElementById('connect').style.display = 'none';
-        document.getElementById('disconnect').style.display = 'inline-block';
+        document.getElementById('connect').style.display = 'none';  // Hide connect button
+        document.getElementById('disconnect').style.display = 'inline-block';  // Show disconnect button
 
       } catch (error) {
         console.error('Error connecting to Distanzuino:', error);
       }
     });
 
-    document.getElementById('disconnect').addEventListener('click', async () => {
-      try {
-        if (bluetoothDevice && bluetoothDevice.gatt.connected) {
-          bluetoothDevice.gatt.disconnect(); // Disconnect the Bluetooth device
-          document.getElementById('distance').innerText = "Disconnected.";
-
-          // Show connect button and hide disconnect button
-          document.getElementById('connect').style.display = 'inline-block';
-          document.getElementById('disconnect').style.display = 'none';
-        }
-      } catch (error) {
-        console.error('Error disconnecting from Distanzuino:', error);
+    document.getElementById('disconnect').addEventListener('click', () => {
+      if (bluetoothDevice && bluetoothDevice.gatt.connected) {
+        bluetoothDevice.gatt.disconnect();
+        document.getElementById('distance').innerText = "Disconnected";
+        document.getElementById('connect').style.display = 'inline-block'; // Show connect button
+        document.getElementById('disconnect').style.display = 'none'; // Hide disconnect button
       }
     });
 
     // Handle received data from HM-10
     function handleData(event) {
       const decoder = new TextDecoder();
-      const value = decoder.decode(event.target.value).trim(); // Trim whitespace
+      const value = decoder.decode(event.target.value).trim();
 
       // Store the received distance
       receivedDistance = parseFloat(value);
 
       // Check if receivedDistance is valid
       if (!isNaN(receivedDistance)) {
-        // Display the distance
         document.getElementById('distance').innerText = `Distance: ${receivedDistance} cm`;
 
         // Call function to update frequency
@@ -160,33 +147,29 @@
 
     // Function to update and play the frequency based on the received distance
     function updateFrequency() {
-      const frequency = receivedDistance * 50; // Multiply by 50
+      const frequency = receivedDistance * 50;
 
-      // Check if the distance is greater than 50
       if (receivedDistance > 50) {
         console.log('Distance exceeds 50 cm; no frequency will be played.');
-        return; // Do not play any frequency
+        return;
       }
 
-      // If there is an existing oscillator, stop it
       if (oscillator) {
         oscillator.stop();
       }
 
-      // Create a new oscillator
       playFrequency(frequency);
     }
 
     // Function to play the frequency using Web Audio API
     function playFrequency(frequency) {
-      // Create a new audio context if it doesn't exist
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       }
       
       oscillator = audioCtx.createOscillator();
-      oscillator.type = 'sine'; // You can change the type to 'square', 'sawtooth', or 'triangle'
-      oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime); // Set the frequency
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
       oscillator.connect(audioCtx.destination);
       oscillator.start();
       oscillator.stop(audioCtx.currentTime + 0.25); // Play for 0.25 seconds
