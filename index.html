@@ -108,7 +108,11 @@
         characteristic.addEventListener('characteristicvaluechanged', handleData);
 
         document.getElementById('distance').innerText = "Connected. Waiting for data...";
-        document.getElementById('disconnect').style.display = 'inline-block'; // Show disconnect button
+
+        // Hide connect button and show disconnect button
+        document.getElementById('connect').style.display = 'none';
+        document.getElementById('disconnect').style.display = 'inline-block';
+
       } catch (error) {
         console.error('Error connecting to Distanzuino:', error);
       }
@@ -119,7 +123,10 @@
         if (bluetoothDevice && bluetoothDevice.gatt.connected) {
           bluetoothDevice.gatt.disconnect(); // Disconnect the Bluetooth device
           document.getElementById('distance').innerText = "Disconnected.";
-          document.getElementById('disconnect').style.display = 'none'; // Hide disconnect button
+
+          // Show connect button and hide disconnect button
+          document.getElementById('connect').style.display = 'inline-block';
+          document.getElementById('disconnect').style.display = 'none';
         }
       } catch (error) {
         console.error('Error disconnecting from Distanzuino:', error);
