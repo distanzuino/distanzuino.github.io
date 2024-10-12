@@ -11,10 +11,12 @@
       font-style: normal;
       font-weight: 400; /* Regular weight for the rest of the text */
       text-align: center; /* Center text content */
+      margin: 0; /* Remove default margin */
+      padding: 20px; /* Add some padding at the top */
       height: 100vh; /* Full viewport height */
       display: flex; /* Use flexbox for centering */
       flex-direction: column; /* Stack elements vertically */
-      justify-content: center; /* Center vertically */
+      justify-content: flex-start; /* Align to the top */
       align-items: center; /* Center horizontally */
     }
 
@@ -30,23 +32,23 @@
 
     /* Center buttons container */
     #button-container {
+      margin-top: 20px; /* Space between logo and buttons */
       position: relative; /* Relative positioning for buttons */
       height: 60px; /* Set a fixed height for the button container */
     }
 
     /* Base button styles */
     .button {
-      position: absolute; /* Absolute positioning for overlap */
-      left: 50%; /* Center the buttons horizontally */
-      transform: translateX(-50%); /* Offset by half the width for proper centering */
-      padding: 15px 30px;
+      display: block; /* Block display for full width */
+      width: 250px; /* Set a fixed width for both buttons */
+      padding: 15px; /* Consistent padding */
       font-size: 1.2em;
       font-family: 'futura-pt', sans-serif;
       font-weight: 700; /* Bold font for button text */
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      transition: opacity 0.5s ease; /* Transition for opacity */
+      transition: opacity 0.5s ease, background-color 0.5s ease; /* Transition for opacity and background color */
       opacity: 0; /* Initially hidden */
     }
 
