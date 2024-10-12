@@ -40,15 +40,11 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      transition: opacity 0.5s ease, transform 0.5s ease; /* Transition for opacity and transform */
-      opacity: 1; /* Initial opacity */
+      transition: transform 0.5s ease, width 0.5s ease; /* Transition for transform and width */
+      width: 200px; /* Fixed width for buttons */
     }
 
-    .button.hidden {
-      opacity: 0; /* Fade out */
-      transform: translateY(20px); /* Slide down effect */
-    }
-
+    /* Button colors */
     #connect {
       background-color: #4CAF50; /* Green */
       color: white;
@@ -81,7 +77,7 @@
   <!-- Center buttons -->
   <div id="button-container">
     <button id="connect" class="button">Connect to Distanzuino</button>
-    <button id="disconnect" class="button hidden">Disconnect</button>
+    <button id="disconnect" class="button" style="transform: scale(0); width: 0;">Disconnect</button>
   </div>
 
   <p id="distance">Distance: Not connected</p>
@@ -129,10 +125,11 @@
         // Transition between buttons
         const connectButton = document.getElementById('connect');
         const disconnectButton = document.getElementById('disconnect');
-        
-        connectButton.classList.add('hidden');  // Hide connect button
-        disconnectButton.classList.remove('hidden');  // Show disconnect button
 
+        // Scale buttons for effect
+        connectButton.style.transform = 'scale(0.7)'; // Scale down the connect button
+        disconnectButton.style.transform = 'scale(1)'; // Scale up the disconnect button
+        disconnectButton.style.width = '200px'; // Restore width of disconnect button
       } catch (error) {
         console.error('Error connecting to Distanzuino:', error);
       }
@@ -147,9 +144,11 @@
         // Transition between buttons
         const connectButton = document.getElementById('connect');
         const disconnectButton = document.getElementById('disconnect');
-        
-        disconnectButton.classList.add('hidden'); // Hide disconnect button
-        connectButton.classList.remove('hidden'); // Show connect button
+
+        // Scale buttons for effect
+        connectButton.style.transform = 'scale(1)'; // Scale up the connect button
+        disconnectButton.style.transform = 'scale(0.7)'; // Scale down the disconnect button
+        disconnectButton.style.width = '0'; // Shrink width of disconnect button
       }
     });
 
