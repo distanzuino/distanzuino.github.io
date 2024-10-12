@@ -15,8 +15,8 @@
       height: auto; /* Maintain aspect ratio */
     }
 
-    /* Style the button */
-    #connect {
+    /* Style the buttons */
+    #connect, #disconnect {
       display: block;
       margin: 20px auto; /* Center button */
       padding: 15px 30px; /* Add padding for size */
@@ -30,7 +30,7 @@
     }
 
     /* Change button color on hover */
-    #connect:hover {
+    #connect:hover, #disconnect:hover {
       background-color: #45a049; /* Darker green on hover */
     }
 
@@ -44,6 +44,7 @@
 <body>
   <img id="logo" src="logoDistanzuino.jpg" alt="Distanzuino Logo"> <!-- Update the path to your logo image -->
   <button id="connect">Connect to Distanzuino</button>
+  <button id="disconnect" disabled>Disconnect from Distanzuino</button>
   <p id="distance">Distance: Not connected</p>
 
   <script>
@@ -83,9 +84,22 @@
         characteristic.addEventListener('characteristicvaluechanged', handleData);
 
         document.getElementById('distance').innerText = "Connected. Waiting for data...";
+        document.getElementById('disconnect').disabled = false; // Enable the disconnect button
 
       } catch (error) {
         console.error('Error connecting to Distanzuino:', error);
+      }
+    });
+
+    document.getElementById('disconnect').addEventListener('click', async () => {
+      try {
+        if (bluetoothDevice && bluetoothDevice.gatt.connected) {
+          bluetoothDevice.gatt.disconnect(); // Disconnect the Bluetooth device
+          document.getElementById('distance').innerText = "Disconnected.";
+          document.getElementById('disconnect').disabled = true; // Disable the disconnect button
+        }
+      } catch (error) {
+        console.error('Error disconnecting from Distanzuino:', error);
       }
     });
 
