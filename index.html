@@ -65,6 +65,7 @@
     #distance {
       font-size: 1.5em;
       margin-top: 20px;
+      display: none; /* Hide by default */
     }
   </style>
 </head>
@@ -117,6 +118,7 @@
 
         // Update UI on connection
         document.getElementById('distance').innerText = "Connected. Waiting for data...";
+        document.getElementById('distance').style.display = 'block'; // Show distance display
         document.getElementById('connect').style.display = 'none';  // Hide connect button
         document.getElementById('disconnect').style.display = 'inline-block';  // Show disconnect button
 
@@ -129,6 +131,7 @@
       if (bluetoothDevice && bluetoothDevice.gatt.connected) {
         bluetoothDevice.gatt.disconnect();
         document.getElementById('distance').innerText = "Disconnected";
+        document.getElementById('distance').style.display = 'none'; // Hide distance display on disconnect
         document.getElementById('connect').style.display = 'inline-block'; // Show connect button
         document.getElementById('disconnect').style.display = 'none'; // Hide disconnect button
       }
