@@ -15,23 +15,42 @@
       height: auto; /* Maintain aspect ratio */
     }
 
+    /* Style the button container */
+    .button-container {
+      display: flex; /* Use flex to place buttons next to each other */
+      justify-content: center; /* Center the buttons */
+      gap: 10px; /* Add some space between the buttons */
+      margin-top: 20px; /* Add margin to the top */
+    }
+
     /* Style the buttons */
     #connect, #disconnect {
-      display: block;
-      margin: 20px auto; /* Center button */
       padding: 15px 30px; /* Add padding for size */
       font-size: 1.0em; /* Increase font size */
       border: none; /* Remove default border */
       border-radius: 5px; /* Rounded corners */
-      background-color: #4CAF50; /* Green background */
       color: white; /* White text color */
       cursor: pointer; /* Change cursor on hover */
       transition: background-color 0.3s; /* Smooth transition for background color */
     }
 
-    /* Change button color on hover */
-    #connect:hover, #disconnect:hover {
+    /* Connect button styling */
+    #connect {
+      background-color: #4CAF50; /* Green background */
+    }
+
+    #connect:hover {
       background-color: #45a049; /* Darker green on hover */
+    }
+
+    /* Disconnect button styling (initially hidden) */
+    #disconnect {
+      background-color: #f44336; /* Red background */
+      display: none; /* Hide by default */
+    }
+
+    #disconnect:hover {
+      background-color: #d32f2f; /* Darker red on hover */
     }
 
     /* Center the distance display */
@@ -43,8 +62,13 @@
 </head>
 <body>
   <img id="logo" src="logoDistanzuino.jpg" alt="Distanzuino Logo"> <!-- Update the path to your logo image -->
-  <button id="connect">Connect to Distanzuino</button>
-  <button id="disconnect" disabled>Disconnect from Distanzuino</button>
+
+  <!-- Button container to hold both buttons next to each other -->
+  <div class="button-container">
+    <button id="connect">Connect to Distanzuino</button>
+    <button id="disconnect">Disconnect from Distanzuino</button>
+  </div>
+
   <p id="distance">Distance: Not connected</p>
 
   <script>
@@ -68,7 +92,7 @@
       try {
         // Request the Bluetooth device
         bluetoothDevice = await navigator.bluetooth.requestDevice({
-          filters: [{ namePrefix: 'Distanzuino' }], // Change 'MyBluetooth' to the name of your HM-10 device
+          filters: [{ namePrefix: 'Distanzuino' }],
           optionalServices: [HM10_SERVICE_UUID]
         });
 
@@ -84,8 +108,7 @@
         characteristic.addEventListener('characteristicvaluechanged', handleData);
 
         document.getElementById('distance').innerText = "Connected. Waiting for data...";
-        document.getElementById('disconnect').disabled = false; // Enable the disconnect button
-
+        document.getElementById('disconnect').style.display = 'inline-block'; // Show disconnect button
       } catch (error) {
         console.error('Error connecting to Distanzuino:', error);
       }
@@ -96,7 +119,7 @@
         if (bluetoothDevice && bluetoothDevice.gatt.connected) {
           bluetoothDevice.gatt.disconnect(); // Disconnect the Bluetooth device
           document.getElementById('distance').innerText = "Disconnected.";
-          document.getElementById('disconnect').disabled = true; // Disable the disconnect button
+          document.getElementById('disconnect').style.display = 'none'; // Hide disconnect button
         }
       } catch (error) {
         console.error('Error disconnecting from Distanzuino:', error);
