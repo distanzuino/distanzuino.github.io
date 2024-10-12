@@ -27,12 +27,15 @@
     #button-container {
       margin: 20px auto;
       display: inline-block; /* Inline block to respect text-align center */
+      position: relative; /* Relative positioning for buttons */
     }
 
     /* Base button styles */
     .button {
-      display: inline-block;
-      margin: 0 10px;
+      position: absolute; /* Absolute positioning for buttons to overlap */
+      top: 0;
+      left: 50%; /* Center the buttons horizontally */
+      transform: translateX(-50%); /* Offset by half the width for proper centering */
       padding: 15px 30px;
       font-size: 1.2em;
       font-family: 'futura-pt', sans-serif;
@@ -40,7 +43,7 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      transition: transform 0.5s ease, width 0.5s ease; /* Transition for transform and width */
+      transition: transform 0.5s ease, opacity 0.5s ease; /* Transition for transform and opacity */
       width: 200px; /* Fixed width for buttons */
     }
 
@@ -57,10 +60,13 @@
     #disconnect {
       background-color: red; /* Red */
       color: white;
+      opacity: 0; /* Initially hidden */
+      transform: translate(-50%, -20px); /* Position off the top initially */
     }
 
-    #disconnect:hover {
-      background-color: darkred; /* Darker red on hover */
+    #disconnect.show {
+      opacity: 1; /* Show when active */
+      transform: translate(-50%, 0); /* Slide into place */
     }
 
     /* Center the distance display */
@@ -77,7 +83,7 @@
   <!-- Center buttons -->
   <div id="button-container">
     <button id="connect" class="button">Connect to Distanzuino</button>
-    <button id="disconnect" class="button" style="transform: scale(0); width: 0;">Disconnect</button>
+    <button id="disconnect" class="button">Disconnect</button>
   </div>
 
   <p id="distance">Distance: Not connected</p>
@@ -126,10 +132,9 @@
         const connectButton = document.getElementById('connect');
         const disconnectButton = document.getElementById('disconnect');
 
-        // Scale buttons for effect
-        connectButton.style.transform = 'scale(0.7)'; // Scale down the connect button
-        disconnectButton.style.transform = 'scale(1)'; // Scale up the disconnect button
-        disconnectButton.style.width = '200px'; // Restore width of disconnect button
+        // Show disconnect button with sliding effect
+        disconnectButton.classList.add('show'); // Show disconnect button
+        connectButton.style.transform = 'translate(-50%, 20px)'; // Move connect button down
       } catch (error) {
         console.error('Error connecting to Distanzuino:', error);
       }
@@ -145,10 +150,9 @@
         const connectButton = document.getElementById('connect');
         const disconnectButton = document.getElementById('disconnect');
 
-        // Scale buttons for effect
-        connectButton.style.transform = 'scale(1)'; // Scale up the connect button
-        disconnectButton.style.transform = 'scale(0.7)'; // Scale down the disconnect button
-        disconnectButton.style.width = '0'; // Shrink width of disconnect button
+        // Hide disconnect button with sliding effect
+        disconnectButton.classList.remove('show'); // Hide disconnect button
+        connectButton.style.transform = 'translate(-50%, 0)'; // Reset connect button position
       }
     });
 
