@@ -154,10 +154,14 @@
       parts.forEach(part => {
         if (part.startsWith('D1:')) {
           const distance1 = part.substring(3); // Extract the distance value after "D1:"
-          document.getElementById('distance1').innerText = `Distance 1: ${distance1} cm`;
+          if (!isNaN(distance1)) {
+            document.getElementById('distance1').innerText = `Distance 1: ${distance1} cm`;
+          }
         } else if (part.startsWith('D2:')) {
           const distance2 = part.substring(3); // Extract the distance value after "D2:"
-          document.getElementById('distance2').innerText = `Distance 2: ${distance2} cm`;
+          if (!isNaN(distance2)) {
+            document.getElementById('distance2').innerText = `Distance 2: ${distance2} cm`;
+          }
         }
       });
     }
