@@ -84,13 +84,14 @@
       opacity: 0; /* Initially hidden */
       transform: translateY(-20px); /* Move upwards for initial effect */
       transition: opacity 0.5s ease, transform 0.5s ease; /* Smooth transition for opacity and position */
-      display: block; /* Keep it as block element for transitions */
+      display: none; /* Start hidden */
     }
 
     /* Visible class to trigger transition */
     .visible {
       opacity: 1; /* Fully visible */
       transform: translateY(0); /* Move back to original position */
+      display: block; /* Ensure it's displayed */
     }
   </style>
 </head>
@@ -141,9 +142,7 @@
         characteristic.addEventListener('characteristicvaluechanged', handleData);
 
         // Update UI on connection
-        document.getElementById('distance1').innerText = "Connected. Waiting for Distance 1 data...";
-        document.getElementById('distance2').innerText = "Connected. Waiting for Distance 2 data...";
-        showDistanceElements(); // Show distance displays
+        showDistanceElements(); // Show distance displays with transition
 
         // Transition between buttons
         const connectButton = document.getElementById('connect');
@@ -253,6 +252,9 @@
       
       distance1Element.classList.add('visible'); // Add visible class to trigger transition
       distance2Element.classList.add('visible'); // Add visible class to trigger transition
+
+      distance1Element.style.display = 'block'; // Make sure it's displayed
+      distance2Element.style.display = 'block'; // Make sure it's displayed
     }
 
     function hideDistanceElements() {
@@ -261,6 +263,12 @@
       
       distance1Element.classList.remove('visible'); // Remove visible class to trigger transition
       distance2Element.classList.remove('visible'); // Remove visible class to trigger transition
+
+      // Delay setting display to none until transition ends
+      setTimeout(() => {
+        distance1Element.style.display = 'none'; // Hide the element
+        distance2Element.style.display = 'none'; // Hide the element
+      }, 500); // Match this duration with the CSS transition time
     }
   </script>
 </body>
