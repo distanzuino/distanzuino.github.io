@@ -90,6 +90,12 @@
       margin-top: 10px; /* Space above sliders */
       display: none; /* Hide by default */
     }
+
+    /* Label styles for volume control */
+    .volume-label {
+      display: none; /* Hide labels by default */
+      margin-top: 5px; /* Space between slider and label */
+    }
   </style>
 </head>
 <body>
@@ -103,11 +109,11 @@
 
   <p id="distance1">Distance 1: Not connected</p>
   <input id="volume1" type="range" class="volume-slider" min="0" max="1" step="0.01" value="1">
-  <label for="volume1">Volume Control for Distance 1</label>
+  <label id="volume1-label" class="volume-label" for="volume1">Volume Control for Distance 1</label>
   
   <p id="distance2">Distance 2: Not connected</p>
   <input id="volume2" type="range" class="volume-slider" min="0" max="1" step="0.01" value="1">
-  <label for="volume2">Volume Control for Distance 2</label>
+  <label id="volume2-label" class="volume-label" for="volume2">Volume Control for Distance 2</label>
 
   <script>
     let bluetoothDevice;
@@ -153,7 +159,9 @@
         
         // Show volume controls
         document.getElementById('volume1').style.display = 'block'; // Show volume control for Distance 1
+        document.getElementById('volume1-label').style.display = 'block'; // Show volume label for Distance 1
         document.getElementById('volume2').style.display = 'block'; // Show volume control for Distance 2
+        document.getElementById('volume2-label').style.display = 'block'; // Show volume label for Distance 2
 
         // Transition between buttons
         const connectButton = document.getElementById('connect');
@@ -283,7 +291,9 @@
 
         // Hide volume controls
         document.getElementById('volume1').style.display = 'none'; // Hide volume control for Distance 1
+        document.getElementById('volume1-label').style.display = 'none'; // Hide volume label for Distance 1
         document.getElementById('volume2').style.display = 'none'; // Hide volume control for Distance 2
+        document.getElementById('volume2-label').style.display = 'none'; // Hide volume label for Distance 2
 
         // Stop any playing sounds
         stopSound(1);
