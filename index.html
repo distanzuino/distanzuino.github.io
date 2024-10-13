@@ -107,6 +107,11 @@
     const HM10_SERVICE_UUID = '0000ffe0-0000-1000-8000-00805f9b34fb';
     const HM10_CHARACTERISTIC_UUID = '0000ffe1-0000-1000-8000-00805f9b34fb';
 
+    // Audio context and oscillators for both distances
+    let audioCtx;
+    let oscillator1;
+    let oscillator2;
+
     document.getElementById('connect').addEventListener('click', async () => {
       try {
         // Request the Bluetooth device
@@ -158,12 +163,59 @@
         const distance1 = parseFloat(value.substring(3)); // Extract value after "D1:"
         if (!isNaN(distance1)) {
           document.getElementById('distance1').innerText = `Distance 1: ${distance1} cm`;
+
+          // Play frequency for Distance 1
+          playFrequency(distance1, 1);
         }
       } else if (value.startsWith('D2:')) {
         const distance2 = parseFloat(value.substring(3)); // Extract value after "D2:"
         if (!isNaN(distance2)) {
           document.getElementById('distance2').innerText = `Distance 2: ${distance2} cm`;
+
+          // Play frequency for Distance 2
+          playFrequency(distance2, 2);
         }
+      }
+    }
+
+    function playFrequency(distance, distanceNum) {
+      const frequency = distance * 50;
+
+      // If the distance is greater than 50 cm, stop playing sound
+      if (distance > 50) {
+        console.log(`Distance ${distanceNum} exceeds 50 cm; no frequency will be played.`);
+        return;
+      }
+
+      // Initialize the audio context if not already done
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+
+      // Play frequency for Distance 1
+      if (distanceNum === 1) {
+        if (oscillator1) {
+          oscillator1.stop();
+        }
+        oscillator1 = audioCtx.createOscillator();
+        oscillator1.type = 'sine';
+        oscillator1.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+        oscillator1.connect(audioCtx.destination);
+        oscillator1.start();
+        oscillator1.stop(audioCtx.currentTime + 0.25); // Play for 0.25 seconds
+      }
+
+      // Play frequency for Distance 2
+      if (distanceNum === 2) {
+        if (oscillator2) {
+          oscillator2.stop();
+        }
+        oscillator2 = audioCtx.createOscillator();
+        oscillator2.type = 'sine';
+        oscillator2.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+        oscillator2.connect(audioCtx.destination);
+        oscillator2.start();
+        oscillator2.stop(audioCtx.currentTime + 0.25); // Play for 0.25 seconds
       }
     }
 
