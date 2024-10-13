@@ -88,6 +88,7 @@
     .volume-slider {
       width: 80%; /* Set width of sliders */
       margin-top: 10px; /* Space above sliders */
+      display: none; /* Hide by default */
     }
   </style>
 </head>
@@ -149,6 +150,10 @@
         document.getElementById('distance2').innerText = "Connected. Waiting for Distance 2 data...";
         document.getElementById('distance1').style.display = 'block'; // Show distance 1 display
         document.getElementById('distance2').style.display = 'block'; // Show distance 2 display
+        
+        // Show volume controls
+        document.getElementById('volume1').style.display = 'block'; // Show volume control for Distance 1
+        document.getElementById('volume2').style.display = 'block'; // Show volume control for Distance 2
 
         // Transition between buttons
         const connectButton = document.getElementById('connect');
@@ -221,10 +226,7 @@
         }
         oscillator1.frequency.setValueAtTime(frequency, audioCtx.currentTime); // Update frequency
         gainNode1.gain.setValueAtTime(document.getElementById('volume1').value, audioCtx.currentTime); // Set volume
-      }
-
-      // Play frequency for Distance 2
-      if (distanceNum === 2) {
+      } else if (distanceNum === 2) {
         if (!gainNode2) {
           gainNode2 = audioCtx.createGain();
           gainNode2.connect(audioCtx.destination); // Connect gain node to the audio context
@@ -278,6 +280,10 @@
         // Hide the distance displays
         document.getElementById('distance1').style.display = 'none';
         document.getElementById('distance2').style.display = 'none';
+
+        // Hide volume controls
+        document.getElementById('volume1').style.display = 'none'; // Hide volume control for Distance 1
+        document.getElementById('volume2').style.display = 'none'; // Hide volume control for Distance 2
 
         // Stop any playing sounds
         stopSound(1);
