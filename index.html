@@ -40,9 +40,6 @@
 
     /* Base button styles */
     .button {
-      position: absolute; /* Absolute positioning for buttons */
-      top: 0; /* Aligns both buttons at the same vertical position */
-      left: 0; /* Aligns both buttons to the left of the container */
       width: 100%; /* Full width of the container */
       padding: 15px; /* Consistent padding */
       font-size: 1.2em;
@@ -51,17 +48,12 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      transition: opacity 0.5s ease; /* Transition for opacity */
-      opacity: 0; /* Initially hidden */
-      pointer-events: none; /* Prevent clicks on hidden buttons */
     }
 
     /* Button colors */
     #connect {
       background-color: #4CAF50; /* Green */
       color: white;
-      opacity: 1; /* Initially visible */
-      pointer-events: auto; /* Enable clicks for the connect button */
     }
 
     #connect:hover {
@@ -81,17 +73,6 @@
     #distance1, #distance2 {
       font-size: 1.5em;
       margin-top: 20px;
-      opacity: 0; /* Initially hidden */
-      transform: translateY(-20px); /* Move upwards for initial effect */
-      transition: opacity 0.5s ease, transform 0.5s ease; /* Smooth transition for opacity and position */
-      display: none; /* Start hidden */
-    }
-
-    /* Visible class to trigger transition */
-    .visible {
-      opacity: 1; /* Fully visible */
-      transform: translateY(0); /* Move back to original position */
-      display: block; /* Ensure it's displayed */
     }
   </style>
 </head>
@@ -142,16 +123,15 @@
         characteristic.addEventListener('characteristicvaluechanged', handleData);
 
         // Update UI on connection
-        showDistanceElements(); // Show distance displays with transition
+        document.getElementById('distance1').innerText = "Distance 1: Waiting for data...";
+        document.getElementById('distance2').innerText = "Distance 2: Waiting for data...";
 
         // Transition between buttons
         const connectButton = document.getElementById('connect');
         const disconnectButton = document.getElementById('disconnect');
         
-        connectButton.style.opacity = '0';  // Hide connect button smoothly
-        connectButton.style.pointerEvents = 'none'; // Disable pointer events
-        disconnectButton.style.opacity = '1';  // Show disconnect button
-        disconnectButton.style.pointerEvents = 'auto'; // Enable pointer events
+        connectButton.style.display = 'none'; // Hide connect button
+        disconnectButton.style.display = 'block'; // Show disconnect button
 
       } catch (error) {
         console.error('Error connecting to Distanzuino:', error);
@@ -230,47 +210,14 @@
         document.getElementById('distance1').innerText = "Distance 1: Not connected";
         document.getElementById('distance2').innerText = "Distance 2: Not connected";
 
-        // Hide the distance displays
-        hideDistanceElements(); // Hide distance displays
-
         // Transition between buttons
         const connectButton = document.getElementById('connect');
         const disconnectButton = document.getElementById('disconnect');
         
-        disconnectButton.style.opacity = '0'; // Hide disconnect button smoothly
-        disconnectButton.style.pointerEvents = 'none'; // Disable pointer events
-        connectButton.style.opacity = '1'; // Show connect button
-        connectButton.style.pointerEvents = 'auto'; // Enable pointer events
+        disconnectButton.style.display = 'none'; // Hide disconnect button
+        connectButton.style.display = 'block'; // Show connect button
       }
     });
-
-    function showDistanceElements() {
-      const distance1Element = document.getElementById('distance1');
-      const distance2Element = document.getElementById('distance2');
-
-      // Add visible class to trigger transition
-      distance1Element.classList.add('visible');
-      distance2Element.classList.add('visible');
-
-      // Make sure they are displayed
-      distance1Element.style.display = 'block';
-      distance2Element.style.display = 'block';
-    }
-
-    function hideDistanceElements() {
-      const distance1Element = document.getElementById('distance1');
-      const distance2Element = document.getElementById('distance2');
-
-      // Remove visible class to trigger transition
-      distance1Element.classList.remove('visible');
-      distance2Element.classList.remove('visible');
-
-      // Delay setting display to none until transition ends
-      setTimeout(() => {
-        distance1Element.style.display = 'none'; // Hide the element
-        distance2Element.style.display = 'none'; // Hide the element
-      }, 500); // Match this duration with the CSS transition time
-    }
   </script>
 </body>
 </html>
