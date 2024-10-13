@@ -148,16 +148,18 @@
       const decoder = new TextDecoder();
       const value = decoder.decode(event.target.value).trim();
 
-      // Check if the received value is distance 1 or distance 2
-      if (value.startsWith('D1:')) {
-        const distance1 = value.substring(3); // Extract the distance value after "D1:"
-        document.getElementById('distance1').innerText = `Distance 1: ${distance1} cm`;
-      } else if (value.startsWith('D2:')) {
-        const distance2 = value.substring(3); // Extract the distance value after "D2:"
-        document.getElementById('distance2').innerText = `Distance 2: ${distance2} cm`;
-      } else {
-        console.error('Unexpected value received:', value);
-      }
+      // Separate data for Distance 1 (D1) and Distance 2 (D2)
+      const parts = value.split(',');
+
+      parts.forEach(part => {
+        if (part.startsWith('D1:')) {
+          const distance1 = part.substring(3); // Extract the distance value after "D1:"
+          document.getElementById('distance1').innerText = `Distance 1: ${distance1} cm`;
+        } else if (part.startsWith('D2:')) {
+          const distance2 = part.substring(3); // Extract the distance value after "D2:"
+          document.getElementById('distance2').innerText = `Distance 2: ${distance2} cm`;
+        }
+      });
     }
 
     document.getElementById('disconnect').addEventListener('click', () => {
