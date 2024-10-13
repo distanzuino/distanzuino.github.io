@@ -77,8 +77,8 @@
       background-color: darkred; /* Darker red on hover */
     }
 
-    /* Center the distance display */
-    #distance {
+    /* Center the distance displays */
+    #distance1, #distance2 {
       font-size: 1.5em;
       margin-top: 20px;
       display: none; /* Hide by default */
@@ -94,7 +94,8 @@
     <button id="disconnect" class="button">Disconnect</button>
   </div>
 
-  <p id="distance">Distance: Not connected</p>
+  <p id="distance1">Distance 1: Not connected</p>
+  <p id="distance2">Distance 2: Not connected</p>
 
   <script>
     let bluetoothDevice;
@@ -102,16 +103,9 @@
     let service;
     let characteristic;
 
-    // Variable to store the received distance
-    let receivedDistance = "Not available";
-
     // Bluetooth Service and Characteristic UUIDs
     const HM10_SERVICE_UUID = '0000ffe0-0000-1000-8000-00805f9b34fb';
     const HM10_CHARACTERISTIC_UUID = '0000ffe1-0000-1000-8000-00805f9b34fb';
-
-    // Audio context and oscillator
-    let audioCtx;
-    let oscillator;
 
     document.getElementById('connect').addEventListener('click', async () => {
       try {
@@ -133,8 +127,8 @@
         characteristic.addEventListener('characteristicvaluechanged', handleData);
 
         // Update UI on connection
-        document.getElementById('distance').innerText = "Connected. Waiting for data...";
-        document.getElementById('distance').style.display = 'block'; // Show distance display
+        document.getElementById('distance1').style.display = 'block'; // Show distance 1 display
+        document.getElementById('distance2').style.display = 'block'; // Show distance 2 display
 
         // Transition between buttons
         const connectButton = document.getElementById('connect');
@@ -150,11 +144,27 @@
       }
     });
 
+    function handleData(event) {
+      const decoder = new TextDecoder();
+      const value = decoder.decode(event.target.value).trim();
+
+      // Check if the received value is distance 1 or distance 2
+      if (value.startsWith('D1:')) {
+        const distance1 = value.substring(3); // Extract the distance value after "D1:"
+        document.getElementById('distance1').innerText = `Distance 1: ${distance1} cm`;
+      } else if (value.startsWith('D2:')) {
+        const distance2 = value.substring(3); // Extract the distance value after "D2:"
+        document.getElementById('distance2').innerText = `Distance 2: ${distance2} cm`;
+      } else {
+        console.error('Unexpected value received:', value);
+      }
+    }
+
     document.getElementById('disconnect').addEventListener('click', () => {
       if (bluetoothDevice && bluetoothDevice.gatt.connected) {
         bluetoothDevice.gatt.disconnect();
-        document.getElementById('distance').innerText = "Disconnected";
-        document.getElementById('distance').style.display = 'none'; // Hide distance display on disconnect
+        document.getElementById('distance1').innerText = "Distance 1: Not connected";
+        document.getElementById('distance2').innerText = "Distance 2: Not connected";
 
         // Transition between buttons
         const connectButton = document.getElementById('connect');
@@ -166,55 +176,6 @@
         connectButton.style.pointerEvents = 'auto'; // Enable pointer events
       }
     });
-
-    // Handle received data from HM-10
-    function handleData(event) {
-      const decoder = new TextDecoder();
-      const value = decoder.decode(event.target.value).trim();
-
-      // Store the received distance
-      receivedDistance = parseFloat(value);
-
-      // Check if receivedDistance is valid
-      if (!isNaN(receivedDistance)) {
-        document.getElementById('distance').innerText = `Distance: ${receivedDistance} cm`;
-
-        // Call function to update frequency
-        updateFrequency();
-      } else {
-        console.error('Invalid distance value received:', value);
-      }
-    }
-
-    // Function to update and play the frequency based on the received distance
-    function updateFrequency() {
-      const frequency = receivedDistance * 50;
-
-      if (receivedDistance > 50) {
-        console.log('Distance exceeds 50 cm; no frequency will be played.');
-        return;
-      }
-
-      if (oscillator) {
-        oscillator.stop();
-      }
-
-      playFrequency(frequency);
-    }
-
-    // Function to play the frequency using Web Audio API
-    function playFrequency(frequency) {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      
-      oscillator = audioCtx.createOscillator();
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-      oscillator.connect(audioCtx.destination);
-      oscillator.start();
-      oscillator.stop(audioCtx.currentTime + 0.25); // Play for 0.25 seconds
-    }
   </script>
 </body>
 </html>
