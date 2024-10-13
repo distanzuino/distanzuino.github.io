@@ -225,6 +225,10 @@
         document.getElementById('distance1').innerText = "Distance 1: Not connected";
         document.getElementById('distance2').innerText = "Distance 2: Not connected";
 
+        // Hide the distance displays
+        document.getElementById('distance1').style.display = 'none';
+        document.getElementById('distance2').style.display = 'none';
+
         // Transition between buttons
         const connectButton = document.getElementById('connect');
         const disconnectButton = document.getElementById('disconnect');
