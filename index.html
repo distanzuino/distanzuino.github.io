@@ -81,7 +81,16 @@
     #distance1, #distance2 {
       font-size: 1.5em;
       margin-top: 20px;
-      display: none; /* Hide by default */
+      opacity: 0; /* Initially hidden */
+      transform: translateY(-20px); /* Move upwards for initial effect */
+      transition: opacity 0.5s ease, transform 0.5s ease; /* Smooth transition for opacity and position */
+      display: block; /* Keep it as block element for transitions */
+    }
+
+    /* Visible class to trigger transition */
+    .visible {
+      opacity: 1; /* Fully visible */
+      transform: translateY(0); /* Move back to original position */
     }
   </style>
 </head>
@@ -94,8 +103,8 @@
     <button id="disconnect" class="button">Disconnect</button>
   </div>
 
-  <p id="distance1">Distance 1: Not connected</p>
-  <p id="distance2">Distance 2: Not connected</p>
+  <p id="distance1" class="distance">Distance 1: Not connected</p>
+  <p id="distance2" class="distance">Distance 2: Not connected</p>
 
   <script>
     let bluetoothDevice;
@@ -134,8 +143,7 @@
         // Update UI on connection
         document.getElementById('distance1').innerText = "Connected. Waiting for Distance 1 data...";
         document.getElementById('distance2').innerText = "Connected. Waiting for Distance 2 data...";
-        document.getElementById('distance1').style.display = 'block'; // Show distance 1 display
-        document.getElementById('distance2').style.display = 'block'; // Show distance 2 display
+        showDistanceElements(); // Show distance displays
 
         // Transition between buttons
         const connectButton = document.getElementById('connect');
@@ -226,8 +234,7 @@
         document.getElementById('distance2').innerText = "Distance 2: Not connected";
 
         // Hide the distance displays
-        document.getElementById('distance1').style.display = 'none';
-        document.getElementById('distance2').style.display = 'none';
+        hideDistanceElements(); // Hide distance displays
 
         // Transition between buttons
         const connectButton = document.getElementById('connect');
@@ -239,6 +246,22 @@
         connectButton.style.pointerEvents = 'auto'; // Enable pointer events
       }
     });
+
+    function showDistanceElements() {
+      const distance1Element = document.getElementById('distance1');
+      const distance2Element = document.getElementById('distance2');
+      
+      distance1Element.classList.add('visible'); // Add visible class to trigger transition
+      distance2Element.classList.add('visible'); // Add visible class to trigger transition
+    }
+
+    function hideDistanceElements() {
+      const distance1Element = document.getElementById('distance1');
+      const distance2Element = document.getElementById('distance2');
+      
+      distance1Element.classList.remove('visible'); // Remove visible class to trigger transition
+      distance2Element.classList.remove('visible'); // Remove visible class to trigger transition
+    }
   </script>
 </body>
 </html>
