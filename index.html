@@ -127,6 +127,8 @@
         characteristic.addEventListener('characteristicvaluechanged', handleData);
 
         // Update UI on connection
+        document.getElementById('distance1').innerText = "Connected. Waiting for Distance 1 data...";
+        document.getElementById('distance2').innerText = "Connected. Waiting for Distance 2 data...";
         document.getElementById('distance1').style.display = 'block'; // Show distance 1 display
         document.getElementById('distance2').style.display = 'block'; // Show distance 2 display
 
@@ -151,19 +153,35 @@
       // Separate data for Distance 1 (D1) and Distance 2 (D2)
       const parts = value.split(',');
 
+      // Track if we received valid data for both distances
+      let distance1Received = false;
+      let distance2Received = false;
+
       parts.forEach(part => {
         if (part.startsWith('D1:')) {
-          const distance1 = part.substring(3); // Extract the distance value after "D1:"
+          const distance1 = parseFloat(part.substring(3)); // Extract the distance value after "D1:"
           if (!isNaN(distance1)) {
             document.getElementById('distance1').innerText = `Distance 1: ${distance1} cm`;
+            distance1Received = true; // Mark that we received valid data for D1
           }
         } else if (part.startsWith('D2:')) {
-          const distance2 = part.substring(3); // Extract the distance value after "D2:"
+          const distance2 = parseFloat(part.substring(3)); // Extract the distance value after "D2:"
           if (!isNaN(distance2)) {
             document.getElementById('distance2').innerText = `Distance 2: ${distance2} cm`;
+            distance2Received = true; // Mark that we received valid data for D2
           }
         }
       });
+
+      // If no valid data was received for Distance 1, keep it as "Connected. Waiting for data..."
+      if (!distance1Received) {
+        document.getElementById('distance1').innerText = "Distance 1: Connected. Waiting for data...";
+      }
+
+      // If no valid data was received for Distance 2, keep it as "Connected. Waiting for data..."
+      if (!distance2Received) {
+        document.getElementById('distance2').innerText = "Distance 2: Connected. Waiting for data...";
+      }
     }
 
     document.getElementById('disconnect').addEventListener('click', () => {
