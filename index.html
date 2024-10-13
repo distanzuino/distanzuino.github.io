@@ -83,6 +83,12 @@
       margin-top: 20px;
       display: none; /* Hide by default */
     }
+
+    /* Slider styles */
+    .volume-slider {
+      width: 80%; /* Set width of sliders */
+      margin-top: 10px; /* Space above sliders */
+    }
   </style>
 </head>
 <body>
@@ -95,7 +101,12 @@
   </div>
 
   <p id="distance1">Distance 1: Not connected</p>
+  <input id="volume1" type="range" class="volume-slider" min="0" max="1" step="0.01" value="1">
+  <label for="volume1">Volume Control for Distance 1</label>
+  
   <p id="distance2">Distance 2: Not connected</p>
+  <input id="volume2" type="range" class="volume-slider" min="0" max="1" step="0.01" value="1">
+  <label for="volume2">Volume Control for Distance 2</label>
 
   <script>
     let bluetoothDevice;
@@ -111,6 +122,8 @@
     let audioCtx;
     let oscillator1;
     let oscillator2;
+    let gainNode1;
+    let gainNode2;
 
     document.getElementById('connect').addEventListener('click', async () => {
       try {
@@ -193,42 +206,68 @@
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       }
 
-      // Play frequency for Distance 1
+      // Create a gain node for volume control
       if (distanceNum === 1) {
+        if (!gainNode1) {
+          gainNode1 = audioCtx.createGain();
+          gainNode1.connect(audioCtx.destination); // Connect gain node to the audio context
+        }
         if (!oscillator1) {
           oscillator1 = audioCtx.createOscillator();
           oscillator1.type = 'sine';
           oscillator1.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-          oscillator1.connect(audioCtx.destination);
+          oscillator1.connect(gainNode1); // Connect oscillator to the gain node
           oscillator1.start(); // Start oscillator1
         }
         oscillator1.frequency.setValueAtTime(frequency, audioCtx.currentTime); // Update frequency
+        gainNode1.gain.setValueAtTime(document.getElementById('volume1').value, audioCtx.currentTime); // Set volume
       }
 
       // Play frequency for Distance 2
       if (distanceNum === 2) {
+        if (!gainNode2) {
+          gainNode2 = audioCtx.createGain();
+          gainNode2.connect(audioCtx.destination); // Connect gain node to the audio context
+        }
         if (!oscillator2) {
           oscillator2 = audioCtx.createOscillator();
           oscillator2.type = 'sine';
           oscillator2.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-          oscillator2.connect(audioCtx.destination);
+          oscillator2.connect(gainNode2); // Connect oscillator to the gain node
           oscillator2.start(); // Start oscillator2
         }
         oscillator2.frequency.setValueAtTime(frequency, audioCtx.currentTime); // Update frequency
+        gainNode2.gain.setValueAtTime(document.getElementById('volume2').value, audioCtx.currentTime); // Set volume
       }
     }
 
     function stopSound(distanceNum) {
       if (distanceNum === 1 && oscillator1) {
         oscillator1.stop();
-        oscillator1 = null; // Clear oscillator1 reference
+        oscillator1 = null; // Reset oscillator reference
+        gainNode1.disconnect(); // Disconnect gain node
+        gainNode1 = null; // Reset gain node reference
       }
-
       if (distanceNum === 2 && oscillator2) {
         oscillator2.stop();
-        oscillator2 = null; // Clear oscillator2 reference
+        oscillator2 = null; // Reset oscillator reference
+        gainNode2.disconnect(); // Disconnect gain node
+        gainNode2 = null; // Reset gain node reference
       }
     }
+
+    // Add event listeners to volume sliders
+    document.getElementById('volume1').addEventListener('input', () => {
+      if (gainNode1) {
+        gainNode1.gain.setValueAtTime(document.getElementById('volume1').value, audioCtx.currentTime);
+      }
+    });
+
+    document.getElementById('volume2').addEventListener('input', () => {
+      if (gainNode2) {
+        gainNode2.gain.setValueAtTime(document.getElementById('volume2').value, audioCtx.currentTime);
+      }
+    });
 
     document.getElementById('disconnect').addEventListener('click', () => {
       if (bluetoothDevice && bluetoothDevice.gatt.connected) {
