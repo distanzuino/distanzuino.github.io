@@ -184,6 +184,7 @@
       // If the distance is greater than 50 cm, stop playing sound
       if (distance > 50) {
         console.log(`Distance ${distanceNum} exceeds 50 cm; no frequency will be played.`);
+        stopSound(distanceNum); // Stop the sound if distance exceeds 50
         return;
       }
 
@@ -194,28 +195,38 @@
 
       // Play frequency for Distance 1
       if (distanceNum === 1) {
-        if (oscillator1) {
-          oscillator1.stop();
+        if (!oscillator1) {
+          oscillator1 = audioCtx.createOscillator();
+          oscillator1.type = 'sine';
+          oscillator1.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+          oscillator1.connect(audioCtx.destination);
+          oscillator1.start(); // Start oscillator1
         }
-        oscillator1 = audioCtx.createOscillator();
-        oscillator1.type = 'sine';
-        oscillator1.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-        oscillator1.connect(audioCtx.destination);
-        oscillator1.start();
-        oscillator1.stop(audioCtx.currentTime + 0.25); // Play for 0.25 seconds
+        oscillator1.frequency.setValueAtTime(frequency, audioCtx.currentTime); // Update frequency
       }
 
       // Play frequency for Distance 2
       if (distanceNum === 2) {
-        if (oscillator2) {
-          oscillator2.stop();
+        if (!oscillator2) {
+          oscillator2 = audioCtx.createOscillator();
+          oscillator2.type = 'sine';
+          oscillator2.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+          oscillator2.connect(audioCtx.destination);
+          oscillator2.start(); // Start oscillator2
         }
-        oscillator2 = audioCtx.createOscillator();
-        oscillator2.type = 'sine';
-        oscillator2.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-        oscillator2.connect(audioCtx.destination);
-        oscillator2.start();
-        oscillator2.stop(audioCtx.currentTime + 0.25); // Play for 0.25 seconds
+        oscillator2.frequency.setValueAtTime(frequency, audioCtx.currentTime); // Update frequency
+      }
+    }
+
+    function stopSound(distanceNum) {
+      if (distanceNum === 1 && oscillator1) {
+        oscillator1.stop();
+        oscillator1 = null; // Clear oscillator1 reference
+      }
+
+      if (distanceNum === 2 && oscillator2) {
+        oscillator2.stop();
+        oscillator2 = null; // Clear oscillator2 reference
       }
     }
 
@@ -228,6 +239,10 @@
         // Hide the distance displays
         document.getElementById('distance1').style.display = 'none';
         document.getElementById('distance2').style.display = 'none';
+
+        // Stop any playing sounds
+        stopSound(1);
+        stopSound(2);
 
         // Transition between buttons
         const connectButton = document.getElementById('connect');
