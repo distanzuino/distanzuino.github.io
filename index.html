@@ -127,8 +127,8 @@
         characteristic.addEventListener('characteristicvaluechanged', handleData);
 
         // Update UI on connection
-        document.getElementById('distance1').innerText = "Connected. Waiting for data...";
-        document.getElementById('distance2').innerText = "Connected. Waiting for data...";
+        document.getElementById('distance1').innerText = "Connected. Waiting for Distance 1 data...";
+        document.getElementById('distance2').innerText = "Connected. Waiting for Distance 2 data...";
         document.getElementById('distance1').style.display = 'block'; // Show distance 1 display
         document.getElementById('distance2').style.display = 'block'; // Show distance 2 display
 
@@ -150,13 +150,16 @@
       const decoder = new TextDecoder();
       const value = decoder.decode(event.target.value).trim();
 
+      // Log the value to make sure we see what data is being received
+      console.log('Received value:', value);
+
       // Check if the data starts with D1: or D2:
       if (value.startsWith('D1:')) {
         const distance1 = parseFloat(value.substring(3)); // Extract value after "D1:"
         if (!isNaN(distance1)) {
           document.getElementById('distance1').innerText = `Distance 1: ${distance1} cm`;
         }
-      } if (value.startsWith('D2:')) {
+      } else if (value.startsWith('D2:')) {
         const distance2 = parseFloat(value.substring(3)); // Extract value after "D2:"
         if (!isNaN(distance2)) {
           document.getElementById('distance2').innerText = `Distance 2: ${distance2} cm`;
