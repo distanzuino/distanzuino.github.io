@@ -40,6 +40,9 @@
 
     /* Base button styles */
     .button {
+      position: absolute; /* Absolute positioning for buttons */
+      top: 0; /* Aligns both buttons at the same vertical position */
+      left: 0; /* Aligns both buttons to the left of the container */
       width: 100%; /* Full width of the container */
       padding: 15px; /* Consistent padding */
       font-size: 1.2em;
@@ -48,12 +51,17 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      transition: opacity 0.5s ease; /* Transition for opacity */
+      opacity: 0; /* Initially hidden */
+      pointer-events: none; /* Prevent clicks on hidden buttons */
     }
 
     /* Button colors */
     #connect {
       background-color: #4CAF50; /* Green */
       color: white;
+      opacity: 1; /* Initially visible */
+      pointer-events: auto; /* Enable clicks for the connect button */
     }
 
     #connect:hover {
@@ -73,6 +81,7 @@
     #distance1, #distance2 {
       font-size: 1.5em;
       margin-top: 20px;
+      display: none; /* Hide by default */
     }
   </style>
 </head>
@@ -85,8 +94,8 @@
     <button id="disconnect" class="button">Disconnect</button>
   </div>
 
-  <p id="distance1" class="distance">Distance 1: Not connected</p>
-  <p id="distance2" class="distance">Distance 2: Not connected</p>
+  <p id="distance1">Distance 1: Not connected</p>
+  <p id="distance2">Distance 2: Not connected</p>
 
   <script>
     let bluetoothDevice;
@@ -123,15 +132,19 @@
         characteristic.addEventListener('characteristicvaluechanged', handleData);
 
         // Update UI on connection
-        document.getElementById('distance1').innerText = "Distance 1: Waiting for data...";
-        document.getElementById('distance2').innerText = "Distance 2: Waiting for data...";
+        document.getElementById('distance1').innerText = "Connected. Waiting for Distance 1 data...";
+        document.getElementById('distance2').innerText = "Connected. Waiting for Distance 2 data...";
+        document.getElementById('distance1').style.display = 'block'; // Show distance 1 display
+        document.getElementById('distance2').style.display = 'block'; // Show distance 2 display
 
         // Transition between buttons
         const connectButton = document.getElementById('connect');
         const disconnectButton = document.getElementById('disconnect');
         
-        connectButton.style.display = 'none'; // Hide connect button
-        disconnectButton.style.display = 'block'; // Show disconnect button
+        connectButton.style.opacity = '0';  // Hide connect button smoothly
+        connectButton.style.pointerEvents = 'none'; // Disable pointer events
+        disconnectButton.style.opacity = '1';  // Show disconnect button
+        disconnectButton.style.pointerEvents = 'auto'; // Enable pointer events
 
       } catch (error) {
         console.error('Error connecting to Distanzuino:', error);
@@ -150,6 +163,7 @@
         const distance1 = parseFloat(value.substring(3)); // Extract value after "D1:"
         if (!isNaN(distance1)) {
           document.getElementById('distance1').innerText = `Distance 1: ${distance1} cm`;
+
           // Play frequency for Distance 1
           playFrequency(distance1, 1);
         }
@@ -157,6 +171,7 @@
         const distance2 = parseFloat(value.substring(3)); // Extract value after "D2:"
         if (!isNaN(distance2)) {
           document.getElementById('distance2').innerText = `Distance 2: ${distance2} cm`;
+
           // Play frequency for Distance 2
           playFrequency(distance2, 2);
         }
@@ -210,12 +225,18 @@
         document.getElementById('distance1').innerText = "Distance 1: Not connected";
         document.getElementById('distance2').innerText = "Distance 2: Not connected";
 
+        // Hide the distance displays
+        document.getElementById('distance1').style.display = 'none';
+        document.getElementById('distance2').style.display = 'none';
+
         // Transition between buttons
         const connectButton = document.getElementById('connect');
         const disconnectButton = document.getElementById('disconnect');
         
-        disconnectButton.style.display = 'none'; // Hide disconnect button
-        connectButton.style.display = 'block'; // Show connect button
+        disconnectButton.style.opacity = '0'; // Hide disconnect button smoothly
+        disconnectButton.style.pointerEvents = 'none'; // Disable pointer events
+        connectButton.style.opacity = '1'; // Show connect button
+        connectButton.style.pointerEvents = 'auto'; // Enable pointer events
       }
     });
   </script>
