@@ -23,9 +23,8 @@
       margin-bottom: 40px;
     }
 
-    .logo {
-      font-size: 1.8rem;
-      font-weight: bold;
+    .logo img {
+      max-height: 50px;
     }
 
     /* Connect/Disconnect Button */
@@ -101,7 +100,9 @@
 <body>
   <!-- Header Section: Logo and Connect/Disconnect Button -->
   <div class="header">
-    <div class="logo">LOGO</div>
+    <div class="logo">
+      <img src="logoDistanzuino.jpg" alt="Distanzuino Logo">
+    </div>
     <button id="connect-btn" class="connect-btn">Connect</button>
   </div>
 
@@ -212,26 +213,39 @@
     });
 
     // Simulate Bluetooth connection
-    function simulateBluetoothConnection() {
-      isConnected = true;
-      connectBtn.textContent = 'Disconnect';
-      connectBtn.classList.remove('disconnected');
+    async function connectToBluetooth() {
+      try {
+        const device = await navigator.bluetooth.requestDevice({
+          filters: [{ services: ['battery_service'] }]
+        });
 
-      setInterval(() => {
-        if (isConnected) {
-          distance1 = Math.random() * 100;
-          distance2 = Math.random() * 100;
-          frequency1 = distance1 * 10;
-          frequency2 = distance2 * 10;
+        console.log('Connecting to Bluetooth Device...');
+        const server = await device.gatt.connect();
+        console.log('Connected to Bluetooth Device');
 
-          distance1Display.textContent = `${distance1.toFixed(2)} cm`;
-          distance2Display.textContent = `${distance2.toFixed(2)} cm`;
-          frequency1Display.textContent = `${frequency1.toFixed(2)} Hz`;
-          frequency2Display.textContent = `${frequency2.toFixed(2)} Hz`;
+        isConnected = true;
+        connectBtn.textContent = 'Disconnect';
+        connectBtn.classList.remove('disconnected');
 
-          updateDistanceHistory(distance1, distance2);
-        }
-      }, 1000);
+        // Assuming receiving data from the device over time
+        setInterval(() => {
+          if (isConnected) {
+            distance1 = Math.random() * 100;
+            distance2 = Math.random() * 100;
+            frequency1 = distance1 * 10;
+            frequency2 = distance2 * 10;
+
+            distance1Display.textContent = `${distance1.toFixed(2)} cm`;
+            distance2Display.textContent = `${distance2.toFixed(2)} cm`;
+            frequency1Display.textContent = `${frequency1.toFixed(2)} Hz`;
+            frequency2Display.textContent = `${frequency2.toFixed(2)} Hz`;
+
+            updateDistanceHistory(distance1, distance2);
+          }
+        }, 1000);
+      } catch (error) {
+        console.error('Bluetooth Connection Error: ', error);
+      }
     }
 
     function updateDistanceHistory(newDistance1, newDistance2) {
@@ -250,29 +264,25 @@
       distance2Chart.update();
     }
 
-    // Handle connection button click
+    // Handle connect/disconnect button click
     connectBtn.addEventListener('click', () => {
       if (isConnected) {
         handleDisconnection();
       } else {
-        simulateBluetoothConnection();
+        connectToBluetooth();
       }
     });
 
-    // Simulate disconnection
+    // Handle disconnection
     function handleDisconnection() {
       isConnected = false;
       connectBtn.textContent = 'Connect';
       connectBtn.classList.add('disconnected');
       distance1Display.textContent = '0.00 cm';
-      frequency1Display.textContent = '0.00 Hz';
       distance2Display.textContent = '0.00 cm';
+      frequency1Display.textContent = '0.00 Hz';
       frequency2Display.textContent = '0.00 Hz';
     }
-
-    // Simulate auto disconnection after 15 seconds for demo purposes
-    simulateBluetoothConnection();
-    setTimeout(handleDisconnection, 15000);
   </script>
 </body>
 </html>
