@@ -12,34 +12,58 @@
       font-weight: 400;
       margin: 0;
       padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
       background-color: #f4f4f4;
     }
 
-    /* Dashboard container */
+    /* Top header for logo and connect button */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: bold;
+    }
+
+    /* Connect/Disconnect Button */
+    .connect-btn {
+      padding: 10px 20px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .connect-btn.disconnected {
+      background-color: #FF4136;
+    }
+
+    /* Dashboard layout */
     .dashboard {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      grid-gap: 20px;
-      max-width: 1200px;
-      width: 100%;
+      display: flex;
+      flex-direction: column;
+      max-width: 600px;
+      margin-bottom: 40px;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
 
     /* Card styles */
     .card {
-      background-color: #fff;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
       text-align: center;
     }
 
     .card-title {
       font-size: 1.2rem;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
     }
 
     .card-content {
@@ -47,99 +71,117 @@
       font-weight: bold;
     }
 
-    /* Styling for greyed out when disconnected */
-    .disconnected {
-      color: #aaa; /* Grey color */
-      background-color: #f0f0f0;
+    /* Card Grid (Distance and Frequency Side-by-Side) */
+    .card-grid {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .card-grid .card {
+      flex: 1;
+      margin-right: 20px;
+    }
+
+    .card-grid .card:last-child {
+      margin-right: 0;
     }
 
     /* Chart container */
     .chart-container {
       height: 300px;
-      margin-top: 20px;
     }
 
-    /* Distance display and frequency */
-    .distance, .frequency {
-      font-size: 2rem;
-      font-weight: bold;
-    }
-
-    /* Responsive chart */
-    .chart {
-      width: 100%;
-      height: 100%;
+    /* Styling for greyed out when disconnected */
+    .disconnected {
+      color: #aaa; /* Grey color */
+      background-color: #f0f0f0;
     }
   </style>
 </head>
 <body>
-  <div class="dashboard">
-    <!-- Distance 1 card -->
-    <div class="card" id="distance1-card">
-      <div class="card-title">Current Distance 1</div>
-      <div class="card-content" id="distance1-display">0.00 cm</div>
-    </div>
-    <div class="card" id="frequency1-card">
-      <div class="card-title">Current Frequency 1</div>
-      <div class="card-content" id="frequency1-display">0.00 Hz</div>
-    </div>
+  <!-- Header Section: Logo and Connect/Disconnect Button -->
+  <div class="header">
+    <div class="logo">LOGO</div>
+    <button id="connect-btn" class="connect-btn">Connect</button>
+  </div>
 
-    <!-- Distance 1 history chart -->
-    <div class="card">
-      <div class="card-title">Distance 1 History</div>
-      <div class="chart-container">
-        <canvas id="distance1-chart" class="chart"></canvas>
+  <!-- Dashboard for Distance 1 -->
+  <div class="dashboard" id="dashboard1">
+    <!-- Distance and Frequency Cards -->
+    <div class="card-grid">
+      <div class="card" id="distance1-card">
+        <div class="card-title">Current Distance 1</div>
+        <div class="card-content" id="distance1-display">0.00 cm</div>
+      </div>
+      <div class="card" id="frequency1-card">
+        <div class="card-title">Current Frequency 1</div>
+        <div class="card-content" id="frequency1-display">0.00 Hz</div>
       </div>
     </div>
 
-    <!-- Distance 2 card -->
-    <div class="card" id="distance2-card">
-      <div class="card-title">Current Distance 2</div>
-      <div class="card-content" id="distance2-display">0.00 cm</div>
+    <!-- Distance 1 History Chart -->
+    <div class="card">
+      <div class="card-title">Distance 1 History</div>
+      <div class="chart-container">
+        <canvas id="distance1-chart"></canvas>
+      </div>
     </div>
-    <div class="card" id="frequency2-card">
-      <div class="card-title">Current Frequency 2</div>
-      <div class="card-content" id="frequency2-display">0.00 Hz</div>
+  </div>
+
+  <!-- Dashboard for Distance 2 -->
+  <div class="dashboard" id="dashboard2">
+    <!-- Distance and Frequency Cards -->
+    <div class="card-grid">
+      <div class="card" id="distance2-card">
+        <div class="card-title">Current Distance 2</div>
+        <div class="card-content" id="distance2-display">0.00 cm</div>
+      </div>
+      <div class="card" id="frequency2-card">
+        <div class="card-title">Current Frequency 2</div>
+        <div class="card-content" id="frequency2-display">0.00 Hz</div>
+      </div>
     </div>
 
-    <!-- Distance 2 history chart -->
+    <!-- Distance 2 History Chart -->
     <div class="card">
       <div class="card-title">Distance 2 History</div>
       <div class="chart-container">
-        <canvas id="distance2-chart" class="chart"></canvas>
+        <canvas id="distance2-chart"></canvas>
       </div>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    // Initial distance and frequency values
-    let distance1 = 0;
-    let distance2 = 0;
-    let frequency1 = 0;
-    let frequency2 = 0;
+    let distance1 = 0, distance2 = 0;
+    let frequency1 = 0, frequency2 = 0;
+    let isConnected = false;
+
+    // Chart.js contexts
+    const distance1ChartCtx = document.getElementById('distance1-chart').getContext('2d');
+    const distance2ChartCtx = document.getElementById('distance2-chart').getContext('2d');
 
     // Historical data for charts
     let distance1History = Array(20).fill({ time: new Date().toISOString(), distance: 0 });
     let distance2History = Array(20).fill({ time: new Date().toISOString(), distance: 0 });
 
+    // Distance and Frequency displays
     const distance1Display = document.getElementById('distance1-display');
     const distance2Display = document.getElementById('distance2-display');
     const frequency1Display = document.getElementById('frequency1-display');
     const frequency2Display = document.getElementById('frequency2-display');
 
-    // Chart.js setup for Distance 1 and Distance 2
-    const distance1ChartCtx = document.getElementById('distance1-chart').getContext('2d');
-    const distance2ChartCtx = document.getElementById('distance2-chart').getContext('2d');
+    // Connect button
+    const connectBtn = document.getElementById('connect-btn');
 
-    // Create charts for both distances
+    // Chart.js setups
     const distance1Chart = new Chart(distance1ChartCtx, {
       type: 'line',
       data: {
-        labels: distance1History.map((d) => new Date(d.time).toLocaleTimeString()),
+        labels: distance1History.map(d => new Date(d.time).toLocaleTimeString()),
         datasets: [{
           label: 'Distance 1',
-          data: distance1History.map((d) => d.distance),
+          data: distance1History.map(d => d.distance),
           borderColor: 'rgba(75, 192, 192, 1)',
           borderWidth: 2,
           fill: false,
@@ -147,20 +189,17 @@
       },
       options: {
         responsive: true,
-        scales: {
-          x: { type: 'time', time: { unit: 'second' } },
-          y: { beginAtZero: true }
-        }
+        scales: { x: { type: 'time', time: { unit: 'second' } }, y: { beginAtZero: true } }
       }
     });
 
     const distance2Chart = new Chart(distance2ChartCtx, {
       type: 'line',
       data: {
-        labels: distance2History.map((d) => new Date(d.time).toLocaleTimeString()),
+        labels: distance2History.map(d => new Date(d.time).toLocaleTimeString()),
         datasets: [{
           label: 'Distance 2',
-          data: distance2History.map((d) => d.distance),
+          data: distance2History.map(d => d.distance),
           borderColor: 'rgba(153, 102, 255, 1)',
           borderWidth: 2,
           fill: false,
@@ -168,79 +207,72 @@
       },
       options: {
         responsive: true,
-        scales: {
-          x: { type: 'time', time: { unit: 'second' } },
-          y: { beginAtZero: true }
-        }
+        scales: { x: { type: 'time', time: { unit: 'second' } }, y: { beginAtZero: true } }
       }
     });
 
-    // Simulating Bluetooth connection and data updates
-    let isConnected = false;
-
+    // Simulate Bluetooth connection
     function simulateBluetoothConnection() {
       isConnected = true;
+      connectBtn.textContent = 'Disconnect';
+      connectBtn.classList.remove('disconnected');
+
       setInterval(() => {
-        // Simulate new data
-        distance1 = Math.random() * 100;
-        distance2 = Math.random() * 100;
-        frequency1 = distance1 * 10;
-        frequency2 = distance2 * 10;
+        if (isConnected) {
+          distance1 = Math.random() * 100;
+          distance2 = Math.random() * 100;
+          frequency1 = distance1 * 10;
+          frequency2 = distance2 * 10;
 
-        // Update UI for Distance 1
-        distance1Display.textContent = `${distance1.toFixed(2)} cm`;
-        frequency1Display.textContent = `${frequency1.toFixed(2)} Hz`;
+          distance1Display.textContent = `${distance1.toFixed(2)} cm`;
+          distance2Display.textContent = `${distance2.toFixed(2)} cm`;
+          frequency1Display.textContent = `${frequency1.toFixed(2)} Hz`;
+          frequency2Display.textContent = `${frequency2.toFixed(2)} Hz`;
 
-        // Update UI for Distance 2
-        distance2Display.textContent = `${distance2.toFixed(2)} cm`;
-        frequency2Display.textContent = `${frequency2.toFixed(2)} Hz`;
-
-        // Update history and charts
-        updateDistanceHistory(distance1, distance2);
+          updateDistanceHistory(distance1, distance2);
+        }
       }, 1000);
     }
 
-    // Update the distance history arrays and charts
     function updateDistanceHistory(newDistance1, newDistance2) {
       const newTime = new Date().toISOString();
 
-      // Update Distance 1 history
       distance1History.push({ time: newTime, distance: newDistance1 });
-      distance1History.shift(); // Keep the last 20 points
-
+      distance1History.shift();
       distance1Chart.data.labels = distance1History.map(d => new Date(d.time).toLocaleTimeString());
       distance1Chart.data.datasets[0].data = distance1History.map(d => d.distance);
       distance1Chart.update();
 
-      // Update Distance 2 history
       distance2History.push({ time: newTime, distance: newDistance2 });
-      distance2History.shift(); // Keep the last 20 points
-
+      distance2History.shift();
       distance2Chart.data.labels = distance2History.map(d => new Date(d.time).toLocaleTimeString());
       distance2Chart.data.datasets[0].data = distance2History.map(d => d.distance);
       distance2Chart.update();
     }
 
-    // Handle connection and disconnection
+    // Handle connection button click
+    connectBtn.addEventListener('click', () => {
+      if (isConnected) {
+        handleDisconnection();
+      } else {
+        simulateBluetoothConnection();
+      }
+    });
+
+    // Simulate disconnection
     function handleDisconnection() {
       isConnected = false;
-
-      // Grey out the cards
-      document.getElementById('distance1-card').classList.add('disconnected');
-      document.getElementById('frequency1-card').classList.add('disconnected');
-      document.getElementById('distance2-card').classList.add('disconnected');
-      document.getElementById('frequency2-card').classList.add('disconnected');
-
-      // Reset the values
-      distance1Display.textContent = "0.00 cm";
-      frequency1Display.textContent = "0.00 Hz";
-      distance2Display.textContent = "0.00 cm";
-      frequency2Display.textContent = "0.00 Hz";
+      connectBtn.textContent = 'Connect';
+      connectBtn.classList.add('disconnected');
+      distance1Display.textContent = '0.00 cm';
+      frequency1Display.textContent = '0.00 Hz';
+      distance2Display.textContent = '0.00 cm';
+      frequency2Display.textContent = '0.00 Hz';
     }
 
-    // Simulate connection and disconnection after some time
+    // Simulate auto disconnection after 15 seconds for demo purposes
     simulateBluetoothConnection();
-    setTimeout(handleDisconnection, 15000); // Simulate disconnect after 15 seconds
+    setTimeout(handleDisconnection, 15000);
   </script>
 </body>
 </html>
