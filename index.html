@@ -8,92 +8,68 @@
     /* Apply Futura PT globally */
     body {
       font-family: 'futura-pt', sans-serif;
-      font-style: normal;
-      font-weight: 400; /* Regular weight for the rest of the text */
-      text-align: center; /* Center text content */
+      background-color: #f4f4f4; /* Light background for contrast */
+      color: #333; /* Dark text color */
       margin: 0; /* Remove default margin */
-      padding: 20px; /* Add some padding at the top */
+      padding: 20px; /* Add padding */
       height: 100vh; /* Full viewport height */
       display: flex; /* Use flexbox for centering */
       flex-direction: column; /* Stack elements vertically */
-      justify-content: flex-start; /* Align to the top */
+      justify-content: center; /* Center content vertically */
       align-items: center; /* Center horizontally */
+      text-align: center; /* Center text */
     }
 
-    /* Center the logo at the top */
+    /* Logo styles */
     #logo {
-      display: block;
-      margin: 0 auto;
-      width: auto;
-      max-width: 50%;
-      max-height: 15vh;
-      height: auto;
+      max-width: 70%; /* Responsive logo */
+      margin-bottom: 20px; /* Space below logo */
     }
 
-    /* Center buttons container */
+    /* Button styles */
     #button-container {
-      position: relative; /* Relative positioning for buttons */
-      width: 250px; /* Set a fixed width for the button container */
-      height: 60px; /* Set a fixed height for the button container */
-      margin-top: 20px; /* Space between logo and buttons */
+      margin: 20px 0; /* Space around button container */
     }
 
-    /* Base button styles */
     .button {
-      position: absolute; /* Absolute positioning for buttons */
-      top: 0; /* Aligns both buttons at the same vertical position */
-      left: 0; /* Aligns both buttons to the left of the container */
-      width: 100%; /* Full width of the container */
-      padding: 15px; /* Consistent padding */
-      font-size: 1.2em;
-      font-family: 'futura-pt', sans-serif;
-      font-weight: 700; /* Bold font for button text */
+      background-color: #4CAF50; /* Green background */
+      color: white; /* White text */
       border: none;
       border-radius: 5px;
+      padding: 15px 30px; /* Padding around button */
+      font-size: 1.2em;
+      font-weight: 700; /* Bold text */
       cursor: pointer;
-      transition: opacity 0.5s ease; /* Transition for opacity */
-      opacity: 0; /* Initially hidden */
-      pointer-events: none; /* Prevent clicks on hidden buttons */
+      transition: background-color 0.3s, transform 0.3s; /* Transition effects */
+      margin: 0 5px; /* Margin between buttons */
     }
 
-    /* Button colors */
-    #connect {
-      background-color: #4CAF50; /* Green */
-      color: white;
-      opacity: 1; /* Initially visible */
-      pointer-events: auto; /* Enable clicks for the connect button */
-    }
-
-    #connect:hover {
+    .button:hover {
       background-color: #45a049; /* Darker green on hover */
+      transform: scale(1.05); /* Scale effect on hover */
     }
 
-    #disconnect {
-      background-color: red; /* Red */
-      color: white;
-    }
-
-    #disconnect:hover {
-      background-color: darkred; /* Darker red on hover */
-    }
-
-    /* Center the distance displays */
-    #distance1, #distance2 {
-      font-size: 1.5em;
-      margin-top: 20px;
-      display: none; /* Hide by default */
+    /* Distance display styles */
+    .distance-display {
+      background-color: #fff; /* White background for distance display */
+      border-radius: 8px; /* Rounded corners */
+      padding: 20px; /* Padding inside distance display */
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+      font-size: 1.5em; /* Larger font for distance */
+      margin: 15px 0; /* Space between displays */
+      width: 300px; /* Fixed width for distance display */
     }
 
     /* Slider styles */
     .volume-slider {
-      width: 80%; /* Set width of sliders */
-      margin-top: 10px; /* Space above sliders */
-      display: none; /* Hide by default */
+      width: 80%; /* Width of sliders */
+      margin: 20px 0; /* Margin around sliders */
+      display: none; /* Hidden by default */
     }
 
     /* Label styles for volume control */
     .volume-label {
-      display: none; /* Hide labels by default */
+      display: none; /* Hidden labels by default */
       margin-top: 5px; /* Space between slider and label */
     }
   </style>
@@ -104,14 +80,14 @@
   <!-- Center buttons -->
   <div id="button-container">
     <button id="connect" class="button">Connect to Distanzuino</button>
-    <button id="disconnect" class="button">Disconnect</button>
+    <button id="disconnect" class="button" style="display:none;">Disconnect</button>
   </div>
 
-  <p id="distance1">Distance 1: Not connected</p>
+  <div id="distance1" class="distance-display">Distance 1: Not connected</div>
   <input id="volume1" type="range" class="volume-slider" min="0" max="1" step="0.01" value="1">
   <label id="volume1-label" class="volume-label" for="volume1">Volume Control for Distance 1</label>
   
-  <p id="distance2">Distance 2: Not connected</p>
+  <div id="distance2" class="distance-display">Distance 2: Not connected</div>
   <input id="volume2" type="range" class="volume-slider" min="0" max="1" step="0.01" value="1">
   <label id="volume2-label" class="volume-label" for="volume2">Volume Control for Distance 2</label>
 
@@ -167,10 +143,8 @@
         const connectButton = document.getElementById('connect');
         const disconnectButton = document.getElementById('disconnect');
         
-        connectButton.style.opacity = '0';  // Hide connect button smoothly
-        connectButton.style.pointerEvents = 'none'; // Disable pointer events
-        disconnectButton.style.opacity = '1';  // Show disconnect button
-        disconnectButton.style.pointerEvents = 'auto'; // Enable pointer events
+        connectButton.style.display = 'none'; // Hide connect button
+        disconnectButton.style.display = 'inline-block'; // Show disconnect button
 
       } catch (error) {
         console.error('Error connecting to Distanzuino:', error);
@@ -310,10 +284,8 @@
         const connectButton = document.getElementById('connect');
         const disconnectButton = document.getElementById('disconnect');
         
-        connectButton.style.opacity = '1';  // Show connect button
-        connectButton.style.pointerEvents = 'auto'; // Enable pointer events
-        disconnectButton.style.opacity = '0';  // Hide disconnect button smoothly
-        disconnectButton.style.pointerEvents = 'none'; // Disable pointer events
+        connectButton.style.display = 'inline-block';  // Show connect button
+        disconnectButton.style.display = 'none';  // Hide disconnect button
       }
     });
   </script>
