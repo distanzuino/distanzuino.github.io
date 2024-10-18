@@ -3,338 +3,244 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Distanzuino</title>
+  <title>Distance Dashboard</title>
   <style>
     /* Apply Futura PT globally */
     body {
       font-family: 'futura-pt', sans-serif;
       font-style: normal;
-      font-weight: 400; /* Regular weight for the rest of the text */
-      text-align: center; /* Center text content */
-      margin: 0; /* Remove default margin */
-      padding: 20px; /* Add some padding at the top */
-      height: 100vh; /* Full viewport height */
-      display: flex; /* Use flexbox for centering */
-      flex-direction: column; /* Stack elements vertically */
-      justify-content: flex-start; /* Align to the top */
-      align-items: center; /* Center horizontally */
+      font-weight: 400;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f4f4f4;
     }
 
-    /* Center the logo at the top */
-    #logo {
-      display: block;
-      margin: 0 auto;
-      width: auto;
-      max-width: 50%;
-      max-height: 15vh;
-      height: auto;
+    /* Dashboard container */
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-gap: 20px;
+      max-width: 1200px;
+      width: 100%;
     }
 
-    /* Center buttons container */
-    #button-container {
-      position: relative; /* Relative positioning for buttons */
-      width: 250px; /* Set a fixed width for the button container */
-      height: 60px; /* Set a fixed height for the button container */
-      margin-top: 20px; /* Space between logo and buttons */
+    /* Card styles */
+    .card {
+      background-color: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
     }
 
-    /* Base button styles */
-    .button {
-      position: absolute; /* Absolute positioning for buttons */
-      top: 0; /* Aligns both buttons at the same vertical position */
-      left: 0; /* Aligns both buttons to the left of the container */
-      width: 100%; /* Full width of the container */
-      padding: 15px; /* Consistent padding */
-      font-size: 1.2em;
-      font-family: 'futura-pt', sans-serif;
-      font-weight: 700; /* Bold font for button text */
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: opacity 0.5s ease; /* Transition for opacity */
-      opacity: 0; /* Initially hidden */
-      pointer-events: none; /* Prevent clicks on hidden buttons */
+    .card-title {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
     }
 
-    /* Button colors */
-    #connect {
-      background-color: #4CAF50; /* Green */
-      color: white;
-      opacity: 1; /* Initially visible */
-      pointer-events: auto; /* Enable clicks for the connect button */
+    .card-content {
+      font-size: 2.5rem;
+      font-weight: bold;
     }
 
-    #connect:hover {
-      background-color: #45a049; /* Darker green on hover */
+    /* Styling for greyed out when disconnected */
+    .disconnected {
+      color: #aaa; /* Grey color */
+      background-color: #f0f0f0;
     }
 
-    #disconnect {
-      background-color: red; /* Red */
-      color: white;
-    }
-
-    #disconnect:hover {
-      background-color: darkred; /* Darker red on hover */
-    }
-
-    /* Center the distance displays */
-    #distance1, #distance2 {
-      font-size: 1.5em;
+    /* Chart container */
+    .chart-container {
+      height: 300px;
       margin-top: 20px;
-      display: none; /* Hide by default */
     }
 
-    /* Slider styles */
-    .volume-slider {
-      width: 80%; /* Set width of sliders */
-      margin-top: 10px; /* Space above sliders */
-      display: none; /* Hide by default */
+    /* Distance display and frequency */
+    .distance, .frequency {
+      font-size: 2rem;
+      font-weight: bold;
     }
 
-    /* Label styles for volume control */
-    .volume-label {
-      display: none; /* Hide labels by default */
-      margin-top: 5px; /* Space between slider and label */
+    /* Responsive chart */
+    .chart {
+      width: 100%;
+      height: 100%;
     }
   </style>
 </head>
 <body>
-  <img id="logo" src="logoDistanzuino.jpg" alt="Distanzuino Logo">
+  <div class="dashboard">
+    <!-- Distance 1 card -->
+    <div class="card" id="distance1-card">
+      <div class="card-title">Current Distance 1</div>
+      <div class="card-content" id="distance1-display">0.00 cm</div>
+    </div>
+    <div class="card" id="frequency1-card">
+      <div class="card-title">Current Frequency 1</div>
+      <div class="card-content" id="frequency1-display">0.00 Hz</div>
+    </div>
 
-  <!-- Center buttons -->
-  <div id="button-container">
-    <button id="connect" class="button">Connect to Distanzuino</button>
-    <button id="disconnect" class="button">Disconnect</button>
+    <!-- Distance 1 history chart -->
+    <div class="card">
+      <div class="card-title">Distance 1 History</div>
+      <div class="chart-container">
+        <canvas id="distance1-chart" class="chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Distance 2 card -->
+    <div class="card" id="distance2-card">
+      <div class="card-title">Current Distance 2</div>
+      <div class="card-content" id="distance2-display">0.00 cm</div>
+    </div>
+    <div class="card" id="frequency2-card">
+      <div class="card-title">Current Frequency 2</div>
+      <div class="card-content" id="frequency2-display">0.00 Hz</div>
+    </div>
+
+    <!-- Distance 2 history chart -->
+    <div class="card">
+      <div class="card-title">Distance 2 History</div>
+      <div class="chart-container">
+        <canvas id="distance2-chart" class="chart"></canvas>
+      </div>
+    </div>
   </div>
 
-  <p id="distance1">Distance 1: Not connected</p>
-  <input id="volume1" type="range" class="volume-slider" min="0" max="1" step="0.01" value="1">
-  <label id="volume1-label" class="volume-label" for="volume1">Volume Control for Distance 1</label>
-  
-  <p id="distance2">Distance 2: Not connected</p>
-  <input id="volume2" type="range" class="volume-slider" min="0" max="1" step="0.01" value="1">
-  <label id="volume2-label" class="volume-label" for="volume2">Volume Control for Distance 2</label>
-
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    let bluetoothDevice;
-    let server;
-    let service;
-    let characteristic;
+    // Initial distance and frequency values
+    let distance1 = 0;
+    let distance2 = 0;
+    let frequency1 = 0;
+    let frequency2 = 0;
 
-    // Bluetooth Service and Characteristic UUIDs
-    const HM10_SERVICE_UUID = '0000ffe0-0000-1000-8000-00805f9b34fb';
-    const HM10_CHARACTERISTIC_UUID = '0000ffe1-0000-1000-8000-00805f9b34fb';
+    // Historical data for charts
+    let distance1History = Array(20).fill({ time: new Date().toISOString(), distance: 0 });
+    let distance2History = Array(20).fill({ time: new Date().toISOString(), distance: 0 });
 
-    // Audio context and oscillators for both distances
-    let audioCtx;
-    let oscillator1;
-    let oscillator2;
-    let gainNode1;
-    let gainNode2;
+    const distance1Display = document.getElementById('distance1-display');
+    const distance2Display = document.getElementById('distance2-display');
+    const frequency1Display = document.getElementById('frequency1-display');
+    const frequency2Display = document.getElementById('frequency2-display');
 
-    document.getElementById('connect').addEventListener('click', async () => {
-      try {
-        // Request the Bluetooth device
-        bluetoothDevice = await navigator.bluetooth.requestDevice({
-          filters: [{ namePrefix: 'Distanzuino' }],
-          optionalServices: [HM10_SERVICE_UUID]
-        });
+    // Chart.js setup for Distance 1 and Distance 2
+    const distance1ChartCtx = document.getElementById('distance1-chart').getContext('2d');
+    const distance2ChartCtx = document.getElementById('distance2-chart').getContext('2d');
 
-        // Connect to the GATT server
-        server = await bluetoothDevice.gatt.connect();
-
-        // Get the service and characteristic
-        service = await server.getPrimaryService(HM10_SERVICE_UUID);
-        characteristic = await service.getCharacteristic(HM10_CHARACTERISTIC_UUID);
-
-        // Start receiving data
-        characteristic.startNotifications();
-        characteristic.addEventListener('characteristicvaluechanged', handleData);
-
-        // Update UI on connection
-        document.getElementById('distance1').innerText = "Connected. Waiting for Distance 1 data...";
-        document.getElementById('distance2').innerText = "Connected. Waiting for Distance 2 data...";
-        document.getElementById('distance1').style.display = 'block'; // Show distance 1 display
-        document.getElementById('distance2').style.display = 'block'; // Show distance 2 display
-        
-        // Show volume controls
-        document.getElementById('volume1').style.display = 'block'; // Show volume control for Distance 1
-        document.getElementById('volume1-label').style.display = 'block'; // Show volume label for Distance 1
-        document.getElementById('volume2').style.display = 'block'; // Show volume control for Distance 2
-        document.getElementById('volume2-label').style.display = 'block'; // Show volume label for Distance 2
-
-        // Transition between buttons
-        const connectButton = document.getElementById('connect');
-        const disconnectButton = document.getElementById('disconnect');
-        
-        connectButton.style.opacity = '0';  // Hide connect button smoothly
-        connectButton.style.pointerEvents = 'none'; // Disable pointer events
-        disconnectButton.style.opacity = '1';  // Show disconnect button
-        disconnectButton.style.pointerEvents = 'auto'; // Enable pointer events
-
-      } catch (error) {
-        console.error('Error connecting to Distanzuino:', error);
+    // Create charts for both distances
+    const distance1Chart = new Chart(distance1ChartCtx, {
+      type: 'line',
+      data: {
+        labels: distance1History.map((d) => new Date(d.time).toLocaleTimeString()),
+        datasets: [{
+          label: 'Distance 1',
+          data: distance1History.map((d) => d.distance),
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 2,
+          fill: false,
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: { type: 'time', time: { unit: 'second' } },
+          y: { beginAtZero: true }
+        }
       }
     });
 
-    function handleData(event) {
-      const decoder = new TextDecoder();
-      const value = decoder.decode(event.target.value).trim();
-
-      // Log the value to make sure we see what data is being received
-      console.log('Received value:', value);
-
-      // Check if the data starts with D1: or D2:
-      if (value.startsWith('D1:')) {
-        const distance1 = parseFloat(value.substring(3)); // Extract value after "D1:"
-        if (!isNaN(distance1)) {
-          document.getElementById('distance1').innerText = `Distance 1: ${distance1} cm`;
-
-          // Play frequency for Distance 1
-          playFrequency(distance1, 1);
-        }
-      } else if (value.startsWith('D2:')) {
-        const distance2 = parseFloat(value.substring(3)); // Extract value after "D2:"
-        if (!isNaN(distance2)) {
-          document.getElementById('distance2').innerText = `Distance 2: ${distance2} cm`;
-
-          // Play frequency for Distance 2
-          playFrequency(distance2, 2);
+    const distance2Chart = new Chart(distance2ChartCtx, {
+      type: 'line',
+      data: {
+        labels: distance2History.map((d) => new Date(d.time).toLocaleTimeString()),
+        datasets: [{
+          label: 'Distance 2',
+          data: distance2History.map((d) => d.distance),
+          borderColor: 'rgba(153, 102, 255, 1)',
+          borderWidth: 2,
+          fill: false,
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: { type: 'time', time: { unit: 'second' } },
+          y: { beginAtZero: true }
         }
       }
+    });
+
+    // Simulating Bluetooth connection and data updates
+    let isConnected = false;
+
+    function simulateBluetoothConnection() {
+      isConnected = true;
+      setInterval(() => {
+        // Simulate new data
+        distance1 = Math.random() * 100;
+        distance2 = Math.random() * 100;
+        frequency1 = distance1 * 10;
+        frequency2 = distance2 * 10;
+
+        // Update UI for Distance 1
+        distance1Display.textContent = `${distance1.toFixed(2)} cm`;
+        frequency1Display.textContent = `${frequency1.toFixed(2)} Hz`;
+
+        // Update UI for Distance 2
+        distance2Display.textContent = `${distance2.toFixed(2)} cm`;
+        frequency2Display.textContent = `${frequency2.toFixed(2)} Hz`;
+
+        // Update history and charts
+        updateDistanceHistory(distance1, distance2);
+      }, 1000);
     }
 
-    function playFrequency(distance, distanceNum) {
-      let frequency;
+    // Update the distance history arrays and charts
+    function updateDistanceHistory(newDistance1, newDistance2) {
+      const newTime = new Date().toISOString();
 
-      // Mapping distance to the respective frequencies
-      if (distance > 5 && distance < 10.99) {
-          frequency = 523; // C5
-      } else if (distance > 11 && distance < 11.49) {
-          frequency = 0; // No tone
-      } else if (distance > 11.5 && distance < 17.24) {
-          frequency = 587; // D5
-      } else if (distance > 17.25 && distance < 17.74) {
-          frequency = 0; // No tone
-      } else if (distance > 17.75 && distance < 23.49) {
-          frequency = 659; // E5
-      } else if (distance > 23.5 && distance < 23.99) {
-          frequency = 0; // No tone
-      } else if (distance > 24 && distance < 29.74) {
-          frequency = 698; // F5
-      } else if (distance > 29.75 && distance < 30.24) {
-          frequency = 0; // No tone
-      } else if (distance > 30.25 && distance < 35.99) {
-          frequency = 784; // G5
-      } else if (distance > 36 && distance < 36.49) {
-          frequency = 0; // No tone
-      } else if (distance > 36.5 && distance < 42.24) {
-          frequency = 880; // A5
-      } else if (distance > 42.25 && distance < 42.74) {
-          frequency = 0; // No tone
-      } else if (distance > 42.75 && distance < 48.49) {
-          frequency = 988; // B5
-      } else if (distance > 48.5 && distance < 48.99) {
-          frequency = 0; // No tone
-      } else if (distance > 49 && distance < 54.74) {
-          frequency = 1047; // C6
-      } else {
-          frequency = 0; // No tone for out of range
-      }
+      // Update Distance 1 history
+      distance1History.push({ time: newTime, distance: newDistance1 });
+      distance1History.shift(); // Keep the last 20 points
 
-      if (audioCtx == null) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
+      distance1Chart.data.labels = distance1History.map(d => new Date(d.time).toLocaleTimeString());
+      distance1Chart.data.datasets[0].data = distance1History.map(d => d.distance);
+      distance1Chart.update();
 
-      // Create oscillators for both Distance 1 and Distance 2
-      if (distanceNum === 1) {
-        if (!oscillator1 || !oscillator1.frequency) {
-          oscillator1 = audioCtx.createOscillator();
-          gainNode1 = audioCtx.createGain();
-          oscillator1.connect(gainNode1);
-          gainNode1.connect(audioCtx.destination);
-          oscillator1.start();
-        }
-        oscillator1.frequency.value = frequency;
+      // Update Distance 2 history
+      distance2History.push({ time: newTime, distance: newDistance2 });
+      distance2History.shift(); // Keep the last 20 points
 
-        // Set volume based on the slider for Distance 1
-        const volume1 = document.getElementById('volume1').value;
-        gainNode1.gain.value = volume1;
-
-      } else if (distanceNum === 2) {
-        if (!oscillator2 || !oscillator2.frequency) {
-          oscillator2 = audioCtx.createOscillator();
-          gainNode2 = audioCtx.createGain();
-          oscillator2.connect(gainNode2);
-          gainNode2.connect(audioCtx.destination);
-          oscillator2.start();
-        }
-        oscillator2.frequency.value = frequency;
-
-        // Set volume based on the slider for Distance 2
-        const volume2 = document.getElementById('volume2').value;
-        gainNode2.gain.value = volume2;
-      }
+      distance2Chart.data.labels = distance2History.map(d => new Date(d.time).toLocaleTimeString());
+      distance2Chart.data.datasets[0].data = distance2History.map(d => d.distance);
+      distance2Chart.update();
     }
 
-    function stopSound(distanceNum) {
-      if (distanceNum === 1 && oscillator1) {
-        oscillator1.stop();
-        oscillator1 = null;
-      } else if (distanceNum === 2 && oscillator2) {
-        oscillator2.stop();
-        oscillator2 = null;
-      }
+    // Handle connection and disconnection
+    function handleDisconnection() {
+      isConnected = false;
+
+      // Grey out the cards
+      document.getElementById('distance1-card').classList.add('disconnected');
+      document.getElementById('frequency1-card').classList.add('disconnected');
+      document.getElementById('distance2-card').classList.add('disconnected');
+      document.getElementById('frequency2-card').classList.add('disconnected');
+
+      // Reset the values
+      distance1Display.textContent = "0.00 cm";
+      frequency1Display.textContent = "0.00 Hz";
+      distance2Display.textContent = "0.00 cm";
+      frequency2Display.textContent = "0.00 Hz";
     }
 
-    document.getElementById('disconnect').addEventListener('click', () => {
-      if (bluetoothDevice && bluetoothDevice.gatt.connected) {
-        bluetoothDevice.gatt.disconnect();
-      }
-
-      // Stop sound for both distances
-      stopSound(1);
-      stopSound(2);
-
-      // Reset UI
-      document.getElementById('distance1').innerText = 'Distance 1: Not connected';
-      document.getElementById('distance2').innerText = 'Distance 2: Not connected';
-
-      // Hide distance displays
-      document.getElementById('distance1').style.display = 'none';
-      document.getElementById('distance2').style.display = 'none';
-
-      // Hide sliders and labels
-      document.getElementById('volume1').style.display = 'none';
-      document.getElementById('volume1-label').style.display = 'none';
-      document.getElementById('volume2').style.display = 'none';
-      document.getElementById('volume2-label').style.display = 'none';
-
-      // Transition between buttons
-      const connectButton = document.getElementById('connect');
-      const disconnectButton = document.getElementById('disconnect');
-      
-      connectButton.style.opacity = '1';  // Show connect button
-      connectButton.style.pointerEvents = 'auto'; // Enable pointer events for connect button
-      disconnectButton.style.opacity = '0';  // Hide disconnect button
-      disconnectButton.style.pointerEvents = 'none'; // Disable pointer events for disconnect button
-    });
-
-    // Volume control for Distance 1
-    document.getElementById('volume1').addEventListener('input', (event) => {
-      const volume1 = event.target.value;
-      if (gainNode1) {
-        gainNode1.gain.value = volume1;
-      }
-    });
-
-    // Volume control for Distance 2
-    document.getElementById('volume2').addEventListener('input', (event) => {
-      const volume2 = event.target.value;
-      if (gainNode2) {
-        gainNode2.gain.value = volume2;
-      }
-    });
+    // Simulate connection and disconnection after some time
+    simulateBluetoothConnection();
+    setTimeout(handleDisconnection, 15000); // Simulate disconnect after 15 seconds
   </script>
 </body>
 </html>
