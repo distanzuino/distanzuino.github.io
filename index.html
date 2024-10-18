@@ -19,20 +19,21 @@
       text-align: center; /* Center text */
     }
 
+    /* Center container for logo and button */
+    #connect-container {
+      display: flex; /* Use flex to align logo and button */
+      align-items: center; /* Center items vertically */
+      justify-content: center; /* Center items horizontally */
+      margin-bottom: 20px; /* Space below button container */
+    }
+
     /* Logo styles */
     #logo {
       max-width: 20%; /* Smaller logo */
       margin-right: 10px; /* Space between logo and button */
-      display: inline-block; /* Align with button */
     }
 
     /* Button styles */
-    #connect-container {
-      display: flex; /* Use flex to align logo and button */
-      align-items: center; /* Center items vertically */
-      margin-bottom: 20px; /* Space below button container */
-    }
-
     .button {
       background-color: #4CAF50; /* Green background */
       color: white; /* White text */
@@ -66,13 +67,11 @@
     /* Slider styles */
     .volume-slider {
       width: 80%; /* Width of sliders */
-      margin: 20px 0; /* Margin around sliders */
-      display: none; /* Hidden by default */
+      margin: 10px 0; /* Margin around sliders */
     }
 
     /* Label styles for volume control */
     .volume-label {
-      display: none; /* Hidden labels by default */
       margin-top: 5px; /* Space between slider and label */
     }
 
@@ -80,7 +79,17 @@
     .frequency-display {
       font-size: 1.2em; /* Font size for frequency */
       margin-top: 5px; /* Space above frequency display */
-      opacity: 0.7; /* Light grey for unconnected state */
+    }
+
+    /* Disconnect button */
+    #disconnect {
+      background-color: #f44336; /* Red background for disconnect */
+      margin-top: 20px; /* Space above disconnect button */
+      display: none; /* Hidden by default */
+    }
+
+    #disconnect:hover {
+      background-color: #e53935; /* Darker red on hover */
     }
   </style>
 </head>
@@ -88,17 +97,22 @@
   <div id="connect-container">
     <img id="logo" src="logoDistanzuino.jpg" alt="Distanzuino Logo">
     <button id="connect" class="button">Connect</button>
+    <button id="disconnect" class="button">Disconnect</button>
   </div>
 
-  <div id="distance1" class="distance-display">Distance 1: Not connected</div>
-  <div id="frequency1" class="frequency-display">Frequency 1: N/A</div>
-  <input id="volume1" type="range" class="volume-slider" min="0" max="100" step="1" value="100">
-  <label id="volume1-label" class="volume-label" for="volume1">Volume Control for Distance 1: 100%</label>
-  
-  <div id="distance2" class="distance-display">Distance 2: Not connected</div>
-  <div id="frequency2" class="frequency-display">Frequency 2: N/A</div>
-  <input id="volume2" type="range" class="volume-slider" min="0" max="100" step="1" value="100">
-  <label id="volume2-label" class="volume-label" for="volume2">Volume Control for Distance 2: 100%</label>
+  <div id="distance1" class="distance-display">
+    Distance 1: Not connected
+    <div id="frequency1" class="frequency-display">Frequency 1: N/A</div>
+    <input id="volume1" type="range" class="volume-slider" min="0" max="100" step="1" value="100">
+    <label id="volume1-label" class="volume-label" for="volume1">Volume Control for Distance 1: 100%</label>
+  </div>
+
+  <div id="distance2" class="distance-display">
+    Distance 2: Not connected
+    <div id="frequency2" class="frequency-display">Frequency 2: N/A</div>
+    <input id="volume2" type="range" class="volume-slider" min="0" max="100" step="1" value="100">
+    <label id="volume2-label" class="volume-label" for="volume2">Volume Control for Distance 2: 100%</label>
+  </div>
 
   <script>
     let bluetoothDevice;
@@ -150,6 +164,9 @@
         document.getElementById('volume2').style.display = 'block'; // Show volume control for Distance 2
         document.getElementById('volume2-label').style.display = 'block'; // Show volume label for Distance 2
 
+        // Show disconnect button
+        document.getElementById('disconnect').style.display = 'inline-block';
+
       } catch (error) {
         console.error('Error connecting to Distanzuino:', error);
       }
@@ -200,6 +217,7 @@
           frequency = 0; // No tone
       }
 
+      // Play or update the oscillator based on distance
       if (distanceNum === 1) {
           if (!oscillator1) {
               playOscillator(frequency, distanceNum);
@@ -276,6 +294,7 @@
         // Reset button styles
         const connectButton = document.getElementById('connect');
         connectButton.style.display = 'inline-block';  // Show connect button
+        document.getElementById('disconnect').style.display = 'none'; // Hide disconnect button
       }
     });
   </script>
