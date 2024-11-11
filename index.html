@@ -20,18 +20,28 @@
       align-items: center;
     }
 
-    /* Container for logo */
+    /* Container for logo and buttons */
+    #logo-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
     #logo {
       width: auto;
       max-width: 60%;
       max-height: 50vh;
       height: auto;
-      margin-bottom: 20px;
     }
 
-    /* Container for buttons */
     #button-container {
-      margin-top: 20px;
+      margin-left: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
     }
 
     .button {
@@ -44,6 +54,7 @@
       border-radius: 5px;
       cursor: pointer;
       transition: opacity 0.5s ease;
+      margin-bottom: 10px;
     }
 
     /* Connect button styles */
@@ -89,11 +100,13 @@
   </style>
 </head>
 <body>
-  <img id="logo" src="logoDistanzuino.jpg" alt="Distanzuino Logo">
-  
-  <div id="button-container">
-    <button id="connect" class="button">Connect</button>
-    <button id="disconnect" class="button">Disconnect</button>
+  <div id="logo-container">
+    <img id="logo" src="logoDistanzuino.jpg" alt="Distanzuino Logo">
+    
+    <div id="button-container">
+      <button id="connect" class="button">Connect</button>
+      <button id="disconnect" class="button">Disconnect</button>
+    </div>
   </div>
 
   <p id="distance1">Distance 1 Disconnected</p>
@@ -231,15 +244,9 @@
       } else if (distance > 24.5 && distance < 24.99) {
         frequency = 0;
       } else if (distance > 25 && distance < 28.99) {
-        frequency = 783;
-      } else if (distance > 29 && distance < 29.99) {
-        frequency = 0;
-      } else if (distance > 30 && distance < 34.99) {
+        frequency = 784;
+      } else if (distance > 29 && distance < 39.99) {
         frequency = 880;
-      } else if (distance > 35 && distance < 35.99) {
-        frequency = 0;
-      } else if (distance > 36 && distance < 39.99) {
-        frequency = 987;
       } else if (distance > 40) {
         frequency = 0;
       } else if (distance < 5) {
