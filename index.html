@@ -244,7 +244,9 @@
       } else if (distance > 36 && distance < 39.99) {
         frequency = 987;
       } else if (distance > 40) {
-        frequency = 1046;
+        frequency = 0;
+      } else if (distance < 5) {
+        frequency = 0;
       } else {
         frequency = 0;
       }
