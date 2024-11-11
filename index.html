@@ -120,10 +120,12 @@
     let oscillator1, oscillator2;
     let gainNode1, gainNode2;
 
+    let isDisconnected = true; // Flag to track disconnected state
+
     document.getElementById('connect').addEventListener('click', async () => {
       try {
         bluetoothDevice = await navigator.bluetooth.requestDevice({
-          filters: [{ namePrefix: 'Distanzuino' }], 
+          filters: [{ namePrefix: 'Distanzuino' }],
           optionalServices: [HM10_SERVICE_UUID]
         });
 
@@ -148,6 +150,8 @@
         connectButton.style.pointerEvents = 'none';
         disconnectButton.style.opacity = '1';
         disconnectButton.style.pointerEvents = 'auto';
+
+        isDisconnected = false; // Update the state to connected
 
         if (!audioCtx) {
           audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -185,6 +189,8 @@
     }
 
     function handleData(event) {
+      if (isDisconnected) return; // Prevent handling data if disconnected
+
       const decoder = new TextDecoder();
       const value = decoder.decode(event.target.value).trim();
 
@@ -204,41 +210,46 @@
     }
 
     function adjustFrequency(distance, oscillator) {
-      let frequency = 0;
+      if (isDisconnected) {
+        oscillator.frequency.value = 0; // No frequency when disconnected
+        return;
+      }
 
-      if (distance < 5 || distance > 50) {
-        oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);  // No frequency
+      let frequency;
+
+      if (distance > 5 && distance < 10.99) {
+        frequency = 523;
+      } else if (distance > 11 && distance < 11.49) {
+        frequency = 0;
+      } else if (distance > 11.5 && distance < 17.24) {
+        frequency = 587;
+      } else if (distance > 17.25 && distance < 17.74) {
+        frequency = 0;
+      } else if (distance > 17.75 && distance < 21.24) {
+        frequency = 659;
+      } else if (distance > 21.25 && distance < 23.24) {
+        frequency = 0;
+      } else if (distance > 23.25 && distance < 24.49) {
+        frequency = 698;
+      } else if (distance > 24.5 && distance < 24.99) {
+        frequency = 0;
+      } else if (distance > 25 && distance < 28.99) {
+        frequency = 783;
+      } else if (distance > 29 && distance < 29.99) {
+        frequency = 0;
+      } else if (distance > 30 && distance < 34.99) {
+        frequency = 880;
+      } else if (distance > 35 && distance < 35.99) {
+        frequency = 0;
+      } else if (distance > 36 && distance < 39.99) {
+        frequency = 987;
+      } else if (distance > 40) {
+        frequency = 1046;
+      }
+
+      if (frequency === 0) {
+        oscillator.frequency.value = 0;
       } else {
-        if (distance > 5 && distance < 10.99) {
-          frequency = 523;
-        } else if (distance > 11 && distance < 11.49) {
-          frequency = 0;
-        } else if (distance > 11.5 && distance < 17.24) {
-          frequency = 587;
-        } else if (distance > 17.25 && distance < 17.74) {
-          frequency = 0;
-        } else if (distance > 17.75 && distance < 21.24) {
-          frequency = 659;
-        } else if (distance > 21.25 && distance < 23.24) {
-          frequency = 0;
-        } else if (distance > 23.25 && distance < 24.49) {
-          frequency = 698;
-        } else if (distance > 24.5 && distance < 24.99) {
-          frequency = 0;
-        } else if (distance > 25 && distance < 28.99) {
-          frequency = 783;
-        } else if (distance > 29 && distance < 29.99) {
-          frequency = 0;
-        } else if (distance > 30 && distance < 34.99) {
-          frequency = 880;
-        } else if (distance > 35 && distance < 35.99) {
-          frequency = 0;
-        } else if (distance > 36 && distance < 39.99) {
-          frequency = 987;
-        } else if (distance > 40) {
-          frequency = 1046;
-        }
-
         oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
       }
     }
@@ -248,6 +259,7 @@
         bluetoothDevice.gatt.disconnect();
       }
 
+      isDisconnected = true; // Set to disconnected state
       document.getElementById('distance1').innerText = "Disconnected";
       document.getElementById('distance2').innerText = "Disconnected";
       document.getElementById('distance1').style.display = 'none';
@@ -264,6 +276,10 @@
       connectButton.style.pointerEvents = 'auto';
       disconnectButton.style.opacity = '0';
       disconnectButton.style.pointerEvents = 'none';
+
+      // Set the oscillators to stop generating tones
+      if (oscillator1) oscillator1.frequency.value = 0;
+      if (oscillator2) oscillator2.frequency.value = 0;
     });
   </script>
 </body>
