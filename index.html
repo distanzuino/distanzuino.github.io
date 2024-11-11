@@ -20,27 +20,31 @@
       align-items: center;
     }
 
+    /* Container for the logo and buttons */
+    #top-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
     #logo {
-      display: block;
-      margin: 0 auto;
       width: auto;
       max-width: 50%;
       max-height: 15vh;
       height: auto;
+      margin-right: 20px; /* Add some space between the logo and buttons */
     }
 
     #button-container {
-      position: relative;
-      width: 250px;
-      height: 60px;
-      margin-top: 20px;
+      display: flex;
+      gap: 10px; /* Space between buttons */
+      transition: opacity 0.5s ease;
     }
 
     .button {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
+      width: 120px;
       padding: 15px;
       font-size: 1.2em;
       font-family: 'futura-pt', sans-serif;
@@ -48,7 +52,7 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      transition: opacity 0.5s ease;
+      transition: opacity 0.5s ease, transform 0.5s ease;
       opacity: 0;
       pointer-events: none;
     }
@@ -92,11 +96,12 @@
   </style>
 </head>
 <body>
-  <img id="logo" src="logoDistanzuino.jpg" alt="Distanzuino Logo">
-
-  <div id="button-container">
-    <button id="connect" class="button">Connect</button>
-    <button id="disconnect" class="button">Disconnect</button>
+  <div id="top-container">
+    <img id="logo" src="logoDistanzuino.jpg" alt="Distanzuino Logo">
+    <div id="button-container">
+      <button id="connect" class="button">Connect</button>
+      <button id="disconnect" class="button">Disconnect</button>
+    </div>
   </div>
 
   <p id="distance1">Distance 1 Disconnected</p>
