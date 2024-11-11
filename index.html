@@ -38,7 +38,7 @@
 
     #button-container {
       display: flex;
-      flex-direction: column;
+      flex-direction: column; /* Stack the buttons vertically */
       justify-content: center;
       align-items: center;
       margin-left: 20px;
@@ -55,13 +55,13 @@
       border-radius: 5px;
       cursor: pointer;
       transition: opacity 0.5s ease, transform 0.2s ease;
+      margin-bottom: 10px; /* Stack them with space in between */
     }
 
     /* Connect button styles */
     #connect {
       background-color: #4CAF50;
       color: white;
-      margin-bottom: 10px;
     }
 
     #connect:hover {
@@ -243,16 +243,14 @@
         frequency = 784;
       } else if (distance > 29 && distance < 39.99) {
         frequency = 880;
-      } else if (distance > 40) {
-        frequency = 0;
-      } else if (distance < 5) {
-        frequency = 0;
+      } else if (distance > 39) {
+        frequency = 987;
       } else {
         frequency = 0;
       }
 
       if (frequency === 0) {
-        oscillator.frequency.value = 0;
+        oscillator.frequency.setValueAtTime(0, audioCtx.currentTime);
       } else {
         oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
       }
