@@ -9,18 +9,17 @@
     body {
       font-family: 'futura-pt', sans-serif;
       font-style: normal;
-      font-weight: 400; /* Regular weight for the rest of the text */
-      text-align: center; /* Center text content */
-      margin: 0; /* Remove default margin */
-      padding: 20px; /* Add some padding at the top */
-      height: 100vh; /* Full viewport height */
-      display: flex; /* Use flexbox for centering */
-      flex-direction: column; /* Stack elements vertically */
-      justify-content: flex-start; /* Align to the top */
-      align-items: center; /* Center horizontally */
+      font-weight: 400;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
     }
 
-    /* Center the logo at the top */
     #logo {
       display: block;
       margin: 0 auto;
@@ -30,78 +29,71 @@
       height: auto;
     }
 
-    /* Center buttons container */
     #button-container {
-      position: relative; /* Relative positioning for buttons */
-      width: 250px; /* Set a fixed width for the button container */
-      height: 60px; /* Set a fixed height for the button container */
-      margin-top: 20px; /* Space between logo and buttons */
+      position: relative;
+      width: 250px;
+      height: 60px;
+      margin-top: 20px;
     }
 
-    /* Base button styles */
     .button {
-      position: absolute; /* Absolute positioning for buttons */
-      top: 0; /* Aligns both buttons at the same vertical position */
-      left: 0; /* Aligns both buttons to the left of the container */
-      width: 100%; /* Full width of the container */
-      padding: 15px; /* Consistent padding */
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 15px;
       font-size: 1.2em;
       font-family: 'futura-pt', sans-serif;
-      font-weight: 700; /* Bold font for button text */
+      font-weight: 700;
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      transition: opacity 0.5s ease; /* Transition for opacity */
-      opacity: 0; /* Initially hidden */
-      pointer-events: none; /* Prevent clicks on hidden buttons */
+      transition: opacity 0.5s ease;
+      opacity: 0;
+      pointer-events: none;
     }
 
-    /* Button colors */
     #connect {
-      background-color: #4CAF50; /* Green */
+      background-color: #4CAF50;
       color: white;
-      opacity: 1; /* Initially visible */
-      pointer-events: auto; /* Enable clicks for the connect button */
+      opacity: 1;
+      pointer-events: auto;
     }
 
     #connect:hover {
-      background-color: #45a049; /* Darker green on hover */
+      background-color: #45a049;
     }
 
     #disconnect {
-      background-color: red; /* Red */
+      background-color: red;
       color: white;
     }
 
     #disconnect:hover {
-      background-color: darkred; /* Darker red on hover */
+      background-color: darkred;
     }
 
-    /* Center the distance displays */
     #distance1, #distance2 {
       font-size: 1.5em;
       margin-top: 20px;
-      display: none; /* Hide by default */
+      display: none;
     }
 
-    /* Slider styles */
     .volume-slider {
-      width: 80%; /* Set width of sliders */
-      margin-top: 10px; /* Space above sliders */
-      display: none; /* Hide by default */
+      width: 80%;
+      margin-top: 10px;
+      display: none;
     }
 
-    /* Label styles for volume control */
     .volume-label {
-      display: none; /* Hide labels by default */
-      margin-top: 5px; /* Space between slider and label */
+      display: none;
+      margin-top: 5px;
     }
   </style>
 </head>
 <body>
   <img id="logo" src="logoDistanzuino.jpg" alt="Distanzuino Logo">
 
-  <!-- Center buttons -->
   <div id="button-container">
     <button id="connect" class="button">Connect to Distanzuino</button>
     <button id="disconnect" class="button">Disconnect</button>
@@ -121,159 +113,134 @@
     let service;
     let characteristic;
 
-    // Bluetooth Service and Characteristic UUIDs
     const HM10_SERVICE_UUID = '0000ffe0-0000-1000-8000-00805f9b34fb';
     const HM10_CHARACTERISTIC_UUID = '0000ffe1-0000-1000-8000-00805f9b34fb';
 
-    // Audio context and oscillators for both distances
     let audioCtx;
-    let oscillator1;
-    let oscillator2;
-    let gainNode1;
-    let gainNode2;
+    let oscillator1, oscillator2;
+    let gainNode1, gainNode2;
 
     document.getElementById('connect').addEventListener('click', async () => {
       try {
-        // Request the Bluetooth device
         bluetoothDevice = await navigator.bluetooth.requestDevice({
           filters: [{ namePrefix: 'Distanzuino' }],
           optionalServices: [HM10_SERVICE_UUID]
         });
 
-        // Connect to the GATT server
         server = await bluetoothDevice.gatt.connect();
-
-        // Get the service and characteristic
         service = await server.getPrimaryService(HM10_SERVICE_UUID);
         characteristic = await service.getCharacteristic(HM10_CHARACTERISTIC_UUID);
 
-        // Start receiving data
         characteristic.startNotifications();
         characteristic.addEventListener('characteristicvaluechanged', handleData);
 
-        // Update UI on connection
-        document.getElementById('distance1').innerText = "Connected. Waiting for Distance 1 data...";
-        document.getElementById('distance2').innerText = "Connected. Waiting for Distance 2 data...";
-        document.getElementById('distance1').style.display = 'block'; // Show distance 1 display
-        document.getElementById('distance2').style.display = 'block'; // Show distance 2 display
-        
-        // Show volume controls
-        document.getElementById('volume1').style.display = 'block'; // Show volume control for Distance 1
-        document.getElementById('volume1-label').style.display = 'block'; // Show volume label for Distance 1
-        document.getElementById('volume2').style.display = 'block'; // Show volume control for Distance 2
-        document.getElementById('volume2-label').style.display = 'block'; // Show volume label for Distance 2
+        document.getElementById('distance1').style.display = 'block';
+        document.getElementById('distance2').style.display = 'block';
+        document.getElementById('volume1').style.display = 'block';
+        document.getElementById('volume1-label').style.display = 'block';
+        document.getElementById('volume2').style.display = 'block';
+        document.getElementById('volume2-label').style.display = 'block';
 
-        // Transition between buttons
         const connectButton = document.getElementById('connect');
         const disconnectButton = document.getElementById('disconnect');
         
-        connectButton.style.opacity = '0';  // Hide connect button smoothly
-        connectButton.style.pointerEvents = 'none'; // Disable pointer events
-        disconnectButton.style.opacity = '1';  // Show disconnect button
-        disconnectButton.style.pointerEvents = 'auto'; // Enable pointer events
+        connectButton.style.opacity = '0';
+        connectButton.style.pointerEvents = 'none';
+        disconnectButton.style.opacity = '1';
+        disconnectButton.style.pointerEvents = 'auto';
 
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        setupOscillators();
       } catch (error) {
         console.error('Error connecting to Distanzuino:', error);
       }
     });
 
+    function setupOscillators() {
+      oscillator1 = audioCtx.createOscillator();
+      gainNode1 = audioCtx.createGain();
+      oscillator1.connect(gainNode1).connect(audioCtx.destination);
+      oscillator1.start();
+
+      oscillator2 = audioCtx.createOscillator();
+      gainNode2 = audioCtx.createGain();
+      oscillator2.connect(gainNode2).connect(audioCtx.destination);
+      oscillator2.start();
+
+      const volumeSlider1 = document.getElementById('volume1');
+      const volumeSlider2 = document.getElementById('volume2');
+
+      gainNode1.gain.value = volumeSlider1.value;
+      volumeSlider1.addEventListener('input', () => {
+        gainNode1.gain.value = volumeSlider1.value;
+      });
+
+      gainNode2.gain.value = volumeSlider2.value;
+      volumeSlider2.addEventListener('input', () => {
+        gainNode2.gain.value = volumeSlider2.value;
+      });
+    }
+
     function handleData(event) {
       const decoder = new TextDecoder();
       const value = decoder.decode(event.target.value).trim();
 
-      // Log the value to make sure we see what data is being received
-      console.log('Received value:', value);
-
-      // Check if the data starts with D1: or D2:
       if (value.startsWith('D1:')) {
-        // Convert mm to cm and parse the float value
-        const distance1 = parseFloat(value.substring(3)) / 10; // Extract value after "D1:" and convert to cm
+        const distance1 = parseFloat(value.substring(3)) / 10;
         if (!isNaN(distance1)) {
           document.getElementById('distance1').innerText = `Distance 1: ${distance1.toFixed(2)} cm`;
-
-          // Play frequency for Distance 1
-          playFrequency(distance1, 1);
+          adjustFrequency(distance1, oscillator1);
         }
       } else if (value.startsWith('D2:')) {
-        // Convert mm to cm and parse the float value
-        const distance2 = parseFloat(value.substring(3)) / 10; // Extract value after "D2:" and convert to cm
+        const distance2 = parseFloat(value.substring(3)) / 10;
         if (!isNaN(distance2)) {
           document.getElementById('distance2').innerText = `Distance 2: ${distance2.toFixed(2)} cm`;
-
-          // Play frequency for Distance 2
-          playFrequency(distance2, 2);
+          adjustFrequency(distance2, oscillator2);
         }
       }
     }
 
-    function playFrequency(distance, distanceNum) {
+    function adjustFrequency(distance, oscillator) {
       let frequency;
 
-      // Mapping distance to the respective frequencies
       if (distance > 5 && distance < 10.99) {
-          frequency = 523; // C5
+        frequency = 523;
       } else if (distance > 11 && distance < 11.49) {
-          frequency = 0; // No tone
+        frequency = 0;
       } else if (distance > 11.5 && distance < 17.24) {
-          frequency = 587; // D5
+        frequency = 587;
       } else if (distance > 17.25 && distance < 17.74) {
-          frequency = 0; // No tone
+        frequency = 0;
       } else if (distance > 17.75 && distance < 21.24) {
-          frequency = 659; // E5
+        frequency = 659;
       } else if (distance > 21.25 && distance < 23.24) {
-          frequency = 0; // No tone
+        frequency = 0;
       } else if (distance > 23.25 && distance < 24.49) {
-          frequency = 698; // F5
+        frequency = 698;
       } else if (distance > 24.5 && distance < 24.99) {
-          frequency = 0; // No tone
+        frequency = 0;
       } else if (distance > 25 && distance < 28.99) {
-          frequency = 783; // G5
+        frequency = 783;
       } else if (distance > 29 && distance < 29.99) {
-          frequency = 0; // No tone
+        frequency = 0;
       } else if (distance > 30 && distance < 34.99) {
-          frequency = 880; // A5
+        frequency = 880;
       } else if (distance > 35 && distance < 35.99) {
-          frequency = 0; // No tone
+        frequency = 0;
       } else if (distance > 36 && distance < 39.99) {
-          frequency = 987; // B5
+        frequency = 987;
       } else if (distance > 40) {
-          frequency = 1046; // C6
+        frequency = 1046;
       }
 
-      if (audioCtx === undefined) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-
-      let oscillator;
-      let gainNode;
-      let volumeSlider;
-      
-      if (distanceNum === 1) {
-        oscillator1?.stop();
-        oscillator1 = audioCtx.createOscillator();
-        gainNode1 = audioCtx.createGain();
-        oscillator = oscillator1;
-        gainNode = gainNode1;
-        volumeSlider = document.getElementById('volume1');
+      if (frequency === 0) {
+        oscillator.frequency.value = 0;
       } else {
-        oscillator2?.stop();
-        oscillator2 = audioCtx.createOscillator();
-        gainNode2 = audioCtx.createGain();
-        oscillator = oscillator2;
-        gainNode = gainNode2;
-        volumeSlider = document.getElementById('volume2');
+        oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
       }
-
-      gainNode.gain.value = volumeSlider.value; // Set initial volume
-      volumeSlider.addEventListener('input', () => {
-        gainNode.gain.value = volumeSlider.value;
-      });
-
-      oscillator.frequency.value = frequency; // Set the frequency
-      oscillator.connect(gainNode).connect(audioCtx.destination);
-
-      oscillator.start();
-      oscillator.stop(audioCtx.currentTime + 1); // Stop after 1 second
     }
 
     document.getElementById('disconnect').addEventListener('click', () => {
@@ -281,7 +248,6 @@
         bluetoothDevice.gatt.disconnect();
       }
 
-      // Update UI on disconnect
       document.getElementById('distance1').innerText = "Disconnected";
       document.getElementById('distance2').innerText = "Disconnected";
       document.getElementById('distance1').style.display = 'none';
