@@ -38,12 +38,14 @@
 
     #button-container {
       margin-left: 20px;
+      position: relative;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
     }
 
+    /* Connect and Disconnect buttons stacked on each other */
     .button {
       width: 120px;
       padding: 15px;
@@ -53,8 +55,8 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      transition: opacity 0.5s ease;
-      margin-bottom: 10px;
+      transition: opacity 0.5s ease, transform 0.2s ease;
+      position: absolute;
     }
 
     /* Connect button styles */
@@ -63,6 +65,7 @@
       color: white;
       opacity: 1;
       pointer-events: auto;
+      transform: translateY(10px); /* Slightly lower */
     }
 
     #connect:hover {
@@ -75,6 +78,7 @@
       color: white;
       opacity: 0;
       pointer-events: none;
+      transform: translateY(-10px); /* Slightly higher */
     }
 
     #disconnect:hover {
@@ -241,9 +245,7 @@
         frequency = 0;
       } else if (distance > 23.25 && distance < 24.49) {
         frequency = 698;
-      } else if (distance > 24.5 && distance < 24.99) {
-        frequency = 0;
-      } else if (distance > 25 && distance < 28.99) {
+      } else if (distance > 24.5 && distance < 29.99) {
         frequency = 784;
       } else if (distance > 29 && distance < 39.99) {
         frequency = 880;
