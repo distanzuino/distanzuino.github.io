@@ -129,26 +129,26 @@
         const distance1 = parseFloat(value.substring(3)) / 10;
         if (!isNaN(distance1)) {
           document.getElementById('distance1').innerText = `Distance 1: ${distance1.toFixed(2)} cm`;
-          adjustFrequency(distance1, oscillator1, gainNode1);
+          adjustFrequency(distance1, oscillator1, gainNode1, 'volume1');
         }
       } else if (value.startsWith('D2:')) {
         const distance2 = parseFloat(value.substring(3)) / 10;
         if (!isNaN(distance2)) {
           document.getElementById('distance2').innerText = `Distance 2: ${distance2.toFixed(2)} cm`;
-          adjustFrequency(distance2, oscillator2, gainNode2);
+          adjustFrequency(distance2, oscillator2, gainNode2, 'volume2');
         }
       }
     }
 
-    function adjustFrequency(distance, oscillator, gainNode) {
+    function adjustFrequency(distance, oscillator, gainNode, volumeControlId) {
       let frequency;
 
       if (distance < 5 || distance > 50 || isNaN(distance)) {
         frequency = 0;
-        gainNode.gain.value = 0; // Mute sound
+        gainNode.gain.value = 0; // Ensure the sound is muted
       } else {
-        gainNode.gain.value = document.getElementById(`volume${oscillator === oscillator1 ? 1 : 2}`).value;
-        
+        gainNode.gain.value = document.getElementById(volumeControlId).value;
+
         if (distance > 5 && distance < 10.99) {
           frequency = 523;
         } else if (distance > 11 && distance < 11.49) {
