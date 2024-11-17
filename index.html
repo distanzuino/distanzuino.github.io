@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Distanzuino</title>
   <style>
-    /* Apply Futura PT globally */
+    /* Global Styles */
     body {
       font-family: 'Futura PT', sans-serif;
       font-style: normal;
@@ -18,49 +18,52 @@
       flex-direction: column;
       justify-content: flex-start;
       align-items: center;
-      background: linear-gradient(to bottom right, #2e3a59, #1e2b44);
-      color: #f9f9f9;
+      background: linear-gradient(to bottom right, #d3d3d3, #a9a9a9);
+      color: #333;
     }
 
     #top-container {
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      width: 100%;
       margin-top: 20px;
     }
 
     #logo {
-      max-width: 200px;
+      max-width: 100px;
       height: auto;
+      margin-bottom: 20px;
     }
 
     #button-container {
+      position: relative;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
-      margin-left: 20px;
+      width: 150px;
+      height: 50px;
     }
 
     .button {
-      width: 150px;
-      padding: 15px;
+      width: 100%;
+      height: 100%;
       font-size: 1em;
       font-weight: 700;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      margin: 5px 0;
-      transition: box-shadow 0.3s ease, transform 0.2s ease;
+      position: absolute;
+      transition: opacity 0.3s ease, transform 0.2s ease;
     }
 
     #connect {
       background-color: #4caf50;
       color: white;
+      opacity: 1;
+      z-index: 1;
     }
 
     #connect:hover {
-      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
       transform: scale(1.05);
     }
 
@@ -69,21 +72,22 @@
       color: white;
       opacity: 0;
       pointer-events: none;
+      z-index: 0;
     }
 
     #disconnect:hover {
-      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
       transform: scale(1.05);
     }
 
     .card {
-      background-color: #1c2a42;
+      background-color: #f5f5f5;
       border-radius: 12px;
       padding: 20px;
       width: 90%;
       max-width: 400px;
       margin: 10px 0;
-      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+      color: #333;
     }
 
     .distance-display {
@@ -100,13 +104,6 @@
       font-size: 0.9em;
       margin-top: 5px;
     }
-
-    @media (min-width: 768px) {
-      .button {
-        font-size: 1.1em;
-        width: 200px;
-      }
-    }
   </style>
 </head>
 <body>
@@ -120,14 +117,14 @@
 
   <div id="card1" class="card">
     <p id="distance1" class="distance-display">Distance 1: Disconnected</p>
-    <input id="volume1" type="range" class="volume-slider" min="0" max="1" step="0.01" value="1" style="display:none;">
-    <label id="volume1-label" class="volume-label" for="volume1" style="display:none;">Volume Control for Distance 1</label>
+    <input id="volume1" type="range" class="volume-slider" min="0" max="1" step="0.01" value="1">
+    <label id="volume1-label" class="volume-label" for="volume1">Volume Control for Distance 1</label>
   </div>
 
   <div id="card2" class="card">
     <p id="distance2" class="distance-display">Distance 2: Disconnected</p>
-    <input id="volume2" type="range" class="volume-slider" min="0" max="1" step="0.01" value="1" style="display:none;">
-    <label id="volume2-label" class="volume-label" for="volume2" style="display:none;">Volume Control for Distance 2</label>
+    <input id="volume2" type="range" class="volume-slider" min="0" max="1" step="0.01" value="1">
+    <label id="volume2-label" class="volume-label" for="volume2">Volume Control for Distance 2</label>
   </div>
 
   <script>
@@ -157,22 +154,16 @@
         characteristic.startNotifications();
         characteristic.addEventListener('characteristicvaluechanged', handleData);
 
-        // Show UI elements
-        document.getElementById('volume1').style.display = 'block';
-        document.getElementById('volume1-label').style.display = 'block';
-        document.getElementById('volume2').style.display = 'block';
-        document.getElementById('volume2-label').style.display = 'block';
-
-        // UI button updates
+        // Transition buttons
         document.getElementById('connect').style.opacity = '0';
         document.getElementById('connect').style.pointerEvents = 'none';
         document.getElementById('disconnect').style.opacity = '1';
         document.getElementById('disconnect').style.pointerEvents = 'auto';
 
+        // Initialize Audio Context and Oscillators
         if (!audioCtx) {
           audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
-
         setupOscillators();
       } catch (error) {
         console.error('Error connecting:', error);
@@ -189,6 +180,13 @@
       gainNode2 = audioCtx.createGain();
       oscillator2.connect(gainNode2).connect(audioCtx.destination);
       oscillator2.start();
+
+      document.getElementById('volume1').addEventListener('input', (e) => {
+        gainNode1.gain.value = e.target.value;
+      });
+      document.getElementById('volume2').addEventListener('input', (e) => {
+        gainNode2.gain.value = e.target.value;
+      });
     }
 
     function handleData(event) {
@@ -205,11 +203,11 @@
     }
 
     function adjustFrequency(distance, oscillator, distanceElement) {
-      if (distance === 0 || isNaN(distance)) {
+      if (distance === 0 || distance < 1 || distance > 50 || isNaN(distance)) {
         oscillator.frequency.value = 0;
         distanceElement.innerText = "No Tone";
       } else {
-        const frequency = Math.max(100, 500 - distance * 10); // Example logic
+        const frequency = 100 + distance * 10; // Example: Scales frequency with distance
         oscillator.frequency.value = frequency;
         distanceElement.innerText = `Distance: ${distance.toFixed(2)} cm`;
       }
@@ -220,11 +218,19 @@
         bluetoothDevice.gatt.disconnect();
       }
 
-      // Reset UI and stop tones
-      document.getElementById('distance1').innerText = "Disconnected";
-      document.getElementById('distance2').innerText = "Disconnected";
+      // Transition buttons
+      document.getElementById('connect').style.opacity = '1';
+      document.getElementById('connect').style.pointerEvents = 'auto';
+      document.getElementById('disconnect').style.opacity = '0';
+      document.getElementById('disconnect').style.pointerEvents = 'none';
+
+      // Stop tones
       oscillator1.frequency.value = 0;
       oscillator2.frequency.value = 0;
+
+      // Reset UI
+      document.getElementById('distance1').innerText = "Disconnected";
+      document.getElementById('distance2').innerText = "Disconnected";
     });
   </script>
 </body>
