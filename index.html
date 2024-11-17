@@ -12,7 +12,7 @@
       font-weight: 400;
       text-align: center;
       margin: 0;
-      padding: 0;
+      padding: 0 15px; /* Add space on the sides */
       height: 100vh;
       display: flex;
       flex-direction: column;
@@ -30,7 +30,6 @@
     }
 
     #logo {
-      max-width: 100px;
       max-width: 150px; /* Slightly larger logo */
       height: auto;
       margin-right: 20px;
@@ -87,6 +86,7 @@
       width: 90%;
       max-width: 400px;
       margin: 10px 0;
+      margin: 20px 0; /* Added more margin between sections */
       box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.6);
       color: #fff;
     }
@@ -99,6 +99,7 @@
     .volume-slider {
       width: 100%;
       margin-top: 10px;
+      /* Larger slider size when muted or disconnected */
     }
 
     .volume-slider:disabled {
@@ -200,24 +201,34 @@
 
       if (value.startsWith('D1:')) {
         const distance1 = parseFloat(value.substring(3)) / 10;
-        adjustFrequency(distance1, oscillator1, document.getElementById('distance1'));
+        adjustFrequency(distance1, oscillator1, document.getElementById('distance1'), "1");
       } else if (value.startsWith('D2:')) {
         const distance2 = parseFloat(value.substring(3)) / 10;
-        adjustFrequency(distance2, oscillator2, document.getElementById('distance2'));
+        adjustFrequency(distance2, oscillator2, document.getElementById('distance2'), "2");
       }
     }
 
-    function adjustFrequency(distance, oscillator, distanceElement) {
-      if (distance === 0 || distance < 1 || distance > 50 || isNaN(distance)) {
-        oscillator.frequency.value = 0;
-        distanceElement.innerText = "Distance: Disconnected";
-      distanceElement.innerText = `Distance: ${distance.toFixed(2)} cm`;
-      if (distance < 1 || distance > 50 || isNaN(distance)) {
+    function adjustFrequency(distance, oscillator, distanceElement, distanceLabel) {
+      distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
+
+      if (distance <= 0 || isNaN(distance) || distance < 1 || distance > 50) {
         oscillator.frequency.value = 0; // Mute
+        setMutedVolumeControls(true, distanceLabel);
+        return;
+      }
+
+      const frequency = 100 + distance * 10;
+      oscillator.frequency.value = frequency;
+      setMutedVolumeControls(false, distanceLabel);
+    }
+    function setMutedVolumeControls(isMuted, distanceLabel) {
+      const volumeSlider = document.getElementById(`volume${distanceLabel}`);
+      if (isMuted) {
+        volumeSlider.disabled = true;
+        volumeSlider.style.opacity = '0.5';
       } else {
-        const frequency = 100 + distance * 10;
-        oscillator.frequency.value = frequency;
-        distanceElement.innerText = `Distance: ${distance.toFixed(2)} cm`;
+        volumeSlider.disabled = false;
+        volumeSlider.style.opacity = '1';
       }
     }
 
@@ -227,9 +238,10 @@
         slider.disabled = !isConnected;
         slider.style.opacity = isConnected ? '1' : '0.5';
       });
+
       const displays = [document.getElementById('distance1'), document.getElementById('distance2')];
-      displays.forEach(display => {
-        display.innerText = isConnected ? display.innerText : 'Distance: Disconnected';
+      displays.forEach((display, i) => {
+        display.innerText = isConnected ? display.innerText : `Distance ${i + 1}: Disconnected`;
       });
     }
 
@@ -240,12 +252,14 @@
 
       document.getElementById('connect').style.opacity = '1';
       document.getElementById('connect').style.pointerEvents = 'auto';
+      updateUIState(false);
       document.getElementById('disconnect').style.opacity = '0';
       document.getElementById('disconnect').style.pointerEvents = 'none';
-
       oscillator1.frequency.value = 0;
       oscillator2.frequency.value = 0;
       updateUIState(false);
+      document.getElementById('connect').style.opacity = '1';
+      document.getElementById('connect').style.pointerEvents = 'auto';
     });
   </script>
 </body>
