@@ -25,7 +25,7 @@
     #top-container {
       display: flex;
       align-items: center;
-      margin-top: 20px;
+      margin-top: 40px; /* Increased margin between logo and buttons */
       justify-content: center;
     }
 
@@ -86,7 +86,6 @@
       width: 90%;
       max-width: 400px;
       margin: 10px 0;
-      margin: 20px 0; /* Added more margin between sections */
       box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.6);
       color: #fff;
     }
@@ -99,7 +98,6 @@
     .volume-slider {
       width: 100%;
       margin-top: 10px;
-      /* Larger slider size when muted or disconnected */
     }
 
     .volume-slider:disabled {
@@ -221,6 +219,7 @@
       oscillator.frequency.value = frequency;
       setMutedVolumeControls(false, distanceLabel);
     }
+
     function setMutedVolumeControls(isMuted, distanceLabel) {
       const volumeSlider = document.getElementById(`volume${distanceLabel}`);
       if (isMuted) {
@@ -258,8 +257,6 @@
       oscillator1.frequency.value = 0;
       oscillator2.frequency.value = 0;
       updateUIState(false);
-      document.getElementById('connect').style.opacity = '1';
-      document.getElementById('connect').style.pointerEvents = 'auto';
     });
   </script>
 </body>
