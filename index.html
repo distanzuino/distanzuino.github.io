@@ -30,7 +30,7 @@
     }
 
     #logo {
-      max-width: 100px;
+      max-width: 150px; /* Slightly larger logo */
       height: auto;
       margin-right: 20px;
     }
@@ -207,13 +207,13 @@
     }
 
     function adjustFrequency(distance, oscillator, distanceElement) {
-      if (distance === 0 || distance < 1 || distance > 50 || isNaN(distance)) {
-        oscillator.frequency.value = 0;
-        distanceElement.innerText = "Distance: Disconnected";
+      distanceElement.innerText = `Distance: ${distance.toFixed(2)} cm`;
+
+      if (distance < 1 || distance > 50 || isNaN(distance)) {
+        oscillator.frequency.value = 0; // Mute
       } else {
         const frequency = 100 + distance * 10;
         oscillator.frequency.value = frequency;
-        distanceElement.innerText = `Distance: ${distance.toFixed(2)} cm`;
       }
     }
 
@@ -222,6 +222,11 @@
       sliders.forEach(slider => {
         slider.disabled = !isConnected;
         slider.style.opacity = isConnected ? '1' : '0.5';
+      });
+
+      const displays = [document.getElementById('distance1'), document.getElementById('distance2')];
+      displays.forEach(display => {
+        display.innerText = isConnected ? display.innerText : 'Distance: Disconnected';
       });
     }
 
