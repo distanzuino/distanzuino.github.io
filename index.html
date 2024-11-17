@@ -85,7 +85,7 @@
       padding: 20px;
       width: 90%;
       max-width: 400px;
-      margin: 10px 0;
+      margin: 20px 0; /* Added more margin between sections */
       box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.6);
       color: #fff;
     }
@@ -98,6 +98,7 @@
     .volume-slider {
       width: 100%;
       margin-top: 10px;
+      /* Larger slider size when muted or disconnected */
     }
 
     .volume-slider:disabled {
@@ -109,6 +110,7 @@
       font-size: 0.9em;
       margin-top: 5px;
     }
+
   </style>
 </head>
 <body>
@@ -211,11 +213,24 @@
 
       if (distance <= 0 || isNaN(distance) || distance < 1 || distance > 50) {
         oscillator.frequency.value = 0; // Mute
+        setMutedVolumeControls(true, distanceLabel);
         return;
       }
 
       const frequency = 100 + distance * 10;
       oscillator.frequency.value = frequency;
+      setMutedVolumeControls(false, distanceLabel);
+    }
+
+    function setMutedVolumeControls(isMuted, distanceLabel) {
+      const volumeSlider = document.getElementById(`volume${distanceLabel}`);
+      if (isMuted) {
+        volumeSlider.disabled = true;
+        volumeSlider.style.opacity = '0.5';
+      } else {
+        volumeSlider.disabled = false;
+        volumeSlider.style.opacity = '1';
+      }
     }
 
     function updateUIState(isConnected) {
@@ -236,14 +251,11 @@
         bluetoothDevice.gatt.disconnect();
       }
 
-      document.getElementById('connect').style.opacity = '1';
-      document.getElementById('connect').style.pointerEvents = 'auto';
+      updateUIState(false);
       document.getElementById('disconnect').style.opacity = '0';
       document.getElementById('disconnect').style.pointerEvents = 'none';
-
-      oscillator1.frequency.value = 0;
-      oscillator2.frequency.value = 0;
-      updateUIState(false);
+      document.getElementById('connect').style.opacity = '1';
+      document.getElementById('connect').style.pointerEvents = 'auto';
     });
   </script>
 </body>
