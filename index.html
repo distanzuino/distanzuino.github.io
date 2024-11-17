@@ -7,94 +7,105 @@
   <style>
     /* Apply Futura PT globally */
     body {
-      font-family: 'futura-pt', sans-serif;
+      font-family: 'Futura PT', sans-serif;
       font-style: normal;
       font-weight: 400;
       text-align: center;
       margin: 0;
-      padding: 20px;
+      padding: 0;
       height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: flex-start; /* Align everything at the top */
+      justify-content: flex-start;
       align-items: center;
+      background: linear-gradient(to bottom right, #2e3a59, #1e2b44);
+      color: #f9f9f9;
     }
 
-    /* Container for logo and buttons */
     #top-container {
       display: flex;
       justify-content: center;
       align-items: center;
       width: 100%;
-      margin-bottom: 20px;
+      margin-top: 20px;
     }
 
     #logo {
-      width: auto;
-      max-width: 60%;
-      max-height: 50vh;
+      max-width: 200px;
       height: auto;
     }
 
     #button-container {
       display: flex;
-      flex-direction: column; /* Stack the buttons vertically */
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
       margin-left: 20px;
     }
 
-    /* Connect and Disconnect buttons stacked on each other */
     .button {
-      width: 120px;
+      width: 150px;
       padding: 15px;
-      font-size: 1.2em;
-      font-family: 'futura-pt', sans-serif;
+      font-size: 1em;
       font-weight: 700;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       cursor: pointer;
-      transition: opacity 0.5s ease, transform 0.2s ease;
-      margin-bottom: 10px; /* Stack them with space in between */
+      margin: 5px 0;
+      transition: box-shadow 0.3s ease, transform 0.2s ease;
     }
 
-    /* Connect button styles */
     #connect {
-      background-color: #4CAF50;
+      background-color: #4caf50;
       color: white;
     }
 
     #connect:hover {
-      background-color: #45a049;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      transform: scale(1.05);
     }
 
-    /* Disconnect button styles */
     #disconnect {
-      background-color: red;
+      background-color: #ff4c4c;
       color: white;
       opacity: 0;
       pointer-events: none;
     }
 
     #disconnect:hover {
-      background-color: darkred;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      transform: scale(1.05);
     }
 
-    #distance1, #distance2 {
-      font-size: 1.5em;
-      margin-top: 20px;
-      display: none;
+    .card {
+      background-color: #1c2a42;
+      border-radius: 12px;
+      padding: 20px;
+      width: 90%;
+      max-width: 400px;
+      margin: 10px 0;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .distance-display {
+      font-size: 1.2em;
+      margin: 10px 0;
     }
 
     .volume-slider {
-      width: 80%;
+      width: 100%;
       margin-top: 10px;
-      display: none;
     }
 
     .volume-label {
-      display: none;
+      font-size: 0.9em;
       margin-top: 5px;
+    }
+
+    @media (min-width: 768px) {
+      .button {
+        font-size: 1.1em;
+        width: 200px;
+      }
     }
   </style>
 </head>
@@ -107,13 +118,17 @@
     </div>
   </div>
 
-  <p id="distance1">Distance 1 Disconnected</p>
-  <input id="volume1" type="range" class="volume-slider" min="0" max="1" step="0.01" value="1">
-  <label id="volume1-label" class="volume-label" for="volume1">Volume Control for Distance 1</label>
-  
-  <p id="distance2">Distance 2 Disconnected</p>
-  <input id="volume2" type="range" class="volume-slider" min="0" max="1" step="0.01" value="1">
-  <label id="volume2-label" class="volume-label" for="volume2">Volume Control for Distance 2</label>
+  <div id="card1" class="card">
+    <p id="distance1" class="distance-display">Distance 1: Disconnected</p>
+    <input id="volume1" type="range" class="volume-slider" min="0" max="1" step="0.01" value="1" style="display:none;">
+    <label id="volume1-label" class="volume-label" for="volume1" style="display:none;">Volume Control for Distance 1</label>
+  </div>
+
+  <div id="card2" class="card">
+    <p id="distance2" class="distance-display">Distance 2: Disconnected</p>
+    <input id="volume2" type="range" class="volume-slider" min="0" max="1" step="0.01" value="1" style="display:none;">
+    <label id="volume2-label" class="volume-label" for="volume2" style="display:none;">Volume Control for Distance 2</label>
+  </div>
 
   <script>
     let bluetoothDevice;
@@ -127,8 +142,6 @@
     let audioCtx;
     let oscillator1, oscillator2;
     let gainNode1, gainNode2;
-
-    let isDisconnected = true; // Flag to track disconnected state
 
     document.getElementById('connect').addEventListener('click', async () => {
       try {
@@ -144,22 +157,17 @@
         characteristic.startNotifications();
         characteristic.addEventListener('characteristicvaluechanged', handleData);
 
-        document.getElementById('distance1').style.display = 'block';
-        document.getElementById('distance2').style.display = 'block';
+        // Show UI elements
         document.getElementById('volume1').style.display = 'block';
         document.getElementById('volume1-label').style.display = 'block';
         document.getElementById('volume2').style.display = 'block';
         document.getElementById('volume2-label').style.display = 'block';
 
-        const connectButton = document.getElementById('connect');
-        const disconnectButton = document.getElementById('disconnect');
-        
-        connectButton.style.opacity = '0';
-        connectButton.style.pointerEvents = 'none';
-        disconnectButton.style.opacity = '1';
-        disconnectButton.style.pointerEvents = 'auto';
-
-        isDisconnected = false; // Update the state to connected
+        // UI button updates
+        document.getElementById('connect').style.opacity = '0';
+        document.getElementById('connect').style.pointerEvents = 'none';
+        document.getElementById('disconnect').style.opacity = '1';
+        document.getElementById('disconnect').style.pointerEvents = 'auto';
 
         if (!audioCtx) {
           audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -167,7 +175,7 @@
 
         setupOscillators();
       } catch (error) {
-        console.error('Error connecting to Distanzuino:', error);
+        console.error('Error connecting:', error);
       }
     });
 
@@ -181,78 +189,29 @@
       gainNode2 = audioCtx.createGain();
       oscillator2.connect(gainNode2).connect(audioCtx.destination);
       oscillator2.start();
-
-      const volumeSlider1 = document.getElementById('volume1');
-      const volumeSlider2 = document.getElementById('volume2');
-
-      gainNode1.gain.value = volumeSlider1.value;
-      volumeSlider1.addEventListener('input', () => {
-        gainNode1.gain.value = volumeSlider1.value;
-      });
-
-      gainNode2.gain.value = volumeSlider2.value;
-      volumeSlider2.addEventListener('input', () => {
-        gainNode2.gain.value = volumeSlider2.value;
-      });
     }
 
     function handleData(event) {
-      if (isDisconnected) return; // Prevent handling data if disconnected
-
       const decoder = new TextDecoder();
       const value = decoder.decode(event.target.value).trim();
 
       if (value.startsWith('D1:')) {
         const distance1 = parseFloat(value.substring(3)) / 10;
-        if (!isNaN(distance1)) {
-          document.getElementById('distance1').innerText = `Distance 1: ${distance1.toFixed(2)} cm`;
-          adjustFrequency(distance1, oscillator1);
-        }
+        adjustFrequency(distance1, oscillator1, document.getElementById('distance1'));
       } else if (value.startsWith('D2:')) {
         const distance2 = parseFloat(value.substring(3)) / 10;
-        if (!isNaN(distance2)) {
-          document.getElementById('distance2').innerText = `Distance 2: ${distance2.toFixed(2)} cm`;
-          adjustFrequency(distance2, oscillator2);
-        }
+        adjustFrequency(distance2, oscillator2, document.getElementById('distance2'));
       }
     }
 
-    function adjustFrequency(distance, oscillator) {
-      if (isDisconnected) {
-        oscillator.frequency.value = 0; // No frequency when disconnected
-        return;
-      }
-
-      let frequency;
-
-      if (distance > 5 && distance < 10.99) {
-        frequency = 523;
-      } else if (distance > 11 && distance < 11.49) {
-        frequency = 0;
-      } else if (distance > 11.5 && distance < 17.24) {
-        frequency = 587;
-      } else if (distance > 17.25 && distance < 17.74) {
-        frequency = 0;
-      } else if (distance > 17.75 && distance < 21.24) {
-        frequency = 659;
-      } else if (distance > 21.25 && distance < 23.24) {
-        frequency = 0;
-      } else if (distance > 23.25 && distance < 24.49) {
-        frequency = 698;
-      } else if (distance > 24.5 && distance < 29.99) {
-        frequency = 784;
-      } else if (distance > 29 && distance < 39.99) {
-        frequency = 880;
-      } else if (distance > 39) {
-        frequency = 987;
+    function adjustFrequency(distance, oscillator, distanceElement) {
+      if (distance === 0 || isNaN(distance)) {
+        oscillator.frequency.value = 0;
+        distanceElement.innerText = "No Tone";
       } else {
-        frequency = 0;
-      }
-
-      if (frequency === 0) {
-        oscillator.frequency.setValueAtTime(0, audioCtx.currentTime);
-      } else {
-        oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+        const frequency = Math.max(100, 500 - distance * 10); // Example logic
+        oscillator.frequency.value = frequency;
+        distanceElement.innerText = `Distance: ${distance.toFixed(2)} cm`;
       }
     }
 
@@ -261,27 +220,11 @@
         bluetoothDevice.gatt.disconnect();
       }
 
-      isDisconnected = true; // Set to disconnected state
+      // Reset UI and stop tones
       document.getElementById('distance1').innerText = "Disconnected";
       document.getElementById('distance2').innerText = "Disconnected";
-      document.getElementById('distance1').style.display = 'none';
-      document.getElementById('distance2').style.display = 'none';
-      document.getElementById('volume1').style.display = 'none';
-      document.getElementById('volume1-label').style.display = 'none';
-      document.getElementById('volume2').style.display = 'none';
-      document.getElementById('volume2-label').style.display = 'none';
-
-      const connectButton = document.getElementById('connect');
-      const disconnectButton = document.getElementById('disconnect');
-
-      connectButton.style.opacity = '1';
-      connectButton.style.pointerEvents = 'auto';
-      disconnectButton.style.opacity = '0';
-      disconnectButton.style.pointerEvents = 'none';
-
-      // Set the oscillators to stop generating tones
-      if (oscillator1) oscillator1.frequency.value = 0;
-      if (oscillator2) oscillator2.frequency.value = 0;
+      oscillator1.frequency.value = 0;
+      oscillator2.frequency.value = 0;
     });
   </script>
 </body>
