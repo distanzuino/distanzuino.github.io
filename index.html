@@ -12,7 +12,7 @@
       font-weight: 400;
       text-align: center;
       margin: 0;
-      padding: 0;
+      padding: 0 15px; /* Add space on the sides */
       height: 100vh;
       display: flex;
       flex-direction: column;
@@ -209,7 +209,7 @@
     function adjustFrequency(distance, oscillator, distanceElement) {
       distanceElement.innerText = `Distance: ${distance.toFixed(2)} cm`;
 
-      if (distance < 1 || distance > 50 || isNaN(distance)) {
+      if (distance <= 0 || distance < 1 || distance > 50 || isNaN(distance)) {
         oscillator.frequency.value = 0; // Mute
       } else {
         const frequency = 100 + distance * 10;
@@ -225,8 +225,8 @@
       });
 
       const displays = [document.getElementById('distance1'), document.getElementById('distance2')];
-      displays.forEach(display => {
-        display.innerText = isConnected ? display.innerText : 'Distance: Disconnected';
+      displays.forEach((display, i) => {
+        display.innerText = isConnected ? display.innerText : `Distance ${i + 1}: Disconnected`;
       });
     }
 
