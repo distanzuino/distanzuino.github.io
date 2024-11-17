@@ -199,22 +199,23 @@
 
       if (value.startsWith('D1:')) {
         const distance1 = parseFloat(value.substring(3)) / 10;
-        adjustFrequency(distance1, oscillator1, document.getElementById('distance1'));
+        adjustFrequency(distance1, oscillator1, document.getElementById('distance1'), "1");
       } else if (value.startsWith('D2:')) {
         const distance2 = parseFloat(value.substring(3)) / 10;
-        adjustFrequency(distance2, oscillator2, document.getElementById('distance2'));
+        adjustFrequency(distance2, oscillator2, document.getElementById('distance2'), "2");
       }
     }
 
-    function adjustFrequency(distance, oscillator, distanceElement) {
-      distanceElement.innerText = `Distance: ${distance.toFixed(2)} cm`;
+    function adjustFrequency(distance, oscillator, distanceElement, distanceLabel) {
+      distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
 
-      if (distance <= 0 || distance < 1 || distance > 50 || isNaN(distance)) {
+      if (distance <= 0 || isNaN(distance) || distance < 1 || distance > 50) {
         oscillator.frequency.value = 0; // Mute
-      } else {
-        const frequency = 100 + distance * 10;
-        oscillator.frequency.value = frequency;
+        return;
       }
+
+      const frequency = 100 + distance * 10;
+      oscillator.frequency.value = frequency;
     }
 
     function updateUIState(isConnected) {
