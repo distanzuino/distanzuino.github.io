@@ -70,7 +70,7 @@
 
     #disconnect {
       background-color: #333333; /* Dark grey for disconnect button */
-      border: 2px solid #ff6666; /* Same red as connect button outline */
+      border: 2px solid #ff6666; /* Red outline to match connect button */
       color: white;
       opacity: 0;
       pointer-events: none;
@@ -100,7 +100,9 @@
     .volume-slider {
       width: 100%;
       margin-top: 10px;
-      background-color: #ff6666; /* Red color like the connect button */
+      /* Change color of volume slider to match the red connect button */
+      background: linear-gradient(to right, #ff6666, #ff3333);
+      border-radius: 5px;
     }
 
     .volume-slider:disabled {
@@ -210,33 +212,34 @@
     }
 
     function adjustFrequency(distance, oscillator, distanceElement, distanceLabel, gainNode) {
-      if (distance === 0) {
-        // If distance is 0, mute and disable volume control
-        oscillator.frequency.value = 0;
+      if (distance === 0 || isNaN(distance)) {
+        // If distance is 0 or invalid, mute the sound and disable volume control
+        oscillator.frequency.value = 0; // Mute
         gainNode.gain.value = 0; // Mute
         setMutedVolumeControls(true, distanceLabel);
         distanceElement.innerText = `Distance ${distanceLabel}: Disconnected`;
-      } else if (distance > 0.1 && distance < 1 || distance > 50) {
-        // If distance is between 0.1 and 1 or above 50, mute the sound but enable volume control
+      } else if (distance >= 0.1 && distance < 1 || distance > 50) {
+        // Mute and disable volume control for distances 0.1-1 or above 50
         oscillator.frequency.value = 0;
-        gainNode.gain.value = 0; // Mute
+        gainNode.gain.value = 0;
         setMutedVolumeControls(true, distanceLabel);
-        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
-      } else {
-        // Valid range, update frequency and enable volume control
+        distanceElement.innerText = `Distance ${distanceLabel}: Disconnected`;
+      } else if (distance >= 1 && distance <= 50) {
+        // Valid distance range, allow frequency adjustment and enable volume control
         const frequency = 100 + distance * 10;
         oscillator.frequency.value = frequency;
-        gainNode.gain.value = 1;
-        setMutedVolumeControls(false, distanceLabel);
         distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
+        setMutedVolumeControls(false, distanceLabel);
       }
     }
 
-    function setMutedVolumeControls(muted, distanceLabel) {
+    function setMutedVolumeControls(isMuted, distanceLabel) {
       const volumeSlider = document.getElementById(`volume${distanceLabel}`);
-      volumeSlider.disabled = muted;
-      if (muted) {
-        volumeSlider.value = 0;
+      if (isMuted) {
+        volumeSlider.disabled = true;
+        volumeSlider.value = 0; // Set volume to 0 when muted
+      } else {
+        volumeSlider.disabled = false;
       }
     }
 
@@ -244,9 +247,9 @@
       if (bluetoothDevice && bluetoothDevice.gatt.connected) {
         bluetoothDevice.gatt.disconnect();
       }
-
       document.getElementById('connect').style.opacity = '1';
       document.getElementById('connect').style.pointerEvents = 'auto';
+      updateUIState(false);
       document.getElementById('disconnect').style.opacity = '0';
       document.getElementById('disconnect').style.pointerEvents = 'none';
 
