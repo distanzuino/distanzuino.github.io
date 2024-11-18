@@ -70,7 +70,7 @@
 
     #disconnect {
       background-color: #333333; /* Dark grey for disconnect button */
-      border: 2px solid #ff6666; /* Red outline */
+      border: 2px solid #ff4d4d; /* Lighter red outline */
       color: white;
       opacity: 0;
       pointer-events: none;
@@ -246,7 +246,6 @@
       if (bluetoothDevice && bluetoothDevice.gatt.connected) {
         bluetoothDevice.gatt.disconnect();
       }
-
       document.getElementById('connect').style.opacity = '1';
       document.getElementById('connect').style.pointerEvents = 'auto';
       updateUIState(false);
