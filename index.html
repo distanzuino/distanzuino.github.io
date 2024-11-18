@@ -25,8 +25,8 @@
     #top-container {
       display: flex;
       align-items: center;
-      margin-top: 20px; /* Increased space between top and logo */
-      margin-bottom: 40px; /* Increased space between logo and Distance 1 */
+      margin-top: 30px; /* Space between top and logo */
+      margin-bottom: 35px; /* Reduced space between logo and Distance 1 */
       justify-content: center;
     }
 
@@ -58,7 +58,7 @@
     }
 
     #connect {
-      background-color: #ff6666; /* Slightly less bright red */
+      background-color: #ff6666; /* Softer red for connect button */
       color: white;
       opacity: 1;
       z-index: 1;
@@ -69,7 +69,7 @@
     }
 
     #disconnect {
-      background-color: #666; /* Dark grey for disconnect button */
+      background-color: #ff9999; /* Light greyish red for disconnect button */
       color: white;
       opacity: 0;
       pointer-events: none;
@@ -200,18 +200,19 @@
 
       if (value.startsWith('D1:')) {
         const distance1 = parseFloat(value.substring(3)) / 10;
-        adjustFrequency(distance1, oscillator1, document.getElementById('distance1'), "1");
+        adjustFrequency(distance1, oscillator1, document.getElementById('distance1'), "1", gainNode1);
       } else if (value.startsWith('D2:')) {
         const distance2 = parseFloat(value.substring(3)) / 10;
-        adjustFrequency(distance2, oscillator2, document.getElementById('distance2'), "2");
+        adjustFrequency(distance2, oscillator2, document.getElementById('distance2'), "2", gainNode2);
       }
     }
 
-    function adjustFrequency(distance, oscillator, distanceElement, distanceLabel) {
+    function adjustFrequency(distance, oscillator, distanceElement, distanceLabel, gainNode) {
       distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
 
       if (distance <= 0 || isNaN(distance) || distance < 1 || distance > 50) {
         oscillator.frequency.value = 0; // Mute
+        gainNode.gain.value = 0; // Silence
         setMutedVolumeControls(true, distanceLabel);
         return;
       }
@@ -257,6 +258,8 @@
       document.getElementById('disconnect').style.pointerEvents = 'none';
       oscillator1.frequency.value = 0;
       oscillator2.frequency.value = 0;
+      gainNode1.gain.value = 0;
+      gainNode2.gain.value = 0;
       updateUIState(false);
     });
   </script>
