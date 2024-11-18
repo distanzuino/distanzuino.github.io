@@ -209,22 +209,16 @@
     }
 
     function adjustFrequency(distance, oscillator, distanceElement, distanceLabel, gainNode) {
-      if (distance === 0 || isNaN(distance)) {
-        // If distance is 0 or invalid, mute the sound and disable volume control
+      if (distance === 0 || isNaN(distance) || (distance > 0.1 && distance < 1) || distance > 50) {
+        // If distance is 0, or between 0.1 and 1 or above 50, mute and disable volume control
         oscillator.frequency.value = 0; // Mute
         gainNode.gain.value = 0; // Mute
         setMutedVolumeControls(true, distanceLabel);
         distanceElement.innerText = `Distance ${distanceLabel}: Disconnected`;
-      } else if (distance > 0 && (distance >= 1 && distance <= 50)) {
-        // Display the distance and keep volume control active
+      } else {
+        // Valid distance range, allow frequency adjustment and enable volume control
         const frequency = 100 + distance * 10;
         oscillator.frequency.value = frequency;
-        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
-        setMutedVolumeControls(false, distanceLabel);
-      } else {
-        // If distance is between 0.1 and 1 or above 50, display the distance and allow volume control
-        oscillator.frequency.value = 100; // Base frequency
-        gainNode.gain.value = 1; // Max volume
         distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
         setMutedVolumeControls(false, distanceLabel);
       }
@@ -254,7 +248,6 @@
       oscillator2.frequency.value = 0;
       gainNode1.gain.value = 0;
       gainNode2.gain.value = 0;
-      updateUIState(false);
     });
 
     function updateUIState(isConnected) {
