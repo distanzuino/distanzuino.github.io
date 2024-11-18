@@ -124,13 +124,13 @@
 
   <div id="card1" class="card">
     <p id="distance1" class="distance-display">Distance 1: Disconnected</p>
-    <input id="volume1" type="range" class="volume-slider" min="0" max="1" step="0.01" value="0" disabled>
+    <input id="volume1" type="range" class="volume-slider" min="0" max="1" step="0.01" value="1" disabled>
     <label id="volume1-label" class="volume-label" for="volume1">Volume Control for Distance 1</label>
   </div>
 
   <div id="card2" class="card">
     <p id="distance2" class="distance-display">Distance 2: Disconnected</p>
-    <input id="volume2" type="range" class="volume-slider" min="0" max="1" step="0.01" value="0" disabled>
+    <input id="volume2" type="range" class="volume-slider" min="0" max="1" step="0.01" value="1" disabled>
     <label id="volume2-label" class="volume-label" for="volume2">Volume Control for Distance 2</label>
   </div>
 
@@ -209,16 +209,22 @@
     }
 
     function adjustFrequency(distance, oscillator, distanceElement, distanceLabel, gainNode) {
-      if (distance <= 0 || isNaN(distance) || distance < 1 || distance > 50) {
+      if (distance === 0 || isNaN(distance)) {
         // If distance is 0 or invalid, mute the sound and disable volume control
         oscillator.frequency.value = 0; // Mute
         gainNode.gain.value = 0; // Mute
         setMutedVolumeControls(true, distanceLabel);
         distanceElement.innerText = `Distance ${distanceLabel}: Disconnected`;
-      } else {
-        // Otherwise, display and enable sound and volume control
+      } else if (distance > 0 && (distance >= 1 && distance <= 50)) {
+        // Display the distance and keep volume control active
         const frequency = 100 + distance * 10;
         oscillator.frequency.value = frequency;
+        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
+        setMutedVolumeControls(false, distanceLabel);
+      } else {
+        // If distance is between 0.1 and 1 or above 50, display the distance and allow volume control
+        oscillator.frequency.value = 100; // Base frequency
+        gainNode.gain.value = 1; // Max volume
         distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
         setMutedVolumeControls(false, distanceLabel);
       }
@@ -231,15 +237,7 @@
         volumeSlider.value = 0; // Set volume to 0 when muted
       } else {
         volumeSlider.disabled = false;
-        volumeSlider.value = 1; // Default volume when connected
       }
-    }
-
-    function updateUIState(isConnected) {
-      const sliders = [document.getElementById('volume1'), document.getElementById('volume2')];
-      sliders.forEach(slider => {
-        slider.disabled = !isConnected;
-      });
     }
 
     document.getElementById('disconnect').addEventListener('click', () => {
@@ -258,6 +256,14 @@
       gainNode2.gain.value = 0;
       updateUIState(false);
     });
+
+    function updateUIState(isConnected) {
+      const sliders = [document.getElementById('volume1'), document.getElementById('volume2')];
+      sliders.forEach(slider => {
+        slider.disabled = !isConnected;
+        slider.value = isConnected ? 1 : 0; // Default volume to max when connected
+      });
+    }
   </script>
 </body>
 </html>
