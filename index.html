@@ -100,6 +100,7 @@
     .volume-slider {
       width: 100%;
       margin-top: 10px;
+      background-color: #ff6666; /* Red color like the connect button */
     }
 
     .volume-slider:disabled {
@@ -225,8 +226,9 @@
         // Valid range, update frequency and enable volume control
         const frequency = 100 + distance * 10;
         oscillator.frequency.value = frequency;
-        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
+        gainNode.gain.value = 1;
         setMutedVolumeControls(false, distanceLabel);
+        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
       }
     }
 
@@ -265,4 +267,3 @@
   </script>
 </body>
 </html>
-
