@@ -194,7 +194,7 @@
         if (!audioCtx) {
           audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
-        setupOscillators();
+        setupOscillators(); // Ensures oscillators are set up without starting them initially
         updateUIState(true);
       } catch (error) {
         console.error('Error connecting:', error);
@@ -202,14 +202,21 @@
     });
 
     function setupOscillators() {
+      // Create oscillators but don't start them with sound
       oscillator1 = audioCtx.createOscillator();
       gainNode1 = audioCtx.createGain();
       oscillator1.connect(gainNode1).connect(audioCtx.destination);
-      oscillator1.start();
 
       oscillator2 = audioCtx.createOscillator();
       gainNode2 = audioCtx.createGain();
       oscillator2.connect(gainNode2).connect(audioCtx.destination);
+
+      // Initially set frequencies to 0 to avoid initial beeps
+      oscillator1.frequency.value = 0;
+      oscillator2.frequency.value = 0;
+
+      // Start oscillators in silent mode (no sound)
+      oscillator1.start();
       oscillator2.start();
 
       document.getElementById('volume1').addEventListener('input', (e) => {
@@ -245,14 +252,10 @@
         gainNode.gain.value = distanceLabel === "1" ? volume1 : volume2;
         distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
       } else {
-        oscillator.frequency.value = 0; // Mute tone
+        oscillator.frequency.value = 0;
         gainNode.gain.value = 0;
-        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
+        distanceElement.innerText = `Distance ${distanceLabel}: Out of range`;
       }
-    }
-
-    function updateSliderBackground(slider, value) {
-      slider.style.setProperty('--volume-level', `${value * 100}%`);
     }
 
     document.getElementById('disconnect').addEventListener('click', () => {
