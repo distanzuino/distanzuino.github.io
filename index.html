@@ -90,9 +90,6 @@
       margin: 10px 0;
       box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.6);
       color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
     }
 
     .distance-display {
@@ -100,21 +97,13 @@
       margin: 10px 0;
     }
 
-    .volume-container {
-      display: flex;
-      align-items: center;
+    .volume-slider {
       width: 100%;
       margin-top: 10px;
-    }
-
-    .volume-slider {
-      flex: 1;
       appearance: none;
-      height: 10px;
-      border-radius: 20px;
+      height: 10px; /* Increased thickness */
+      border-radius: 5px;
       outline: none;
-      margin-left: 10px;
-      margin-right: 10px;
     }
 
     .volume-slider.connected {
@@ -145,34 +134,11 @@
     .volume-slider:disabled {
       cursor: not-allowed;
     }
-
-    .speaker-icon {
-      width: 20px;
-      height: 20px;
-      background: no-repeat center;
-      background-size: contain;
-    }
-
-    .speaker-icon.level-0 {
-      background-image: url('speaker0.png'); /* Add an icon for muted state */
-    }
-
-    .speaker-icon.level-1 {
-      background-image: url('speaker1.png'); /* Low volume */
-    }
-
-    .speaker-icon.level-2 {
-      background-image: url('speaker2.png'); /* Medium volume */
-    }
-
-    .speaker-icon.level-3 {
-      background-image: url('speaker3.png'); /* High volume */
-    }
   </style>
 </head>
 <body>
   <div id="top-container">
-    <img id="logo" src="logoDistanzuino.jpg" alt="Distanzuino Logo">
+    <img id="logo" src="logo.jpg" alt="Distanzuino Logo">
     <div id="button-container">
       <button id="connect" class="button">Connect</button>
       <button id="disconnect" class="button">Disconnect</button>
@@ -181,45 +147,135 @@
 
   <div id="card1" class="card">
     <p id="distance1" class="distance-display">Distance 1: Disconnected</p>
-    <div class="volume-container">
-      <div id="speaker1" class="speaker-icon level-0"></div>
-      <input id="volume1" type="range" class="volume-slider disconnected" min="0" max="1" step="0.01" value="1" disabled>
-    </div>
+    <input id="volume1" type="range" class="volume-slider disconnected" min="0" max="1" step="0.01" value="1" disabled>
   </div>
 
   <div id="card2" class="card">
     <p id="distance2" class="distance-display">Distance 2: Disconnected</p>
-    <div class="volume-container">
-      <div id="speaker2" class="speaker-icon level-0"></div>
-      <input id="volume2" type="range" class="volume-slider disconnected" min="0" max="1" step="0.01" value="1" disabled>
-    </div>
+    <input id="volume2" type="range" class="volume-slider disconnected" min="0" max="1" step="0.01" value="1" disabled>
   </div>
 
   <script>
-    let volume1 = 1; // Store the last volume for speaker 1
-    let volume2 = 1; // Store the last volume for speaker 2
+    let bluetoothDevice;
+    let server;
+    let service;
+    let characteristic;
 
-    document.getElementById('volume1').addEventListener('input', (e) => {
-      const value = parseFloat(e.target.value);
-      updateSpeakerIcon('speaker1', value);
-    });
+    const HM10_SERVICE_UUID = '0000ffe0-0000-1000-8000-00805f9b34fb';
+    const HM10_CHARACTERISTIC_UUID = '0000ffe1-0000-1000-8000-00805f9b34fb';
 
-    document.getElementById('volume2').addEventListener('input', (e) => {
-      const value = parseFloat(e.target.value);
-      updateSpeakerIcon('speaker2', value);
-    });
+    let audioCtx;
+    let oscillator1, oscillator2;
+    let gainNode1, gainNode2;
 
-    function updateSpeakerIcon(speakerId, volume) {
-      const speaker = document.getElementById(speakerId);
-      if (volume === 0) {
-        speaker.className = 'speaker-icon level-0';
-      } else if (volume <= 0.33) {
-        speaker.className = 'speaker-icon level-1';
-      } else if (volume <= 0.66) {
-        speaker.className = 'speaker-icon level-2';
-      } else {
-        speaker.className = 'speaker-icon level-3';
+    let volume1 = 1; // Store the last volume for oscillator 1
+    let volume2 = 1; // Store the last volume for oscillator 2
+
+    document.getElementById('connect').addEventListener('click', async () => {
+      try {
+        bluetoothDevice = await navigator.bluetooth.requestDevice({
+          filters: [{ namePrefix: 'Distanzuino' }],
+          optionalServices: [HM10_SERVICE_UUID]
+        });
+
+        server = await bluetoothDevice.gatt.connect();
+        service = await server.getPrimaryService(HM10_SERVICE_UUID);
+        characteristic = await service.getCharacteristic(HM10_CHARACTERISTIC_UUID);
+
+        characteristic.startNotifications();
+        characteristic.addEventListener('characteristicvaluechanged', handleData);
+
+        document.getElementById('connect').style.opacity = '0';
+        document.getElementById('connect').style.pointerEvents = 'none';
+        document.getElementById('disconnect').style.opacity = '1';
+        document.getElementById('disconnect').style.pointerEvents = 'auto';
+
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        setupOscillators();
+        updateUIState(true);
+      } catch (error) {
+        console.error('Error connecting:', error);
       }
+    });
+
+    function setupOscillators() {
+      oscillator1 = audioCtx.createOscillator();
+      gainNode1 = audioCtx.createGain();
+      oscillator1.connect(gainNode1).connect(audioCtx.destination);
+      oscillator1.start();
+
+      oscillator2 = audioCtx.createOscillator();
+      gainNode2 = audioCtx.createGain();
+      oscillator2.connect(gainNode2).connect(audioCtx.destination);
+      oscillator2.start();
+
+      document.getElementById('volume1').addEventListener('input', (e) => {
+        volume1 = parseFloat(e.target.value); // Remember volume
+        gainNode1.gain.value = volume1 === 0 ? 0 : volume1;
+        updateSliderBackground(e.target, volume1);
+      });
+
+      document.getElementById('volume2').addEventListener('input', (e) => {
+        volume2 = parseFloat(e.target.value); // Remember volume
+        gainNode2.gain.value = volume2 === 0 ? 0 : volume2;
+        updateSliderBackground(e.target, volume2);
+      });
+    }
+
+    function handleData(event) {
+      const decoder = new TextDecoder();
+      const value = decoder.decode(event.target.value).trim();
+
+      if (value.startsWith('D1:')) {
+        const distance1 = parseFloat(value.substring(3)) / 10;
+        adjustFrequency(distance1, oscillator1, document.getElementById('distance1'), "1", gainNode1);
+      } else if (value.startsWith('D2:')) {
+        const distance2 = parseFloat(value.substring(3)) / 10;
+        adjustFrequency(distance2, oscillator2, document.getElementById('distance2'), "2", gainNode2);
+      }
+    }
+
+    function adjustFrequency(distance, oscillator, distanceElement, distanceLabel, gainNode) {
+      if (distance >= 1 && distance <= 50) {
+        const frequency = 100 + distance * 10;
+        oscillator.frequency.value = frequency;
+        gainNode.gain.value = distanceLabel === "1" ? volume1 : volume2;
+        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
+      } else {
+        oscillator.frequency.value = 0; // Mute tone
+        gainNode.gain.value = 0;
+        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
+      }
+    }
+
+    function updateSliderBackground(slider, value) {
+      slider.style.setProperty('--volume-level', `${value * 100}%`);
+    }
+
+    document.getElementById('disconnect').addEventListener('click', () => {
+      if (bluetoothDevice && bluetoothDevice.gatt.connected) {
+        bluetoothDevice.gatt.disconnect();
+      }
+
+      document.getElementById('connect').style.opacity = '1';
+      document.getElementById('connect').style.pointerEvents = 'auto';
+      document.getElementById('disconnect').style.opacity = '0';
+      document.getElementById('disconnect').style.pointerEvents = 'none';
+      updateUIState(false);
+    });
+
+    function updateUIState(isConnected) {
+      const sliders = document.querySelectorAll('.volume-slider');
+      sliders.forEach(slider => {
+        slider.disabled = !isConnected;
+        slider.className = isConnected ? 'volume-slider connected' : 'volume-slider disconnected';
+        updateSliderBackground(slider, isConnected ? slider.value : 0);
+      });
+
+      document.getElementById('distance1').innerText = isConnected ? 'Distance 1: Waiting...' : 'Distance 1: Disconnected';
+      document.getElementById('distance2').innerText = isConnected ? 'Distance 2: Waiting...' : 'Distance 2: Disconnected';
     }
   </script>
 </body>
