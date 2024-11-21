@@ -34,7 +34,7 @@
       max-width: 150px;
       height: auto;
       margin-right: 20px;
-      cursor: pointer;
+      cursor: pointer; /* Add cursor pointer to indicate it's clickable */
     }
 
     #button-container {
@@ -139,7 +139,7 @@
 </head>
 <body>
   <div id="top-container">
-    <img id="logo" src="logo.jpg" alt="Distanzuino Logo">
+    <img id="logo" src="logo.jpg" alt="Distanzuino Logo" onclick="window.location.href='https://distanzuino.wixsite.com/distanzuino'">
     <div id="button-container">
       <button id="connect" class="button">Connect</button>
       <button id="disconnect" class="button">Disconnect</button>
@@ -157,11 +157,6 @@
   </div>
 
   <script>
-    // Add the event listener to the logo for redirection
-    document.getElementById('logo').addEventListener('click', () => {
-      window.location.href = 'https://distanzuino.wixsite.com/distanzuino';
-    });
-
     let bluetoothDevice;
     let server;
     let service;
@@ -263,23 +258,25 @@
     document.getElementById('disconnect').addEventListener('click', () => {
       if (bluetoothDevice && bluetoothDevice.gatt.connected) {
         bluetoothDevice.gatt.disconnect();
-        updateUIState(false);
       }
+
+      document.getElementById('connect').style.opacity = '1';
+      document.getElementById('connect').style.pointerEvents = 'auto';
+      document.getElementById('disconnect').style.opacity = '0';
+      document.getElementById('disconnect').style.pointerEvents = 'none';
+      updateUIState(false);
     });
 
-    function updateUIState(connected) {
+    function updateUIState(isConnected) {
       const sliders = document.querySelectorAll('.volume-slider');
-      const distanceDisplays = document.querySelectorAll('.distance-display');
-      
       sliders.forEach(slider => {
-        slider.disabled = !connected;
-        slider.classList.toggle('connected', connected);
-        slider.classList.toggle('disconnected', !connected);
+        slider.disabled = !isConnected;
+        slider.className = isConnected ? 'volume-slider connected' : 'volume-slider disconnected';
+        updateSliderBackground(slider, isConnected ? slider.value : 0);
       });
 
-      distanceDisplays.forEach(display => {
-        display.innerText = display.innerText.replace('Disconnected', 'Disconnected');
-      });
+      document.getElementById('distance1').innerText = isConnected ? 'Distance 1: Waiting...' : 'Distance 1: Disconnected';
+      document.getElementById('distance2').innerText = isConnected ? 'Distance 2: Waiting...' : 'Distance 2: Disconnected';
     }
   </script>
 </body>
