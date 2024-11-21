@@ -34,6 +34,7 @@
       max-width: 150px;
       height: auto;
       margin-right: 20px;
+      cursor: pointer;
     }
 
     #button-container {
@@ -259,6 +260,14 @@
         bluetoothDevice.gatt.disconnect();
       }
 
+      // Stop the oscillators and mute the sound
+      if (oscillator1 && oscillator2) {
+        oscillator1.frequency.value = 0;
+        gainNode1.gain.value = 0;
+        oscillator2.frequency.value = 0;
+        gainNode2.gain.value = 0;
+      }
+
       document.getElementById('connect').style.opacity = '1';
       document.getElementById('connect').style.pointerEvents = 'auto';
       document.getElementById('disconnect').style.opacity = '0';
@@ -277,6 +286,11 @@
       document.getElementById('distance1').innerText = isConnected ? 'Distance 1: Waiting...' : 'Distance 1: Disconnected';
       document.getElementById('distance2').innerText = isConnected ? 'Distance 2: Waiting...' : 'Distance 2: Disconnected';
     }
+
+    // Redirect to website when clicking the logo
+    document.getElementById('logo').addEventListener('click', () => {
+      window.location.href = 'https://distanzuino.wixsite.com/distanzuino';
+    });
   </script>
 </body>
 </html>
