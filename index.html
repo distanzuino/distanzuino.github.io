@@ -100,8 +100,28 @@
     .volume-slider {
       width: 100%;
       margin-top: 10px;
-      background: linear-gradient(to right, #ff6666, #ff3333);
+      appearance: none;
+      height: 5px;
+      background: #ff6666; /* Red slider color */
       border-radius: 5px;
+      outline: none;
+    }
+
+    .volume-slider::-webkit-slider-thumb {
+      appearance: none;
+      width: 15px;
+      height: 15px;
+      background: #ffffff;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .volume-slider::-moz-range-thumb {
+      width: 15px;
+      height: 15px;
+      background: #ffffff;
+      border-radius: 50%;
+      cursor: pointer;
     }
 
     .volume-slider:disabled {
@@ -214,9 +234,12 @@
       if (distance >= 1 && distance <= 50) {
         const frequency = 100 + distance * 10;
         oscillator.frequency.value = frequency;
+        gainNode.gain.value = 1;
         distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
       } else {
-        oscillator.frequency.value = 0; // Mute
+        oscillator.frequency.value = 0;
+        gainNode.gain.value = 0;
+        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
       }
     }
 
@@ -224,14 +247,23 @@
       if (bluetoothDevice && bluetoothDevice.gatt.connected) {
         bluetoothDevice.gatt.disconnect();
       }
+      document.getElementById('connect').style.opacity = '1';
+      document.getElementById('connect').style.pointerEvents = 'auto';
+      document.getElementById('disconnect').style.opacity = '0';
+      document.getElementById('disconnect').style.pointerEvents = 'none';
+
+      oscillator1.frequency.value = 0;
+      oscillator2.frequency.value = 0;
+      gainNode1.gain.value = 0;
+      gainNode2.gain.value = 0;
       updateUIState(false);
     });
 
     function updateUIState(isConnected) {
-      const sliders = [document.getElementById('volume1'), document.getElementById('volume2')];
-      sliders.forEach(slider => {
-        slider.disabled = !isConnected;
-      });
+      const controls = document.querySelectorAll('.volume-slider');
+      controls.forEach(control => control.disabled = !isConnected);
+      document.getElementById('distance1').innerText = isConnected ? 'Distance 1: Waiting...' : 'Distance 1: Disconnected';
+      document.getElementById('distance2').innerText = isConnected ? 'Distance 2: Waiting...' : 'Distance 2: Disconnected';
     }
   </script>
 </body>
