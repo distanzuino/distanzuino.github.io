@@ -12,7 +12,7 @@
       font-weight: 400;
       text-align: center;
       margin: 0;
-      padding: 0 15px; /* Add space on the sides */
+      padding: 0 15px;
       height: 100vh;
       display: flex;
       flex-direction: column;
@@ -25,8 +25,8 @@
     #top-container {
       display: flex;
       align-items: center;
-      margin-top: 30px; /* Space between top and logo */
-      margin-bottom: 35px; /* Reduced space between logo and Distance 1 */
+      margin-top: 30px;
+      margin-bottom: 35px;
       justify-content: center;
     }
 
@@ -42,7 +42,7 @@
       justify-content: center;
       align-items: center;
       width: 150px;
-      height: 50px; /* Unified button size */
+      height: 50px;
     }
 
     .button {
@@ -58,7 +58,7 @@
     }
 
     #connect {
-      background-color: #ff6666; /* Softer red for connect button */
+      background-color: #ff6666;
       color: white;
       opacity: 1;
       z-index: 1;
@@ -69,8 +69,8 @@
     }
 
     #disconnect {
-      background-color: #333333; /* Dark grey for disconnect button */
-      border: 2px solid #ff6666; /* Red outline to match connect button */
+      background-color: #333333;
+      border: 2px solid #ff6666;
       color: white;
       opacity: 0;
       pointer-events: none;
@@ -100,7 +100,6 @@
     .volume-slider {
       width: 100%;
       margin-top: 10px;
-      /* Change color of volume slider to match the red connect button */
       background: linear-gradient(to right, #ff6666, #ff3333);
       border-radius: 5px;
     }
@@ -212,34 +211,12 @@
     }
 
     function adjustFrequency(distance, oscillator, distanceElement, distanceLabel, gainNode) {
-      if (distance === 0 || isNaN(distance)) {
-        // If distance is 0 or invalid, mute the sound and disable volume control
-        oscillator.frequency.value = 0; // Mute
-        gainNode.gain.value = 0; // Mute
-        setMutedVolumeControls(true, distanceLabel);
-        distanceElement.innerText = `Distance ${distanceLabel}: Disconnected`;
-      } else if (distance >= 0.1 && distance < 1 || distance > 50) {
-        // Mute and disable volume control for distances 0.1-1 or above 50
-        oscillator.frequency.value = 0;
-        gainNode.gain.value = 0;
-        setMutedVolumeControls(true, distanceLabel);
-        distanceElement.innerText = `Distance ${distanceLabel}: Disconnected`;
-      } else if (distance >= 1 && distance <= 50) {
-        // Valid distance range, allow frequency adjustment and enable volume control
+      if (distance >= 1 && distance <= 50) {
         const frequency = 100 + distance * 10;
         oscillator.frequency.value = frequency;
         distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
-        setMutedVolumeControls(false, distanceLabel);
-      }
-    }
-
-    function setMutedVolumeControls(isMuted, distanceLabel) {
-      const volumeSlider = document.getElementById(`volume${distanceLabel}`);
-      if (isMuted) {
-        volumeSlider.disabled = true;
-        volumeSlider.value = 0; // Set volume to 0 when muted
       } else {
-        volumeSlider.disabled = false;
+        oscillator.frequency.value = 0; // Mute
       }
     }
 
@@ -247,16 +224,6 @@
       if (bluetoothDevice && bluetoothDevice.gatt.connected) {
         bluetoothDevice.gatt.disconnect();
       }
-      document.getElementById('connect').style.opacity = '1';
-      document.getElementById('connect').style.pointerEvents = 'auto';
-      updateUIState(false);
-      document.getElementById('disconnect').style.opacity = '0';
-      document.getElementById('disconnect').style.pointerEvents = 'none';
-
-      oscillator1.frequency.value = 0;
-      oscillator2.frequency.value = 0;
-      gainNode1.gain.value = 0;
-      gainNode2.gain.value = 0;
       updateUIState(false);
     });
 
@@ -264,7 +231,6 @@
       const sliders = [document.getElementById('volume1'), document.getElementById('volume2')];
       sliders.forEach(slider => {
         slider.disabled = !isConnected;
-        slider.value = isConnected ? 1 : 0; // Default volume to max when connected
       });
     }
   </script>
