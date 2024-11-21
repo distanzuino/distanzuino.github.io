@@ -157,6 +157,11 @@
   </div>
 
   <script>
+    // Add the event listener to the logo for redirection
+    document.getElementById('logo').addEventListener('click', () => {
+      window.location.href = 'https://distanzuino.wixsite.com/distanzuino';
+    });
+
     let bluetoothDevice;
     let server;
     let service;
@@ -175,8 +180,8 @@
     document.getElementById('connect').addEventListener('click', async () => {
       try {
         bluetoothDevice = await navigator.bluetooth.requestDevice({
-          filters: [{ namePrefix: 'Distanzuino' }], 
-          optionalServices: [HM10_SERVICE_UUID] 
+          filters: [{ namePrefix: 'Distanzuino' }],
+          optionalServices: [HM10_SERVICE_UUID]
         });
 
         server = await bluetoothDevice.gatt.connect();
@@ -194,8 +199,7 @@
         if (!audioCtx) {
           audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
-        
-        setupOscillators();  // Initialize oscillators but keep them muted
+        setupOscillators();
         updateUIState(true);
       } catch (error) {
         console.error('Error connecting:', error);
@@ -203,20 +207,27 @@
     });
 
     function setupOscillators() {
-      // Create the oscillators and gain nodes
       oscillator1 = audioCtx.createOscillator();
       gainNode1 = audioCtx.createGain();
       oscillator1.connect(gainNode1).connect(audioCtx.destination);
-      oscillator1.frequency.value = 0; // Keep it muted initially
-      gainNode1.gain.value = 0; // Keep it muted initially
       oscillator1.start();
 
       oscillator2 = audioCtx.createOscillator();
       gainNode2 = audioCtx.createGain();
       oscillator2.connect(gainNode2).connect(audioCtx.destination);
-      oscillator2.frequency.value = 0; // Keep it muted initially
-      gainNode2.gain.value = 0; // Keep it muted initially
       oscillator2.start();
+
+      document.getElementById('volume1').addEventListener('input', (e) => {
+        volume1 = parseFloat(e.target.value); // Remember volume
+        gainNode1.gain.value = volume1 === 0 ? 0 : volume1;
+        updateSliderBackground(e.target, volume1);
+      });
+
+      document.getElementById('volume2').addEventListener('input', (e) => {
+        volume2 = parseFloat(e.target.value); // Remember volume
+        gainNode2.gain.value = volume2 === 0 ? 0 : volume2;
+        updateSliderBackground(e.target, volume2);
+      });
     }
 
     function handleData(event) {
@@ -252,39 +263,24 @@
     document.getElementById('disconnect').addEventListener('click', () => {
       if (bluetoothDevice && bluetoothDevice.gatt.connected) {
         bluetoothDevice.gatt.disconnect();
+        updateUIState(false);
       }
-
-      // Stop the oscillators and mute the sound
-      if (oscillator1 && oscillator2) {
-        oscillator1.frequency.value = 0;
-        gainNode1.gain.value = 0;
-        oscillator2.frequency.value = 0;
-        gainNode2.gain.value = 0;
-      }
-
-      document.getElementById('connect').style.opacity = '1';
-      document.getElementById('connect').style.pointerEvents = 'auto';
-      document.getElementById('disconnect').style.opacity = '0';
-      document.getElementById('disconnect').style.pointerEvents = 'none';
-      updateUIState(false);
     });
 
-    function updateUIState(isConnected) {
+    function updateUIState(connected) {
       const sliders = document.querySelectorAll('.volume-slider');
+      const distanceDisplays = document.querySelectorAll('.distance-display');
+      
       sliders.forEach(slider => {
-        slider.disabled = !isConnected;
-        slider.className = isConnected ? 'volume-slider connected' : 'volume-slider disconnected';
-        updateSliderBackground(slider, isConnected ? slider.value : 0);
+        slider.disabled = !connected;
+        slider.classList.toggle('connected', connected);
+        slider.classList.toggle('disconnected', !connected);
       });
 
-      document.getElementById('distance1').innerText = isConnected ? 'Distance 1: Waiting...' : 'Distance 1: Disconnected';
-      document.getElementById('distance2').innerText = isConnected ? 'Distance 2: Waiting...' : 'Distance 2: Disconnected';
+      distanceDisplays.forEach(display => {
+        display.innerText = display.innerText.replace('Disconnected', 'Disconnected');
+      });
     }
-
-    // Redirect to website when clicking the logo
-    document.getElementById('logo').addEventListener('click', () => {
-      window.location.href = 'https://distanzuino.wixsite.com/distanzuino';
-    });
   </script>
 </body>
 </html>
