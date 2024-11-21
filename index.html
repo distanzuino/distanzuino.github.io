@@ -175,8 +175,8 @@
     document.getElementById('connect').addEventListener('click', async () => {
       try {
         bluetoothDevice = await navigator.bluetooth.requestDevice({
-          filters: [{ namePrefix: 'Distanzuino' }],
-          optionalServices: [HM10_SERVICE_UUID]
+          filters: [{ namePrefix: 'Distanzuino' }], 
+          optionalServices: [HM10_SERVICE_UUID] 
         });
 
         server = await bluetoothDevice.gatt.connect();
@@ -194,7 +194,8 @@
         if (!audioCtx) {
           audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
-        setupOscillators(); // Ensures oscillators are set up without starting them initially
+        
+        setupOscillators();  // Initialize oscillators but keep them muted
         updateUIState(true);
       } catch (error) {
         console.error('Error connecting:', error);
@@ -202,34 +203,20 @@
     });
 
     function setupOscillators() {
-      // Create oscillators but don't start them with sound
+      // Create the oscillators and gain nodes
       oscillator1 = audioCtx.createOscillator();
       gainNode1 = audioCtx.createGain();
       oscillator1.connect(gainNode1).connect(audioCtx.destination);
+      oscillator1.frequency.value = 0; // Keep it muted initially
+      gainNode1.gain.value = 0; // Keep it muted initially
+      oscillator1.start();
 
       oscillator2 = audioCtx.createOscillator();
       gainNode2 = audioCtx.createGain();
       oscillator2.connect(gainNode2).connect(audioCtx.destination);
-
-      // Initially set frequencies to 0 to avoid initial beeps
-      oscillator1.frequency.value = 0;
-      oscillator2.frequency.value = 0;
-
-      // Start oscillators in silent mode (no sound)
-      oscillator1.start();
+      oscillator2.frequency.value = 0; // Keep it muted initially
+      gainNode2.gain.value = 0; // Keep it muted initially
       oscillator2.start();
-
-      document.getElementById('volume1').addEventListener('input', (e) => {
-        volume1 = parseFloat(e.target.value); // Remember volume
-        gainNode1.gain.value = volume1 === 0 ? 0 : volume1;
-        updateSliderBackground(e.target, volume1);
-      });
-
-      document.getElementById('volume2').addEventListener('input', (e) => {
-        volume2 = parseFloat(e.target.value); // Remember volume
-        gainNode2.gain.value = volume2 === 0 ? 0 : volume2;
-        updateSliderBackground(e.target, volume2);
-      });
     }
 
     function handleData(event) {
@@ -252,10 +239,14 @@
         gainNode.gain.value = distanceLabel === "1" ? volume1 : volume2;
         distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
       } else {
-        oscillator.frequency.value = 0;
+        oscillator.frequency.value = 0; // Mute tone
         gainNode.gain.value = 0;
-        distanceElement.innerText = `Distance ${distanceLabel}: Out of range`;
+        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
       }
+    }
+
+    function updateSliderBackground(slider, value) {
+      slider.style.setProperty('--volume-level', `${value * 100}%`);
     }
 
     document.getElementById('disconnect').addEventListener('click', () => {
