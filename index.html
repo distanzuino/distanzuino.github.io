@@ -102,9 +102,16 @@
       margin-top: 10px;
       appearance: none;
       height: 5px;
-      background: #ff6666; /* Red slider color */
       border-radius: 5px;
       outline: none;
+    }
+
+    .volume-slider.connected {
+      background: linear-gradient(to right, #ff6666 var(--volume-level, 50%), #ffffff var(--volume-level, 50%));
+    }
+
+    .volume-slider.disconnected {
+      background: #777; /* Grey when disconnected */
     }
 
     .volume-slider::-webkit-slider-thumb {
@@ -125,7 +132,6 @@
     }
 
     .volume-slider:disabled {
-      opacity: 0.5;
       cursor: not-allowed;
     }
 
@@ -146,13 +152,13 @@
 
   <div id="card1" class="card">
     <p id="distance1" class="distance-display">Distance 1: Disconnected</p>
-    <input id="volume1" type="range" class="volume-slider" min="0" max="1" step="0.01" value="1" disabled>
+    <input id="volume1" type="range" class="volume-slider disconnected" min="0" max="1" step="0.01" value="1" disabled>
     <label id="volume1-label" class="volume-label" for="volume1">Volume Control for Distance 1</label>
   </div>
 
   <div id="card2" class="card">
     <p id="distance2" class="distance-display">Distance 2: Disconnected</p>
-    <input id="volume2" type="range" class="volume-slider" min="0" max="1" step="0.01" value="1" disabled>
+    <input id="volume2" type="range" class="volume-slider disconnected" min="0" max="1" step="0.01" value="1" disabled>
     <label id="volume2-label" class="volume-label" for="volume2">Volume Control for Distance 2</label>
   </div>
 
@@ -168,6 +174,9 @@
     let audioCtx;
     let oscillator1, oscillator2;
     let gainNode1, gainNode2;
+
+    let volume1 = 1; // Store the last volume for oscillator 1
+    let volume2 = 1; // Store the last volume for oscillator 2
 
     document.getElementById('connect').addEventListener('click', async () => {
       try {
@@ -210,10 +219,15 @@
       oscillator2.start();
 
       document.getElementById('volume1').addEventListener('input', (e) => {
-        gainNode1.gain.value = e.target.value;
+        volume1 = parseFloat(e.target.value); // Remember volume
+        gainNode1.gain.value = volume1 === 0 ? 0 : volume1;
+        updateSliderBackground(e.target, volume1);
       });
+
       document.getElementById('volume2').addEventListener('input', (e) => {
-        gainNode2.gain.value = e.target.value;
+        volume2 = parseFloat(e.target.value); // Remember volume
+        gainNode2.gain.value = volume2 === 0 ? 0 : volume2;
+        updateSliderBackground(e.target, volume2);
       });
     }
 
@@ -234,34 +248,39 @@
       if (distance >= 1 && distance <= 50) {
         const frequency = 100 + distance * 10;
         oscillator.frequency.value = frequency;
-        gainNode.gain.value = 1;
+        gainNode.gain.value = distanceLabel === "1" ? volume1 : volume2;
         distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
       } else {
-        oscillator.frequency.value = 0;
+        oscillator.frequency.value = 0; // Mute tone
         gainNode.gain.value = 0;
         distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
       }
+    }
+
+    function updateSliderBackground(slider, value) {
+      slider.style.setProperty('--volume-level', `${value * 100}%`);
     }
 
     document.getElementById('disconnect').addEventListener('click', () => {
       if (bluetoothDevice && bluetoothDevice.gatt.connected) {
         bluetoothDevice.gatt.disconnect();
       }
+
       document.getElementById('connect').style.opacity = '1';
       document.getElementById('connect').style.pointerEvents = 'auto';
       document.getElementById('disconnect').style.opacity = '0';
       document.getElementById('disconnect').style.pointerEvents = 'none';
-
-      oscillator1.frequency.value = 0;
-      oscillator2.frequency.value = 0;
-      gainNode1.gain.value = 0;
-      gainNode2.gain.value = 0;
       updateUIState(false);
     });
 
     function updateUIState(isConnected) {
-      const controls = document.querySelectorAll('.volume-slider');
-      controls.forEach(control => control.disabled = !isConnected);
+      const sliders = document.querySelectorAll('.volume-slider');
+      sliders.forEach(slider => {
+        slider.disabled = !isConnected;
+        slider.className = isConnected ? 'volume-slider connected' : 'volume-slider disconnected';
+        updateSliderBackground(slider, isConnected ? slider.value : 0);
+      });
+
       document.getElementById('distance1').innerText = isConnected ? 'Distance 1: Waiting...' : 'Distance 1: Disconnected';
       document.getElementById('distance2').innerText = isConnected ? 'Distance 2: Waiting...' : 'Distance 2: Disconnected';
     }
