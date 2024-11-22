@@ -147,12 +147,12 @@
   </div>
 
   <div id="card1" class="card">
-    <p id="distance1" class="distance-display">Distance 1: Disconnected</p>
+    <p id="distance1" class="distance-display" style="display: none;">Distance 1: Disconnected</p>
     <input id="volume1" type="range" class="volume-slider disconnected" min="0" max="1" step="0.01" value="1" disabled>
   </div>
 
   <div id="card2" class="card">
-    <p id="distance2" class="distance-display">Distance 2: Disconnected</p>
+    <p id="distance2" class="distance-display" style="display: none;">Distance 2: Disconnected</p>
     <input id="volume2" type="range" class="volume-slider disconnected" min="0" max="1" step="0.01" value="1" disabled>
   </div>
 
@@ -247,16 +247,16 @@
         const frequency = 100 + distance * 10;
         oscillator.frequency.value = frequency;
         gainNode.gain.value = distanceLabel === "1" ? volume1 : volume2; // Unmute with the correct volume
-        distanceElement.innerText = Distance ${distanceLabel}: ${distance.toFixed(2)} cm;
+        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
       } else {
         oscillator.frequency.value = 0; // Mute tone
         gainNode.gain.value = 0;
-        distanceElement.innerText = Distance ${distanceLabel}: ${distance.toFixed(2)} cm;
+        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
       }
     }
 
     function updateSliderBackground(slider, value) {
-      slider.style.setProperty('--volume-level', ${value * 100}%);
+      slider.style.setProperty('--volume-level', value * 100 + '%');
     }
 
     document.getElementById('disconnect').addEventListener('click', () => {
@@ -286,13 +286,15 @@
       });
 
       if (isConnected) {
+        document.getElementById('distance1').style.display = 'block';
+        document.getElementById('distance2').style.display = 'block';
         document.getElementById('distance1').innerText = 'Distance 1: Waiting...';
         document.getElementById('distance2').innerText = 'Distance 2: Waiting...';
-
-        // Mute oscillators while in "Waiting" state
         if (gainNode1) gainNode1.gain.value = 0;
         if (gainNode2) gainNode2.gain.value = 0;
       } else {
+        document.getElementById('distance1').style.display = 'none';
+        document.getElementById('distance2').style.display = 'none';
         document.getElementById('distance1').innerText = 'Distance 1: Disconnected';
         document.getElementById('distance2').innerText = 'Distance 2: Disconnected';
       }
