@@ -152,22 +152,19 @@
 
     .waves {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      justify-content: space-evenly;
+      align-items: flex-end;
       margin-top: 5px;
+      height: 120px; /* Height of the container for the wave lines */
+      width: 100%;
     }
 
     .wave {
-      height: 4px;
+      width: 6px;
+      border-radius: 50%;
       background-color: #ffffff;
-      transition: height 0.2s ease, width 0.2s ease; /* Smooth transition for length change */
+      transition: height 0.2s ease-in-out;
     }
-
-    /* Wave classes for different wave lengths */
-    .wave-1 { width: 20%; }
-    .wave-2 { width: 40%; }
-    .wave-3 { width: 60%; }
-    .wave-4 { width: 80%; }
   </style>
 </head>
 <body>
@@ -185,10 +182,10 @@
       <input id="volume1" type="range" class="volume-slider disconnected" min="0" max="1" step="0.01" value="1" disabled>
       <div id="speaker1" class="speaker-icon">
         <div class="waves">
-          <div class="wave wave-1"></div>
-          <div class="wave wave-2"></div>
-          <div class="wave wave-3"></div>
-          <div class="wave wave-4"></div>
+          <div class="wave" id="wave1"></div>
+          <div class="wave" id="wave2"></div>
+          <div class="wave" id="wave3"></div>
+          <div class="wave" id="wave4"></div>
         </div>
       </div>
     </div>
@@ -200,10 +197,10 @@
       <input id="volume2" type="range" class="volume-slider disconnected" min="0" max="1" step="0.01" value="1" disabled>
       <div id="speaker2" class="speaker-icon">
         <div class="waves">
-          <div class="wave wave-1"></div>
-          <div class="wave wave-2"></div>
-          <div class="wave wave-3"></div>
-          <div class="wave wave-4"></div>
+          <div class="wave" id="wave1"></div>
+          <div class="wave" id="wave2"></div>
+          <div class="wave" id="wave3"></div>
+          <div class="wave" id="wave4"></div>
         </div>
       </div>
     </div>
@@ -288,8 +285,8 @@
       const speaker = document.getElementById(speakerId);
       const waves = speaker.querySelectorAll('.wave');
       waves.forEach((wave, index) => {
-        const waveLength = volume * (index + 1) * 100; // Increasing wave length
-        wave.style.width = `${waveLength}%`; // Proportional width compared to volume slider
+        const waveHeight = (index + 1) * volume * 100; // Height increases proportionally
+        wave.style.height = `${waveHeight}%`; // Proportional height compared to volume slider
       });
 
       speaker.classList.toggle('active', volume > 0);
