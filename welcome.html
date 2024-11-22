@@ -134,6 +134,10 @@
         const password = document.getElementById('registerPassword').value;
         
         if (name && email && password) {
+            // Send this info to the server to store it in a database
+            // Example: fetch('/register', { method: 'POST', body: JSON.stringify({ name, email, password }) });
+
+            // For now, saving to localStorage as a mock
             localStorage.setItem('user', JSON.stringify({ name, email, password }));
             registerMessage.textContent = 'Registration successful! Please login.';
             registerMessage.style.color = 'green';
@@ -147,16 +151,25 @@
         const email = document.getElementById('loginEmail').value;
         const password = document.getElementById('loginPassword').value;
 
-        const storedUser = JSON.parse(localStorage.getItem('user'));
-
-        if (storedUser && storedUser.email === email && storedUser.password === password) {
-            userData = storedUser;
-            localStorage.setItem('user', JSON.stringify(userData));
-            document.getElementById('loginMessage').textContent = '';
-            showLoggedInContent();
-        } else {
-            loginMessage.textContent = 'Invalid email or password.';
-        }
+        // Simulate a login request to the server
+        fetch('/login', {
+            method: 'POST',
+            body: JSON.stringify({ email, password }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Store login info in localStorage (session)
+                localStorage.setItem('user', JSON.stringify(data.user));
+                userData = data.user;
+                showLoggedInContent();
+            } else {
+                loginMessage.textContent = 'Invalid email or password.';
+            }
+        });
     }
 
     function showLoggedInContent() {
@@ -184,6 +197,15 @@
         if (newName) userData.name = newName;
         if (newPassword) userData.password = newPassword;
 
+        // Send updated data to the server to update in the database
+        fetch('/updateAccount', {
+            method: 'POST',
+            body: JSON.stringify({ name: newName, password: newPassword }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
         localStorage.setItem('user', JSON.stringify(userData));
         document.getElementById('changeAccountForm').classList.add('hidden');
         showLoggedInContent();
@@ -194,6 +216,14 @@
     }
 
     function deleteAccount() {
+        // Send request to delete user account from server
+        fetch('/deleteAccount', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
         localStorage.removeItem('user');
         alert('Account deleted');
         userData = null;
