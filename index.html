@@ -139,7 +139,7 @@
 </head>
 <body>
   <div id="top-container">
-    <img id="logo" src="logo.jpg" alt="Distanzuino" onclick="window.location.href='https://distanzuino.wixsite.com/distanzuino'">
+    <img id="logo" src="logo.jpg" alt="Distanzuino Logo" onclick="window.location.href='https://distanzuino.wixsite.com/distanzuino'">
     <div id="button-container">
       <button id="connect" class="button">Connect</button>
       <button id="disconnect" class="button">Disconnect</button>
@@ -247,16 +247,16 @@
         const frequency = 100 + distance * 10;
         oscillator.frequency.value = frequency;
         gainNode.gain.value = distanceLabel === "1" ? volume1 : volume2; // Unmute with the correct volume
-        distanceElement.innerText = Distance ${distanceLabel}: ${distance.toFixed(2)} cm;
+        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
       } else {
         oscillator.frequency.value = 0; // Mute tone
         gainNode.gain.value = 0;
-        distanceElement.innerText = Distance ${distanceLabel}: ${distance.toFixed(2)} cm;
+        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
       }
     }
 
     function updateSliderBackground(slider, value) {
-      slider.style.setProperty('--volume-level', ${value * 100}%);
+      slider.style.setProperty('--volume-level', `${value * 100}%`);
     }
 
     document.getElementById('disconnect').addEventListener('click', () => {
