@@ -82,7 +82,7 @@
 </head>
 <body>
   <!-- Login and Sign Up Interface -->
-  <div id="login-container" class="hidden">
+  <div id="login-container">
     <h2>Login</h2>
     <form id="login-form">
       <input type="email" id="login-email" placeholder="Email" required><br>
@@ -247,18 +247,6 @@
       gainNode2 = audioCtx.createGain();
       oscillator2.connect(gainNode2).connect(audioCtx.destination);
       oscillator2.start();
-
-      document.getElementById('volume1').addEventListener('input', (e) => {
-        volume1 = parseFloat(e.target.value);
-        gainNode1.gain.value = volume1 === 0 ? 0 : volume1;
-        updateSliderBackground(e.target, volume1);
-      });
-
-      document.getElementById('volume2').addEventListener('input', (e) => {
-        volume2 = parseFloat(e.target.value);
-        gainNode2.gain.value = volume2 === 0 ? 0 : volume2;
-        updateSliderBackground(e.target, volume2);
-      });
     }
 
     function updateUIState(isConnected) {
