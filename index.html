@@ -162,7 +162,7 @@
 
     .wave {
       width: 4px; /* Reduced width */
-      height: 12%; /* Starting point, minimum size slightly bigger than before */
+      height: 30%; /* Slightly taller than before */
       background-color: #ffffff;
       border-radius: 2px; /* Slightly curved edges to make it more like a line */
       transition: height 0.2s ease-in-out;
@@ -264,101 +264,70 @@
       oscillator2.connect(gainNode2).connect(audioCtx.destination);
       oscillator2.start();
 
-      document.getElementById('volume1').addEventListener('input', (e) => {
-        volume1 = parseFloat(e.target.value);
-        gainNode1.gain.value = volume1 === 0 ? 0 : volume1;
-        updateSliderBackground(e.target, volume1);
-        updateWaveHeights('speaker1', volume1);
+      document.getElementById('volume1').disabled = false;
+      document.getElementById('volume2').disabled = false;
+      document.getElementById('volume1').value = 1;
+      document.getElementById('volume2').value = 1;
+
+      document.getElementById('volume1').addEventListener('input', () => {
+        volume1 = parseFloat(document.getElementById('volume1').value);
+        gainNode1.gain.setValueAtTime(volume1, audioCtx.currentTime);
       });
 
-      document.getElementById('volume2').addEventListener('input', (e) => {
-        volume2 = parseFloat(e.target.value);
-        gainNode2.gain.value = volume2 === 0 ? 0 : volume2;
-        updateSliderBackground(e.target, volume2);
-        updateWaveHeights('speaker2', volume2);
+      document.getElementById('volume2').addEventListener('input', () => {
+        volume2 = parseFloat(document.getElementById('volume2').value);
+        gainNode2.gain.setValueAtTime(volume2, audioCtx.currentTime);
       });
-    }
-
-    function updateSliderBackground(slider, value) {
-      slider.style.setProperty('--volume-level', `${value * 100}%`);
-    }
-
-    function updateWaveHeights(speakerId, volume) {
-      const speaker = document.getElementById(speakerId);
-      const waves = speaker.querySelectorAll('.wave');
-      const maxWaveHeight = 40; // Maximum height for waves (scaled down further)
-
-      waves.forEach((wave, index) => {
-        const waveHeight = Math.max((index + 1) * volume * maxWaveHeight, 15); // Adjusted for better visibility at 0
-        wave.style.height = `${waveHeight}%`;
-      });
-
-      speaker.classList.toggle('active', volume > 0);
-    }
-
-    function handleData(event) {
-      const decoder = new TextDecoder();
-      const value = decoder.decode(event.target.value).trim();
-
-      if (value.startsWith('D1:')) {
-        const distance1 = parseFloat(value.substring(3)) / 10;
-        adjustFrequency(distance1, oscillator1, document.getElementById('distance1'), "1", gainNode1);
-      } else if (value.startsWith('D2:')) {
-        const distance2 = parseFloat(value.substring(3)) / 10;
-        adjustFrequency(distance2, oscillator2, document.getElementById('distance2'), "2", gainNode2);
-      } else {
-        if (gainNode1) gainNode1.gain.value = 0;
-        if (gainNode2) gainNode2.gain.value = 0;
-      }
-    }
-
-    function adjustFrequency(distance, oscillator, distanceElement, distanceLabel, gainNode) {
-      if (distance >= 1 && distance <= 50) {
-        const frequency = 100 + distance * 10;
-        oscillator.frequency.value = frequency;
-        gainNode.gain.value = distanceLabel === "1" ? volume1 : volume2;
-        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
-      } else {
-        oscillator.frequency.value = 0;
-        gainNode.gain.value = 0;
-        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
-      }
     }
 
     document.getElementById('disconnect').addEventListener('click', () => {
-      if (bluetoothDevice && bluetoothDevice.gatt.connected) {
-        bluetoothDevice.gatt.disconnect();
-      }
-
-      if (audioCtx) {
-        gainNode1.gain.value = 0;
-        gainNode2.gain.value = 0;
-      }
-
+      bluetoothDevice.gatt.disconnect();
       document.getElementById('connect').style.opacity = '1';
       document.getElementById('connect').style.pointerEvents = 'auto';
       document.getElementById('disconnect').style.opacity = '0';
       document.getElementById('disconnect').style.pointerEvents = 'none';
-
       updateUIState(false);
     });
 
-    function updateUIState(isConnected) {
-      const sliders = document.querySelectorAll('.volume-slider');
-      sliders.forEach(slider => {
-        slider.disabled = !isConnected;
-        slider.className = isConnected ? 'volume-slider connected' : 'volume-slider disconnected';
-        updateSliderBackground(slider, isConnected ? slider.value : 0);
+    function handleData(event) {
+      let value = event.target.value.getUint8(0);
+      updateWaveHeight(value);
+    }
+
+    function updateWaveHeight(value) {
+      const waves = document.querySelectorAll('.wave');
+      const normalizedValue = Math.min(1, value / 255); // Scale value to [0, 1]
+      let waveHeight = 100 * normalizedValue;
+
+      waves.forEach(wave => {
+        wave.style.height = `${waveHeight}%`;
       });
 
-      if (isConnected) {
-        document.getElementById('distance1').innerText = 'Distance 1: Waiting...';
-        document.getElementById('distance2').innerText = 'Distance 2: Waiting...';
-        if (gainNode1) gainNode1.gain.value = 0;
-        if (gainNode2) gainNode2.gain.value = 0;
+      let volumeLevel = normalizedValue * 100;
+      document.querySelectorAll('.volume-slider').forEach(slider => {
+        slider.style.setProperty('--volume-level', `${volumeLevel}%`);
+      });
+    }
+
+    function updateUIState(connected) {
+      if (connected) {
+        document.querySelectorAll('.volume-slider').forEach(slider => {
+          slider.classList.remove('disconnected');
+          slider.classList.add('connected');
+        });
+
+        document.querySelectorAll('.speaker-icon').forEach(icon => {
+          icon.classList.add('active');
+        });
       } else {
-        document.getElementById('distance1').innerText = 'Distance 1: Disconnected';
-        document.getElementById('distance2').innerText = 'Distance 2: Disconnected';
+        document.querySelectorAll('.volume-slider').forEach(slider => {
+          slider.classList.remove('connected');
+          slider.classList.add('disconnected');
+        });
+
+        document.querySelectorAll('.speaker-icon').forEach(icon => {
+          icon.classList.remove('active');
+        });
       }
     }
   </script>
