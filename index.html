@@ -18,8 +18,9 @@
       flex-direction: column;
       justify-content: flex-start;
       align-items: center;
-      background: linear-gradient(to bottom right, #000000, #333333);
+      background: linear-gradient(to bottom right, #1a1a1a, #4e4e4e);
       color: #ffffff;
+      transition: background 0.5s ease;
     }
 
     #top-container {
@@ -28,45 +29,47 @@
       margin-top: 30px;
       margin-bottom: 35px;
       justify-content: center;
+      width: 100%;
     }
 
     #logo {
       max-width: 150px;
       height: auto;
       margin-right: 20px;
-      cursor: pointer; /* Add cursor pointer to indicate it's clickable */
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    #logo:hover {
+      transform: scale(1.05);
     }
 
     #button-container {
-      position: relative;
       display: flex;
-      justify-content: center;
-      align-items: center;
-      width: 150px;
-      height: 50px;
+      gap: 15px;
     }
 
     .button {
-      width: 100%;
-      height: 100%;
-      font-size: 1em;
-      font-weight: 700;
+      padding: 10px 20px;
+      font-size: 1.1em;
+      font-weight: 600;
       border: none;
-      border-radius: 8px;
+      border-radius: 25px;
       cursor: pointer;
-      position: absolute;
-      transition: opacity 0.3s ease, transform 0.2s ease;
+      transition: transform 0.3s ease, background-color 0.3s ease;
+      display: inline-block;
+      text-align: center;
     }
 
     #connect {
       background-color: #ff6666;
       color: white;
-      opacity: 1;
-      z-index: 1;
+      box-shadow: 0 5px 15px rgba(255, 102, 102, 0.6);
     }
 
     #connect:hover {
-      transform: scale(1.05);
+      transform: scale(1.1);
+      background-color: #e55b5b;
     }
 
     #disconnect {
@@ -75,37 +78,44 @@
       color: white;
       opacity: 0;
       pointer-events: none;
-      z-index: 0;
+      box-shadow: 0 5px 15px rgba(51, 51, 51, 0.6);
     }
 
     #disconnect:hover {
-      transform: scale(1.05);
+      transform: scale(1.1);
+      background-color: #444444;
     }
 
     .card {
-      background-color: #444;
+      background-color: #222;
       border-radius: 12px;
       padding: 20px;
       width: 90%;
       max-width: 400px;
-      margin: 10px 0;
-      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.6);
+      margin: 15px 0;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.8);
       color: #fff;
-      display: none; /* Initially hidden */
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+      transform: scale(1.03);
     }
 
     .distance-display {
-      font-size: 1.2em;
+      font-size: 1.4em;
       margin: 10px 0;
+      font-weight: 700;
     }
 
     .volume-slider {
       width: 100%;
       margin-top: 10px;
       appearance: none;
-      height: 15px; /* Increased thickness */
-      border-radius: 5px;
+      height: 15px;
+      border-radius: 8px;
       outline: none;
+      transition: background 0.3s ease;
     }
 
     .volume-slider.connected {
@@ -113,24 +123,26 @@
     }
 
     .volume-slider.disconnected {
-      background: #777; /* Grey when disconnected */
+      background: #777;
     }
 
     .volume-slider::-webkit-slider-thumb {
       appearance: none;
-      width: 15px;
-      height: 15px;
+      width: 20px;
+      height: 20px;
       background: #ffffff;
       border-radius: 50%;
       cursor: pointer;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
     }
 
     .volume-slider::-moz-range-thumb {
-      width: 15px;
-      height: 15px;
+      width: 20px;
+      height: 20px;
       background: #ffffff;
       border-radius: 50%;
       cursor: pointer;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
     }
 
     .volume-slider:disabled {
@@ -148,12 +160,12 @@
   </div>
 
   <div id="card1" class="card">
-    <p id="distance1" class="distance-display" style="display: none;">Distance 1: Disconnected</p>
+    <p id="distance1" class="distance-display">Distance 1: Disconnected</p>
     <input id="volume1" type="range" class="volume-slider disconnected" min="0" max="1" step="0.01" value="1" disabled>
   </div>
 
   <div id="card2" class="card">
-    <p id="distance2" class="distance-display" style="display: none;">Distance 2: Disconnected</p>
+    <p id="distance2" class="distance-display">Distance 2: Disconnected</p>
     <input id="volume2" type="range" class="volume-slider disconnected" min="0" max="1" step="0.01" value="1" disabled>
   </div>
 
@@ -250,14 +262,14 @@
         gainNode.gain.value = distanceLabel === "1" ? volume1 : volume2; // Unmute with the correct volume
         distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
       } else {
-        oscillator.frequency.value = 0;
+        oscillator.frequency.value = 0; // Mute tone
         gainNode.gain.value = 0;
-        distanceElement.innerText = `Distance ${distanceLabel}: Invalid`;
+        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
       }
     }
 
     function updateSliderBackground(slider, value) {
-      slider.style.setProperty('--volume-level', value * 100 + '%');
+      slider.style.setProperty('--volume-level', `${value * 100}%`);
     }
 
     document.getElementById('disconnect').addEventListener('click', () => {
@@ -279,21 +291,21 @@
     });
 
     function updateUIState(isConnected) {
-      const cards = document.querySelectorAll('.card');
-      cards.forEach(card => {
-        card.style.display = isConnected ? 'block' : 'none'; // Show or hide the entire card
+      const sliders = document.querySelectorAll('.volume-slider');
+      sliders.forEach(slider => {
+        slider.disabled = !isConnected;
+        slider.className = isConnected ? 'volume-slider connected' : 'volume-slider disconnected';
+        updateSliderBackground(slider, isConnected ? slider.value : 0);
       });
 
       if (isConnected) {
-        document.getElementById('distance1').style.display = 'block';
-        document.getElementById('distance2').style.display = 'block';
         document.getElementById('distance1').innerText = 'Distance 1: Waiting...';
         document.getElementById('distance2').innerText = 'Distance 2: Waiting...';
+
+        // Mute oscillators while in "Waiting" state
         if (gainNode1) gainNode1.gain.value = 0;
         if (gainNode2) gainNode2.gain.value = 0;
       } else {
-        document.getElementById('distance1').style.display = 'none';
-        document.getElementById('distance2').style.display = 'none';
         document.getElementById('distance1').innerText = 'Distance 1: Disconnected';
         document.getElementById('distance2').innerText = 'Distance 2: Disconnected';
       }
