@@ -155,12 +155,12 @@
       justify-content: space-evenly;
       align-items: flex-end;
       margin-top: 5px;
-      height: 50px; /* Adjusted the height of the wave container */
+      height: 30px; /* Adjusted to make the whole wave container smaller */
       width: 100%;
     }
 
     .wave {
-      width: 6px;
+      width: 4px; /* Reduced the width to make the waves more compact */
       border-radius: 50%;
       background-color: #ffffff;
       transition: height 0.2s ease-in-out;
@@ -284,11 +284,11 @@
     function updateWaveHeights(speakerId, volume) {
       const speaker = document.getElementById(speakerId);
       const waves = speaker.querySelectorAll('.wave');
-      const maxWaveHeight = 40; // Maximum height for waves (scaled down)
+      const maxWaveHeight = 30; // Maximum height for waves (scaled down further)
 
       waves.forEach((wave, index) => {
-        const waveHeight = Math.max((index + 1) * volume * maxWaveHeight, 2); // Ensure minimum height
-        wave.style.height = `${waveHeight}%`; // Proportional height compared to volume slider
+        const waveHeight = Math.max((index + 1) * volume * maxWaveHeight, 5); // Minimum height is still visible as dot
+        wave.style.height = `${waveHeight}%`;
       });
 
       speaker.classList.toggle('active', volume > 0);
