@@ -62,7 +62,7 @@
       background-color: #ff6666;
       color: white;
       opacity: 1;
-      z-index: 1;
+      z-index: 10; /* Ensure it has a higher z-index when visible */
     }
 
     #connect:hover {
@@ -75,7 +75,7 @@
       color: white;
       opacity: 0;
       pointer-events: none;
-      z-index: 0;
+      z-index: 0; /* Make sure disconnect has a lower z-index */
     }
 
     #disconnect:hover {
@@ -99,13 +99,12 @@
     }
 
     .volume-slider {
-      width: 80%;
+      width: 100%;
       margin-top: 10px;
       appearance: none;
       height: 10px; /* Increased thickness */
       border-radius: 5px;
       outline: none;
-      display: inline-block;
     }
 
     .volume-slider.connected {
@@ -136,24 +135,6 @@
     .volume-slider:disabled {
       cursor: not-allowed;
     }
-
-    .waves {
-      display: flex;
-      justify-content: space-evenly;
-      align-items: flex-end;
-      margin-top: 5px;
-      height: 15px; /* Smaller height for the whole wave container */
-      width: 100%;
-      margin-top: -5px; /* Adjusted to move the wave container a little up */
-    }
-
-    .wave {
-      width: 4px; /* Reduced width */
-      height: 0%; /* Starting point at 0% for waves */
-      background-color: #ffffff;
-      border-radius: 2px; /* Slightly curved edges to make it more like a line */
-      transition: height 0.2s ease-in-out;
-    }
   </style>
 </head>
 <body>
@@ -168,23 +149,11 @@
   <div id="card1" class="card">
     <p id="distance1" class="distance-display">Distance 1: Disconnected</p>
     <input id="volume1" type="range" class="volume-slider disconnected" min="0" max="1" step="0.01" value="1" disabled>
-    <div class="waves">
-      <div class="wave"></div>
-      <div class="wave"></div>
-      <div class="wave"></div>
-      <div class="wave"></div>
-    </div>
   </div>
 
   <div id="card2" class="card">
     <p id="distance2" class="distance-display">Distance 2: Disconnected</p>
     <input id="volume2" type="range" class="volume-slider disconnected" min="0" max="1" step="0.01" value="1" disabled>
-    <div class="waves">
-      <div class="wave"></div>
-      <div class="wave"></div>
-      <div class="wave"></div>
-      <div class="wave"></div>
-    </div>
   </div>
 
   <script>
@@ -247,14 +216,12 @@
         volume1 = parseFloat(e.target.value); // Remember volume
         gainNode1.gain.value = volume1 === 0 ? 0 : volume1;
         updateSliderBackground(e.target, volume1);
-        updateWaveHeights(true);
       });
 
       document.getElementById('volume2').addEventListener('input', (e) => {
         volume2 = parseFloat(e.target.value); // Remember volume
         gainNode2.gain.value = volume2 === 0 ? 0 : volume2;
         updateSliderBackground(e.target, volume2);
-        updateWaveHeights(true);
       });
     }
 
@@ -268,60 +235,57 @@
       } else if (value.startsWith('D2:')) {
         const distance2 = parseFloat(value.substring(3)) / 10;
         adjustFrequency(distance2, oscillator2, document.getElementById('distance2'), "2", gainNode2);
+      } else {
+        // If no valid data, mute oscillators
+        if (gainNode1) gainNode1.gain.value = 0;
+        if (gainNode2) gainNode2.gain.value = 0;
       }
     }
 
-    function adjustFrequency(distance, oscillator, distanceElement, id, gainNode) {
-      const frequency = 500 + distance * 10; // Distance affects frequency
-      oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-      distanceElement.textContent = `Distance ${id}: ${distance.toFixed(1)} cm`;
-      updateWaveHeights(false);
-    }
-
-    function updateWaveHeights(isManual) {
-      const waveHeight1 = isManual ? volume1 * 100 : gainNode1.gain.value * 100;
-      const waveHeight2 = isManual ? volume2 * 100 : gainNode2.gain.value * 100;
-
-      document.querySelectorAll('#card1 .wave').forEach((wave, index) => {
-        wave.style.height = `${waveHeight1 - index * 20}%`; // Adjust wave height
-      });
-
-      document.querySelectorAll('#card2 .wave').forEach((wave, index) => {
-        wave.style.height = `${waveHeight2 - index * 20}%`;
-      });
+    function adjustFrequency(distance, oscillator, distanceElement, distanceLabel, gainNode) {
+      if (distance >= 1 && distance <= 50) {
+        const frequency = 100 + distance * 10;
+        oscillator.frequency.value = frequency;
+        gainNode.gain.value = distanceLabel === "1" ? volume1 : volume2; // Unmute with the correct volume
+        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
+      } else {
+        oscillator.frequency.value = 0; // Mute tone
+        gainNode.gain.value = 0;
+        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm (Out of range)`;
+      }
     }
 
     function updateSliderBackground(slider, volume) {
-      const volumeLevel = volume * 100;
-      slider.style.setProperty('--volume-level', `${volumeLevel}%`);
-      slider.classList.add('connected');
-      slider.classList.remove('disconnected');
+      const percentage = (volume * 100);
+      slider.style.setProperty('--volume-level', `${percentage}%`);
     }
 
-    function updateUIState(isConnected) {
-      document.querySelectorAll('.volume-slider').forEach((slider) => {
-        slider.disabled = !isConnected;
-        if (isConnected) {
-          slider.classList.remove('disconnected');
-          slider.classList.add('connected');
-        } else {
-          slider.classList.remove('connected');
-          slider.classList.add('disconnected');
-        }
-      });
-    }
-
-    document.getElementById('disconnect').addEventListener('click', () => {
+    document.getElementById('disconnect').addEventListener('click', async () => {
       if (bluetoothDevice && bluetoothDevice.gatt.connected) {
         bluetoothDevice.gatt.disconnect();
-      }
+        document.getElementById('connect').style.opacity = '1';
+        document.getElementById('connect').style.pointerEvents = 'auto';
+        document.getElementById('disconnect').style.opacity = '0';
+        document.getElementById('disconnect').style.pointerEvents = 'none';
 
-      updateUIState(false);
-      document.getElementById('connect').style.opacity = '1';
-      document.getElementById('connect').style.pointerEvents = 'auto';
-      document.getElementById('disconnect').style.opacity = '0';
-      document.getElementById('disconnect').style.pointerEvents = 'none';
+        updateUIState(false);
+        resetUI();
+      }
     });
+
+    function updateUIState(isConnected) {
+      document.getElementById('volume1').disabled = !isConnected;
+      document.getElementById('volume2').disabled = !isConnected;
+    }
+
+    function resetUI() {
+      document.getElementById('distance1').innerText = 'Distance 1: Disconnected';
+      document.getElementById('distance2').innerText = 'Distance 2: Disconnected';
+      document.getElementById('volume1').value = 1;
+      document.getElementById('volume2').value = 1;
+      updateSliderBackground(document.getElementById('volume1'), 1);
+      updateSliderBackground(document.getElementById('volume2'), 1);
+    }
   </script>
 </body>
 </html>
