@@ -62,7 +62,7 @@
       background-color: #ff6666;
       color: white;
       opacity: 1;
-      z-index: 2; /* Ensure it's above other elements */
+      z-index: 1;
     }
 
     #connect:hover {
@@ -75,7 +75,7 @@
       color: white;
       opacity: 0;
       pointer-events: none;
-      z-index: 1; /* Lower than the connect button */
+      z-index: 0;
     }
 
     #disconnect:hover {
@@ -102,7 +102,7 @@
       width: 100%;
       margin-top: 10px;
       appearance: none;
-      height: 15px; /* Increased thickness */
+      height: 10px; /* Increased thickness */
       border-radius: 5px;
       outline: none;
     }
@@ -117,19 +117,19 @@
 
     .volume-slider::-webkit-slider-thumb {
       appearance: none;
-      width: 0px;
-      height: 0px;
-      background: transparent;
-      border: none;
-      cursor: none;
+      width: 15px;
+      height: 15px;
+      background: #ffffff;
+      border-radius: 50%;
+      cursor: pointer;
     }
 
     .volume-slider::-moz-range-thumb {
-      width: 0px;
-      height: 0px;
-      background: transparent;
-      border: none;
-      cursor: none;
+      width: 15px;
+      height: 15px;
+      background: #ffffff;
+      border-radius: 50%;
+      cursor: pointer;
     }
 
     .volume-slider:disabled {
@@ -175,7 +175,7 @@
     document.getElementById('connect').addEventListener('click', async () => {
       try {
         bluetoothDevice = await navigator.bluetooth.requestDevice({
-          filters: [{ namePrefix: 'Distanzuino' }], 
+          filters: [{ namePrefix: 'Distanzuino' }],
           optionalServices: [HM10_SERVICE_UUID]
         });
 
@@ -257,35 +257,44 @@
 
     function updateSliderBackground(slider, value) {
       slider.style.setProperty('--volume-level', `${value * 100}%`);
-      if (value === 0) {
-        slider.classList.add('disconnected');
-        slider.classList.remove('connected');
-      } else {
-        slider.classList.add('connected');
-        slider.classList.remove('disconnected');
-      }
     }
 
-    document.getElementById('disconnect').addEventListener('click', async () => {
+    document.getElementById('disconnect').addEventListener('click', () => {
       if (bluetoothDevice && bluetoothDevice.gatt.connected) {
         bluetoothDevice.gatt.disconnect();
-        updateUIState(false);
       }
+
+      if (audioCtx) {
+        gainNode1.gain.value = 0;
+        gainNode2.gain.value = 0;
+      }
+
+      document.getElementById('connect').style.opacity = '1';
+      document.getElementById('connect').style.pointerEvents = 'auto';
+      document.getElementById('disconnect').style.opacity = '0';
+      document.getElementById('disconnect').style.pointerEvents = 'none';
+
+      updateUIState(false);
     });
 
-    function updateUIState(connected) {
-      if (connected) {
-        document.getElementById('connect').style.opacity = '0';
-        document.getElementById('connect').style.pointerEvents = 'none';
-        document.getElementById('disconnect').style.opacity = '1';
-        document.getElementById('disconnect').style.pointerEvents = 'auto';
-        updateSliderBackground(document.getElementById('volume1'), volume1);
-        updateSliderBackground(document.getElementById('volume2'), volume2);
+    function updateUIState(isConnected) {
+      const sliders = document.querySelectorAll('.volume-slider');
+      sliders.forEach(slider => {
+        slider.disabled = !isConnected;
+        slider.className = isConnected ? 'volume-slider connected' : 'volume-slider disconnected';
+        updateSliderBackground(slider, isConnected ? slider.value : 0);
+      });
+
+      if (isConnected) {
+        document.getElementById('distance1').innerText = 'Distance 1: Waiting...';
+        document.getElementById('distance2').innerText = 'Distance 2: Waiting...';
+
+        // Mute oscillators while in "Waiting" state
+        if (gainNode1) gainNode1.gain.value = 0;
+        if (gainNode2) gainNode2.gain.value = 0;
       } else {
-        document.getElementById('connect').style.opacity = '1';
-        document.getElementById('connect').style.pointerEvents = 'auto';
-        document.getElementById('disconnect').style.opacity = '0';
-        document.getElementById('disconnect').style.pointerEvents = 'none';
+        document.getElementById('distance1').innerText = 'Distance 1: Disconnected';
+        document.getElementById('distance2').innerText = 'Distance 2: Disconnected';
       }
     }
   </script>
