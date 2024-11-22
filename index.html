@@ -91,6 +91,7 @@
       margin: 10px 0;
       box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.6);
       color: #fff;
+      display: none; /* Initially hidden */
     }
 
     .distance-display {
@@ -249,9 +250,9 @@
         gainNode.gain.value = distanceLabel === "1" ? volume1 : volume2; // Unmute with the correct volume
         distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
       } else {
-        oscillator.frequency.value = 0; // Mute tone
+        oscillator.frequency.value = 0;
         gainNode.gain.value = 0;
-        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
+        distanceElement.innerText = `Distance ${distanceLabel}: Invalid`;
       }
     }
 
@@ -278,11 +279,9 @@
     });
 
     function updateUIState(isConnected) {
-      const sliders = document.querySelectorAll('.volume-slider');
-      sliders.forEach(slider => {
-        slider.disabled = !isConnected;
-        slider.className = isConnected ? 'volume-slider connected' : 'volume-slider disconnected';
-        updateSliderBackground(slider, isConnected ? slider.value : 0);
+      const cards = document.querySelectorAll('.card');
+      cards.forEach(card => {
+        card.style.display = isConnected ? 'block' : 'none'; // Show or hide the entire card
       });
 
       if (isConnected) {
