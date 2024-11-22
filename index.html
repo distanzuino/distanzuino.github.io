@@ -157,11 +157,12 @@
       margin-top: 5px;
       height: 25px; /* Adjusted to make the whole wave container a bit shorter */
       width: 100%;
+      margin-top: -10px; /* Move the wave container a little up */
     }
 
     .wave {
       width: 4px; /* Reduced width */
-      height: 5%; /* Minimum height, should be visible at 0 volume */
+      height: 10%; /* Minimum height, slightly bigger than before for visibility at 0 */
       background-color: #ffffff;
       border-radius: 2px; /* Slightly curved edges to make it more like a line */
       transition: height 0.2s ease-in-out;
@@ -288,7 +289,7 @@
       const maxWaveHeight = 25; // Maximum height for waves (scaled down further)
 
       waves.forEach((wave, index) => {
-        const waveHeight = Math.max((index + 1) * volume * maxWaveHeight, 8); // Ensure it's visible as a dot at 0
+        const waveHeight = Math.max((index + 1) * volume * maxWaveHeight, 12); // Adjusted for better visibility at 0
         wave.style.height = `${waveHeight}%`;
       });
 
