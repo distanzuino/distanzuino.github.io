@@ -22,50 +22,34 @@
       color: #ffffff;
     }
 
-    /* Popup styles */
+    /* Popup message */
     #popup {
       position: fixed;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.8);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-
-    #popup-content {
-      background-color: #ffcc99;
-      color: #000;
+      right: 0;
+      background-color: #ffcc66; /* Light orange/yellow */
       padding: 20px;
-      border-radius: 10px;
-      max-width: 80%;
       text-align: center;
-      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.5);
-    }
-
-    #popup-content p {
       font-size: 1.2em;
-      margin-bottom: 20px;
+      border-bottom: 2px solid #ff9900;
+      z-index: 9999;
     }
 
-    #popup-button {
-      background-color: #ff9900;
+    #popup button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #333333;
       color: white;
       border: none;
-      padding: 10px 20px;
-      font-size: 1em;
       border-radius: 5px;
       cursor: pointer;
     }
 
-    #popup-button:hover {
-      background-color: #e68a00;
+    #popup button:hover {
+      background-color: #ff6666;
     }
 
-    /* Main content styles */
     #top-container {
       display: flex;
       align-items: center;
@@ -78,7 +62,7 @@
       max-width: 150px;
       height: auto;
       margin-right: 20px;
-      cursor: pointer;
+      cursor: pointer; /* Add cursor pointer to indicate it's clickable */
     }
 
     #button-container {
@@ -146,7 +130,7 @@
       width: 100%;
       margin-top: 10px;
       appearance: none;
-      height: 10px;
+      height: 10px; /* Increased thickness */
       border-radius: 5px;
       outline: none;
     }
@@ -156,7 +140,7 @@
     }
 
     .volume-slider.disconnected {
-      background: #777;
+      background: #777; /* Grey when disconnected */
     }
 
     .volume-slider::-webkit-slider-thumb {
@@ -182,11 +166,10 @@
   </style>
 </head>
 <body>
+  <!-- Popup Message -->
   <div id="popup">
-    <div id="popup-content">
-      <p>Please note that the website may not yet work properly on iOS devices. We apologize for the inconvenience.</p>
-      <button id="popup-button">I understand</button>
-    </div>
+    <p>Please note that the website may not yet work properly on iOS devices. We apologize for the inconvenience.</p>
+    <button id="understandButton">I Understand</button>
   </div>
 
   <div id="top-container">
@@ -209,14 +192,150 @@
 
   <script>
     // Close the popup when "I understand" button is clicked
-    document.getElementById('popup-button').addEventListener('click', () => {
+    document.getElementById('understandButton').addEventListener('click', () => {
       document.getElementById('popup').style.display = 'none';
     });
 
-    document.getElementById('connect').addEventListener('click', () => {
-      console.log("Connect button clicked!"); // Debug log
-      // Add your Bluetooth connection code here
+    let bluetoothDevice;
+    let server;
+    let service;
+    let characteristic;
+
+    const HM10_SERVICE_UUID = '0000ffe0-0000-1000-8000-00805f9b34fb';
+    const HM10_CHARACTERISTIC_UUID = '0000ffe1-0000-1000-8000-00805f9b34fb';
+
+    let audioCtx;
+    let oscillator1, oscillator2;
+    let gainNode1, gainNode2;
+
+    let volume1 = 1; // Store the last volume for oscillator 1
+    let volume2 = 1; // Store the last volume for oscillator 2
+
+    document.getElementById('connect').addEventListener('click', async () => {
+      try {
+        bluetoothDevice = await navigator.bluetooth.requestDevice({
+          filters: [{ namePrefix: 'Distanzuino' }],
+          optionalServices: [HM10_SERVICE_UUID]
+        });
+
+        server = await bluetoothDevice.gatt.connect();
+        service = await server.getPrimaryService(HM10_SERVICE_UUID);
+        characteristic = await service.getCharacteristic(HM10_CHARACTERISTIC_UUID);
+
+        characteristic.startNotifications();
+        characteristic.addEventListener('characteristicvaluechanged', handleData);
+
+        document.getElementById('connect').style.opacity = '0';
+        document.getElementById('connect').style.pointerEvents = 'none';
+        document.getElementById('disconnect').style.opacity = '1';
+        document.getElementById('disconnect').style.pointerEvents = 'auto';
+
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        setupOscillators();
+        updateUIState(true);
+      } catch (error) {
+        console.error('Error connecting:', error);
+      }
     });
+
+    function setupOscillators() {
+      oscillator1 = audioCtx.createOscillator();
+      gainNode1 = audioCtx.createGain();
+      oscillator1.connect(gainNode1).connect(audioCtx.destination);
+      oscillator1.start();
+
+      oscillator2 = audioCtx.createOscillator();
+      gainNode2 = audioCtx.createGain();
+      oscillator2.connect(gainNode2).connect(audioCtx.destination);
+      oscillator2.start();
+
+      document.getElementById('volume1').addEventListener('input', (e) => {
+        volume1 = parseFloat(e.target.value); // Remember volume
+        gainNode1.gain.value = volume1 === 0 ? 0 : volume1;
+        updateSliderBackground(e.target, volume1);
+      });
+
+      document.getElementById('volume2').addEventListener('input', (e) => {
+        volume2 = parseFloat(e.target.value); // Remember volume
+        gainNode2.gain.value = volume2 === 0 ? 0 : volume2;
+        updateSliderBackground(e.target, volume2);
+      });
+    }
+
+    function handleData(event) {
+      const decoder = new TextDecoder();
+      const value = decoder.decode(event.target.value).trim();
+
+      if (value.startsWith('D1:')) {
+        const distance1 = parseFloat(value.substring(3)) / 10;
+        adjustFrequency(distance1, oscillator1, gainNode1);
+        document.getElementById('distance1').innerText = `Distance 1: ${distance1} m`;
+      }
+
+      if (value.startsWith('D2:')) {
+        const distance2 = parseFloat(value.substring(3)) / 10;
+        adjustFrequency(distance2, oscillator2, gainNode2);
+        document.getElementById('distance2').innerText = `Distance 2: ${distance2} m`;
+      }
+
+      if (value === "waiting") {
+        // Mute oscillators if no value is received
+        if (gainNode1) gainNode1.gain.value = 0;
+        if (gainNode2) gainNode2.gain.value = 0;
+      }
+    }
+
+    function adjustFrequency(distance, oscillator, gainNode) {
+      const baseFrequency = 440; // Frequency for 1m
+      const frequency = baseFrequency * Math.pow(2, distance / 12);
+      oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+      gainNode.gain.value = distance === 0 ? 0 : volume1; // Mute if distance is zero
+    }
+
+    function updateSliderBackground(slider, value) {
+      slider.style.setProperty('--volume-level', `${value * 100}%`);
+    }
+
+    document.getElementById('disconnect').addEventListener('click', () => {
+      if (bluetoothDevice && bluetoothDevice.gatt.connected) {
+        bluetoothDevice.gatt.disconnect();
+      }
+
+      if (audioCtx) {
+        gainNode1.gain.value = 0;
+        gainNode2.gain.value = 0;
+      }
+
+      document.getElementById('connect').style.opacity = '1';
+      document.getElementById('connect').style.pointerEvents = 'auto';
+      document.getElementById('disconnect').style.opacity = '0';
+      document.getElementById('disconnect').style.pointerEvents = 'none';
+
+      updateUIState(false);
+    });
+
+    function updateUIState(isConnected) {
+      const sliders = document.querySelectorAll('.volume-slider');
+      sliders.forEach(slider => {
+        slider.disabled = !isConnected;
+        slider.className = isConnected ? 'volume-slider connected' : 'volume-slider disconnected';
+        updateSliderBackground(slider, isConnected ? slider.value : 0);
+      });
+
+      if (isConnected) {
+        document.getElementById('distance1').innerText = 'Distance 1: Waiting...';
+        document.getElementById('distance2').innerText = 'Distance 2: Waiting...';
+
+        // Mute oscillators while in "Waiting" state
+        if (gainNode1) gainNode1.gain.value = 0;
+        if (gainNode2) gainNode2.gain.value = 0;
+      } else {
+        document.getElementById('distance1').innerText = 'Distance 1: Disconnected';
+        document.getElementById('distance2').innerText = 'Distance 2: Disconnected';
+      }
+    }
   </script>
 </body>
 </html>
