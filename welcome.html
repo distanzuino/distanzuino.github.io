@@ -1,241 +1,86 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login and Registration</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f4f4f4;
-        }
-        .container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
-        }
-        .input-group {
-            margin-bottom: 10px;
-        }
-        input[type="text"], input[type="email"], input[type="password"] {
-            width: 100%;
-            padding: 8px;
-            margin: 5px 0;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #4CAF50;
-            border: none;
-            color: white;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        .hidden {
-            display: none;
-        }
-        .message {
-            color: red;
-            margin-bottom: 10px;
-        }
-    </style>
-</head>
-<body>
+const express = require('express');
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const bodyParser = require('body-parser');
+const app = express();
 
-<div class="container">
-    <div id="registerForm" class="form">
-        <h2>Register</h2>
-        <div class="message" id="registerMessage"></div>
-        <div class="input-group">
-            <label for="registerName">Name:</label>
-            <input type="text" id="registerName" required>
-        </div>
-        <div class="input-group">
-            <label for="registerEmail">Email:</label>
-            <input type="email" id="registerEmail" required>
-        </div>
-        <div class="input-group">
-            <label for="registerPassword">Password:</label>
-            <input type="password" id="registerPassword" required>
-        </div>
-        <button onclick="register()">Register</button>
-        <p>Already have an account? <a href="#" onclick="showLoginForm()">Login</a></p>
-    </div>
+const User = require('./models/User');
 
-    <div id="loginForm" class="form hidden">
-        <h2>Login</h2>
-        <div class="message" id="loginMessage"></div>
-        <div class="input-group">
-            <label for="loginEmail">Email:</label>
-            <input type="email" id="loginEmail" required>
-        </div>
-        <div class="input-group">
-            <label for="loginPassword">Password:</label>
-            <input type="password" id="loginPassword" required>
-        </div>
-        <button onclick="login()">Login</button>
-        <p>Don't have an account? <a href="#" onclick="showRegisterForm()">Register</a></p>
-    </div>
+// MongoDB connection
+mongoose.connect('mongodb://localhost:27017/userAuth', { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log('MongoDB connected'))
+    .catch(err => console.log(err));
 
-    <div id="loggedInContent" class="hidden">
-        <h2>Welcome <span id="userName"></span>!</h2>
-        <button onclick="showChangeAccountForm()">Change Account Details</button>
-        <button onclick="deleteAccount()">Delete Account</button>
-        <button onclick="logout()">Logout</button>
+app.use(bodyParser.json());
 
-        <div id="changeAccountForm" class="hidden">
-            <h3>Change Account Details</h3>
-            <div class="input-group">
-                <label for="newName">New Name:</label>
-                <input type="text" id="newName">
-            </div>
-            <div class="input-group">
-                <label for="newPassword">New Password:</label>
-                <input type="password" id="newPassword">
-            </div>
-            <button onclick="updateAccount()">Update</button>
-            <button onclick="cancelChange()">Cancel</button>
-        </div>
-    </div>
-</div>
+// User model
+const UserSchema = new mongoose.Schema({
+    name: String,
+    email: { type: String, unique: true },
+    password: String,
+});
 
-<script>
-    let userData = JSON.parse(localStorage.getItem('user')) || null;
-    const registerMessage = document.getElementById('registerMessage');
-    const loginMessage = document.getElementById('loginMessage');
-    const userName = document.getElementById('userName');
+const User = mongoose.model('User', UserSchema);
 
-    function showRegisterForm() {
-        document.getElementById('registerForm').classList.remove('hidden');
-        document.getElementById('loginForm').classList.add('hidden');
-    }
+// Register new user
+app.post('/register', async (req, res) => {
+    const { name, email, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = new User({ name, email, password: hashedPassword });
+    await user.save();
+    res.json({ success: true });
+});
 
-    function showLoginForm() {
-        document.getElementById('loginForm').classList.remove('hidden');
-        document.getElementById('registerForm').classList.add('hidden');
-    }
+// Login user
+app.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    
+    if (!user) return res.status(400).json({ message: 'Invalid credentials' });
 
-    function register() {
-        const name = document.getElementById('registerName').value;
-        const email = document.getElementById('registerEmail').value;
-        const password = document.getElementById('registerPassword').value;
-        
-        if (name && email && password) {
-            // Send this info to the server to store it in a database
-            // Example: fetch('/register', { method: 'POST', body: JSON.stringify({ name, email, password }) });
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) return res.status(400).json({ message: 'Invalid credentials' });
 
-            // For now, saving to localStorage as a mock
-            localStorage.setItem('user', JSON.stringify({ name, email, password }));
-            registerMessage.textContent = 'Registration successful! Please login.';
-            registerMessage.style.color = 'green';
-            showLoginForm();
-        } else {
-            registerMessage.textContent = 'Please fill in all fields.';
-        }
-    }
+    const token = jwt.sign({ userId: user._id }, 'secretKey', { expiresIn: '1h' });
+    res.json({ token, name: user.name });
+});
 
-    function login() {
-        const email = document.getElementById('loginEmail').value;
-        const password = document.getElementById('loginPassword').value;
+// Update user account
+app.post('/updateAccount', async (req, res) => {
+    const { name, password } = req.body;
+    const user = await User.findById(req.userId);
 
-        // Simulate a login request to the server
-        fetch('/login', {
-            method: 'POST',
-            body: JSON.stringify({ email, password }),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Store login info in localStorage (session)
-                localStorage.setItem('user', JSON.stringify(data.user));
-                userData = data.user;
-                showLoggedInContent();
-            } else {
-                loginMessage.textContent = 'Invalid email or password.';
-            }
-        });
-    }
+    if (!user) return res.status(400).json({ message: 'User not found' });
 
-    function showLoggedInContent() {
-        document.getElementById('loginForm').classList.add('hidden');
-        document.getElementById('registerForm').classList.add('hidden');
-        document.getElementById('loggedInContent').classList.remove('hidden');
-        userName.textContent = userData.name;
-    }
+    if (name) user.name = name;
+    if (password) user.password = await bcrypt.hash(password, 10);
+    
+    await user.save();
+    res.json({ success: true });
+});
 
-    function logout() {
-        userData = null;
-        localStorage.removeItem('user');
-        document.getElementById('loggedInContent').classList.add('hidden');
-        showLoginForm();
-    }
+// Delete user account
+app.delete('/deleteAccount', async (req, res) => {
+    const user = await User.findByIdAndDelete(req.userId);
 
-    function showChangeAccountForm() {
-        document.getElementById('changeAccountForm').classList.remove('hidden');
-    }
+    if (!user) return res.status(400).json({ message: 'User not found' });
 
-    function updateAccount() {
-        const newName = document.getElementById('newName').value;
-        const newPassword = document.getElementById('newPassword').value;
+    res.json({ success: true });
+});
 
-        if (newName) userData.name = newName;
-        if (newPassword) userData.password = newPassword;
+// Middleware to authenticate JWT
+function authenticateJWT(req, res, next) {
+    const token = req.headers['authorization'];
+    if (!token) return res.sendStatus(403);
 
-        // Send updated data to the server to update in the database
-        fetch('/updateAccount', {
-            method: 'POST',
-            body: JSON.stringify({ name: newName, password: newPassword }),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
+    jwt.verify(token, 'secretKey', (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.userId = user.userId;
+        next();
+    });
+}
 
-        localStorage.setItem('user', JSON.stringify(userData));
-        document.getElementById('changeAccountForm').classList.add('hidden');
-        showLoggedInContent();
-    }
-
-    function cancelChange() {
-        document.getElementById('changeAccountForm').classList.add('hidden');
-    }
-
-    function deleteAccount() {
-        // Send request to delete user account from server
-        fetch('/deleteAccount', {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        localStorage.removeItem('user');
-        alert('Account deleted');
-        userData = null;
-        document.getElementById('loggedInContent').classList.add('hidden');
-        showRegisterForm();
-    }
-
-    if (userData) {
-        showLoggedInContent();
-    } else {
-        showLoginForm();
-    }
-</script>
-</body>
-</html>
+app.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
+});
