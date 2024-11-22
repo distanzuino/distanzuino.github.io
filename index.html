@@ -235,6 +235,10 @@
       } else if (value.startsWith('D2:')) {
         const distance2 = parseFloat(value.substring(3)) / 10;
         adjustFrequency(distance2, oscillator2, document.getElementById('distance2'), "2", gainNode2);
+      } else {
+        // If no valid data, mute oscillators
+        if (gainNode1) gainNode1.gain.value = 0;
+        if (gainNode2) gainNode2.gain.value = 0;
       }
     }
 
@@ -242,7 +246,7 @@
       if (distance >= 1 && distance <= 50) {
         const frequency = 100 + distance * 10;
         oscillator.frequency.value = frequency;
-        gainNode.gain.value = distanceLabel === "1" ? volume1 : volume2;
+        gainNode.gain.value = distanceLabel === "1" ? volume1 : volume2; // Unmute with the correct volume
         distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
       } else {
         oscillator.frequency.value = 0; // Mute tone
@@ -255,21 +259,23 @@
       slider.style.setProperty('--volume-level', `${value * 100}%`);
     }
 
-   document.getElementById('disconnect').addEventListener('click', () => {
-    if (bluetoothDevice && bluetoothDevice.gatt.connected) {
-      bluetoothDevice.gatt.disconnect();
-    }
-  
-    // Stop tones by setting gain values to 0
-    if (gainNode1) gainNode1.gain.value = 0;
-    if (gainNode2) gainNode2.gain.value = 0;
-  
-    document.getElementById('connect').style.opacity = '1';
-    document.getElementById('connect').style.pointerEvents = 'auto';
-    document.getElementById('disconnect').style.opacity = '0';
-    document.getElementById('disconnect').style.pointerEvents = 'none';
-    updateUIState(false);
-  });
+    document.getElementById('disconnect').addEventListener('click', () => {
+      if (bluetoothDevice && bluetoothDevice.gatt.connected) {
+        bluetoothDevice.gatt.disconnect();
+      }
+
+      if (audioCtx) {
+        gainNode1.gain.value = 0;
+        gainNode2.gain.value = 0;
+      }
+
+      document.getElementById('connect').style.opacity = '1';
+      document.getElementById('connect').style.pointerEvents = 'auto';
+      document.getElementById('disconnect').style.opacity = '0';
+      document.getElementById('disconnect').style.pointerEvents = 'none';
+
+      updateUIState(false);
+    });
 
     function updateUIState(isConnected) {
       const sliders = document.querySelectorAll('.volume-slider');
@@ -279,8 +285,17 @@
         updateSliderBackground(slider, isConnected ? slider.value : 0);
       });
 
-      document.getElementById('distance1').innerText = isConnected ? 'Distance 1: Waiting...' : 'Distance 1: Disconnected';
-      document.getElementById('distance2').innerText = isConnected ? 'Distance 2: Waiting...' : 'Distance 2: Disconnected';
+      if (isConnected) {
+        document.getElementById('distance1').innerText = 'Distance 1: Waiting...';
+        document.getElementById('distance2').innerText = 'Distance 2: Waiting...';
+
+        // Mute oscillators while in "Waiting" state
+        if (gainNode1) gainNode1.gain.value = 0;
+        if (gainNode2) gainNode2.gain.value = 0;
+      } else {
+        document.getElementById('distance1').innerText = 'Distance 1: Disconnected';
+        document.getElementById('distance2').innerText = 'Distance 2: Disconnected';
+      }
     }
   </script>
 </body>
