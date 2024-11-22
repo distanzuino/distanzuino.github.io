@@ -22,32 +22,33 @@
       color: #ffffff;
     }
 
-    /* Popup message */
-    #popup {
+    /* Message Popup Styles */
+    #ios-message {
       position: fixed;
       top: 0;
       left: 0;
-      right: 0;
-      background-color: #ffcc66; /* Light orange/yellow */
-      padding: 20px;
+      width: 100%;
+      background-color: rgba(255, 165, 0, 0.9);
+      color: #333;
+      font-size: 1em;
+      padding: 15px;
       text-align: center;
-      font-size: 1.2em;
-      border-bottom: 2px solid #ff9900;
-      z-index: 9999;
+      z-index: 1000;
     }
 
-    #popup button {
-      margin-top: 10px;
-      padding: 10px 20px;
-      background-color: #333333;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    #popup button:hover {
+    #ios-message button {
       background-color: #ff6666;
+      border: none;
+      padding: 10px 20px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+
+    #ios-message button:hover {
+      background-color: #ff4444;
     }
 
     #top-container {
@@ -166,10 +167,10 @@
   </style>
 </head>
 <body>
-  <!-- Popup Message -->
-  <div id="popup">
+  <!-- iOS message -->
+  <div id="ios-message">
     <p>Please note that the website may not yet work properly on iOS devices. We apologize for the inconvenience.</p>
-    <button id="understandButton">I Understand</button>
+    <button onclick="dismissMessage()">I Understand</button>
   </div>
 
   <div id="top-container">
@@ -191,11 +192,6 @@
   </div>
 
   <script>
-    // Close the popup when "I understand" button is clicked
-    document.getElementById('understandButton').addEventListener('click', () => {
-      document.getElementById('popup').style.display = 'none';
-    });
-
     let bluetoothDevice;
     let server;
     let service;
@@ -270,32 +266,31 @@
 
       if (value.startsWith('D1:')) {
         const distance1 = parseFloat(value.substring(3)) / 10;
-        adjustFrequency(distance1, oscillator1, gainNode1);
-        document.getElementById('distance1').innerText = `Distance 1: ${distance1} m`;
-      }
-
-      if (value.startsWith('D2:')) {
+        adjustFrequency(distance1, oscillator1, document.getElementById('distance1'), "1", gainNode1);
+      } else if (value.startsWith('D2:')) {
         const distance2 = parseFloat(value.substring(3)) / 10;
-        adjustFrequency(distance2, oscillator2, gainNode2);
-        document.getElementById('distance2').innerText = `Distance 2: ${distance2} m`;
-      }
-
-      if (value === "waiting") {
-        // Mute oscillators if no value is received
-        if (gainNode1) gainNode1.gain.value = 0;
-        if (gainNode2) gainNode2.gain.value = 0;
+        adjustFrequency(distance2, oscillator2, document.getElementById('distance2'), "2", gainNode2);
       }
     }
 
-    function adjustFrequency(distance, oscillator, gainNode) {
-      const baseFrequency = 440; // Frequency for 1m
-      const frequency = baseFrequency * Math.pow(2, distance / 12);
-      oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-      gainNode.gain.value = distance === 0 ? 0 : volume1; // Mute if distance is zero
+    function adjustFrequency(distance, oscillator, displayElement, label, gainNode) {
+      displayElement.innerText = `Distance ${label}: ${distance.toFixed(2)} m`;
+
+      if (distance === 0) {
+        gainNode.gain.value = 0; // Mute sound if no value received
+      } else {
+        const frequency = Math.max(200, Math.min(1000, 200 + distance * 50));
+        oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+        gainNode.gain.value = volume1 === 0 ? 0 : volume1; // Ensure volume is respected
+      }
     }
 
     function updateSliderBackground(slider, value) {
       slider.style.setProperty('--volume-level', `${value * 100}%`);
+    }
+
+    function dismissMessage() {
+      document.getElementById('ios-message').style.display = 'none';
     }
 
     document.getElementById('disconnect').addEventListener('click', () => {
