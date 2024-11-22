@@ -108,7 +108,8 @@
     }
 
     .volume-slider.connected {
-      background: linear-gradient(to right, #ff6666 var(--volume-level, 50%), #ffffff var(--volume-level, 50%));
+      background: linear-gradient(to right, #ff0000 var(--volume-level, 0%), #00ff00 var(--volume-level, 0%));
+      transition: background 0.3s ease;
     }
 
     .volume-slider.disconnected {
@@ -247,55 +248,45 @@
         const frequency = 100 + distance * 10;
         oscillator.frequency.value = frequency;
         gainNode.gain.value = distanceLabel === "1" ? volume1 : volume2; // Unmute with the correct volume
-        distanceElement.innerText = Distance ${distanceLabel}: ${distance.toFixed(2)} cm;
+        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
       } else {
         oscillator.frequency.value = 0; // Mute tone
         gainNode.gain.value = 0;
-        distanceElement.innerText = Distance ${distanceLabel}: ${distance.toFixed(2)} cm;
+        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
       }
     }
 
     function updateSliderBackground(slider, value) {
-      slider.style.setProperty('--volume-level', ${value * 100}%);
+      const volumePercentage = value * 100; // Get the value as a percentage
+      slider.style.setProperty('--volume-level', `${volumePercentage}%`); // Set the volume level for the gradient
     }
 
     document.getElementById('disconnect').addEventListener('click', () => {
-      if (bluetoothDevice && bluetoothDevice.gatt.connected) {
+      if (bluetoothDevice) {
         bluetoothDevice.gatt.disconnect();
+        updateUIState(false);
+        oscillator1.stop();
+        oscillator2.stop();
+        oscillator1 = null;
+        oscillator2 = null;
+        gainNode1 = null;
+        gainNode2 = null;
       }
-
-      if (audioCtx) {
-        gainNode1.gain.value = 0;
-        gainNode2.gain.value = 0;
-      }
-
-      document.getElementById('connect').style.opacity = '1';
-      document.getElementById('connect').style.pointerEvents = 'auto';
-      document.getElementById('disconnect').style.opacity = '0';
-      document.getElementById('disconnect').style.pointerEvents = 'none';
-
-      updateUIState(false);
     });
 
     function updateUIState(isConnected) {
-      const sliders = document.querySelectorAll('.volume-slider');
-      sliders.forEach(slider => {
-        slider.disabled = !isConnected;
-        slider.className = isConnected ? 'volume-slider connected' : 'volume-slider disconnected';
-        updateSliderBackground(slider, isConnected ? slider.value : 0);
+      const volumeSliders = document.querySelectorAll('.volume-slider');
+      volumeSliders.forEach((slider) => {
+        if (isConnected) {
+          slider.disabled = false;
+          slider.classList.add('connected');
+          slider.classList.remove('disconnected');
+        } else {
+          slider.disabled = true;
+          slider.classList.add('disconnected');
+          slider.classList.remove('connected');
+        }
       });
-
-      if (isConnected) {
-        document.getElementById('distance1').innerText = 'Distance 1: Waiting...';
-        document.getElementById('distance2').innerText = 'Distance 2: Waiting...';
-
-        // Mute oscillators while in "Waiting" state
-        if (gainNode1) gainNode1.gain.value = 0;
-        if (gainNode2) gainNode2.gain.value = 0;
-      } else {
-        document.getElementById('distance1').innerText = 'Distance 1: Disconnected';
-        document.getElementById('distance2').innerText = 'Distance 2: Disconnected';
-      }
     }
   </script>
 </body>
