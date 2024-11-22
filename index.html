@@ -155,7 +155,7 @@
       justify-content: space-evenly;
       align-items: flex-end;
       margin-top: 5px;
-      height: 120px; /* Height of the container for the wave lines */
+      height: 50px; /* Adjusted the height of the wave container */
       width: 100%;
     }
 
@@ -284,8 +284,10 @@
     function updateWaveHeights(speakerId, volume) {
       const speaker = document.getElementById(speakerId);
       const waves = speaker.querySelectorAll('.wave');
+      const maxWaveHeight = 40; // Maximum height for waves (scaled down)
+
       waves.forEach((wave, index) => {
-        const waveHeight = (index + 1) * volume * 100; // Height increases proportionally
+        const waveHeight = Math.max((index + 1) * volume * maxWaveHeight, 2); // Ensure minimum height
         wave.style.height = `${waveHeight}%`; // Proportional height compared to volume slider
       });
 
