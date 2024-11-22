@@ -22,35 +22,6 @@
       color: #ffffff;
     }
 
-    /* Message Popup Styles */
-    #ios-message {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      background-color: rgba(255, 165, 0, 0.9);
-      color: #333;
-      font-size: 1em;
-      padding: 15px;
-      text-align: center;
-      z-index: 1000;
-    }
-
-    #ios-message button {
-      background-color: #ff6666;
-      border: none;
-      padding: 10px 20px;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      border-radius: 5px;
-      margin-top: 10px;
-    }
-
-    #ios-message button:hover {
-      background-color: #ff4444;
-    }
-
     #top-container {
       display: flex;
       align-items: center;
@@ -167,14 +138,8 @@
   </style>
 </head>
 <body>
-  <!-- iOS message -->
-  <div id="ios-message">
-    <p>Please note that the website may not yet work properly on iOS devices. We apologize for the inconvenience.</p>
-    <button onclick="dismissMessage()">I Understand</button>
-  </div>
-
   <div id="top-container">
-    <img id="logo" src="logo.jpg" alt="Distanzuino Logo" onclick="window.location.href='https://distanzuino.wixsite.com/distanzuino'">
+    <img id="logo" src="logo.jpg" alt="Distanzuino" onclick="window.location.href='https://distanzuino.wixsite.com/distanzuino'">
     <div id="button-container">
       <button id="connect" class="button">Connect</button>
       <button id="disconnect" class="button">Disconnect</button>
@@ -270,27 +235,28 @@
       } else if (value.startsWith('D2:')) {
         const distance2 = parseFloat(value.substring(3)) / 10;
         adjustFrequency(distance2, oscillator2, document.getElementById('distance2'), "2", gainNode2);
+      } else {
+        // If no valid data, mute oscillators
+        if (gainNode1) gainNode1.gain.value = 0;
+        if (gainNode2) gainNode2.gain.value = 0;
       }
     }
 
-    function adjustFrequency(distance, oscillator, displayElement, label, gainNode) {
-      displayElement.innerText = `Distance ${label}: ${distance.toFixed(2)} m`;
-
-      if (distance === 0) {
-        gainNode.gain.value = 0; // Mute sound if no value received
+    function adjustFrequency(distance, oscillator, distanceElement, distanceLabel, gainNode) {
+      if (distance >= 1 && distance <= 50) {
+        const frequency = 100 + distance * 10;
+        oscillator.frequency.value = frequency;
+        gainNode.gain.value = distanceLabel === "1" ? volume1 : volume2; // Unmute with the correct volume
+        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
       } else {
-        const frequency = Math.max(200, Math.min(1000, 200 + distance * 50));
-        oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-        gainNode.gain.value = volume1 === 0 ? 0 : volume1; // Ensure volume is respected
+        oscillator.frequency.value = 0; // Mute tone
+        gainNode.gain.value = 0;
+        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
       }
     }
 
     function updateSliderBackground(slider, value) {
       slider.style.setProperty('--volume-level', `${value * 100}%`);
-    }
-
-    function dismissMessage() {
-      document.getElementById('ios-message').style.display = 'none';
     }
 
     document.getElementById('disconnect').addEventListener('click', () => {
