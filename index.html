@@ -34,7 +34,7 @@
       max-width: 150px;
       height: auto;
       margin-right: 20px;
-      cursor: pointer; /* Add cursor pointer to indicate it's clickable */
+      cursor: pointer;
     }
 
     #button-container {
@@ -102,7 +102,7 @@
       width: 80%;
       margin-top: 10px;
       appearance: none;
-      height: 10px; /* Increased thickness */
+      height: 10px;
       border-radius: 5px;
       outline: none;
       display: inline-block;
@@ -158,28 +158,16 @@
     }
 
     .wave {
-      width: 4px;
-      height: 4px; /* Starting size for the waves at volume 0 */
+      height: 4px;
       background-color: #ffffff;
-      border-radius: 50%;
-      transition: height 0.2s ease, width 0.2s ease; /* Smooth transition */
+      transition: height 0.2s ease, width 0.2s ease; /* Smooth transition for length change */
     }
 
-    .wave-1 {
-      width: 4px;
-    }
-
-    .wave-2 {
-      width: 6px;
-    }
-
-    .wave-3 {
-      width: 8px;
-    }
-
-    .wave-4 {
-      width: 10px;
-    }
+    /* Wave classes for different wave lengths */
+    .wave-1 { width: 20%; }
+    .wave-2 { width: 40%; }
+    .wave-3 { width: 60%; }
+    .wave-4 { width: 80%; }
   </style>
 </head>
 <body>
@@ -300,9 +288,8 @@
       const speaker = document.getElementById(speakerId);
       const waves = speaker.querySelectorAll('.wave');
       waves.forEach((wave, index) => {
-        const waveSize = volume * (index + 1) * 4; // Increasing wave size
-        wave.style.height = `${waveSize}px`;
-        wave.style.width = `${waveSize + 2}px`; // Longish effect on higher volume
+        const waveLength = volume * (index + 1) * 100; // Increasing wave length
+        wave.style.width = `${waveLength}%`; // Proportional width compared to volume slider
       });
 
       speaker.classList.toggle('active', volume > 0);
