@@ -255,17 +255,21 @@
       slider.style.setProperty('--volume-level', `${value * 100}%`);
     }
 
-    document.getElementById('disconnect').addEventListener('click', () => {
-      if (bluetoothDevice && bluetoothDevice.gatt.connected) {
-        bluetoothDevice.gatt.disconnect();
-      }
-
-      document.getElementById('connect').style.opacity = '1';
-      document.getElementById('connect').style.pointerEvents = 'auto';
-      document.getElementById('disconnect').style.opacity = '0';
-      document.getElementById('disconnect').style.pointerEvents = 'none';
-      updateUIState(false);
-    });
+   document.getElementById('disconnect').addEventListener('click', () => {
+    if (bluetoothDevice && bluetoothDevice.gatt.connected) {
+      bluetoothDevice.gatt.disconnect();
+    }
+  
+    // Stop tones by setting gain values to 0
+    if (gainNode1) gainNode1.gain.value = 0;
+    if (gainNode2) gainNode2.gain.value = 0;
+  
+    document.getElementById('connect').style.opacity = '1';
+    document.getElementById('connect').style.pointerEvents = 'auto';
+    document.getElementById('disconnect').style.opacity = '0';
+    document.getElementById('disconnect').style.pointerEvents = 'none';
+    updateUIState(false);
+  });
 
     function updateUIState(isConnected) {
       const sliders = document.querySelectorAll('.volume-slider');
