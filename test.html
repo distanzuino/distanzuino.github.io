@@ -1,1 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Distanzuino</title>
+  <style>
+    /* Global Styles */
+    body {
+      font-family: 'Futura PT', sans-serif;
+      font-style: normal;
+      font-weight: 400;
+      text-align: center;
+      margin: 0;
+      padding: 0 15px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      background: linear-gradient(to bottom right, #000000, #333333);
+      color: #ffffff;
+      transition: background-color 0.5s ease;
+    }
+
+    /* Loading Page */
+    #loading-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      position: absolute;
+      width: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      z-index: 9999;
+      opacity: 1;
+      transition: opacity 1s ease;
+    }
+
+    #loading-text {
+      font-size: 2.5em;
+      font-weight: bold;
+      color: #ff6666;
+      animation: fadeIn 2s ease-out;
+    }
+
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* Main Content (Initially Hidden) */
+    #main-content {
+      display: none;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+
+    /* Remaining styles (same as your original code) */
+    /* Your existing CSS */
+  </style>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div id="loading-container">
+    <div id="loading-text">Welcome to Distanzuino!</div>
+  </div>
+
+  <!-- Main Content -->
+  <div id="main-content">
+    <div id="top-container">
+      <img id="logo" src="logo.jpg" alt="Distanzuino" onclick="window.location.href='https://distanzuino.wixsite.com/distanzuino'">
+      <div id="button-container">
+        <button id="connect" class="button">Connect</button>
+        <button id="disconnect" class="button">Disconnect</button>
+      </div>
+    </div>
+
+    <div id="card1" class="card">
+      <p id="distance1" class="distance-display fade-in">Distance 1: Disconnected</p>
+      <input id="volume1" type="range" class="volume-slider disconnected" min="0" max="1" step="0.01" value="1" disabled>
+    </div>
+
+    <div id="card2" class="card">
+      <p id="distance2" class="distance-display fade-in">Distance 2: Disconnected</p>
+      <input id="volume2" type="range" class="volume-slider disconnected" min="0" max="1" step="0.01" value="1" disabled>
+    </div>
+  </div>
+
+  <script>
+    // Your existing JavaScript (same as your original code)
+
+    // Show the main content after a delay
+    window.onload = function() {
+      setTimeout(() => {
+        // Fade out the loading screen
+        document.getElementById('loading-container').style.opacity = '0';
+
+        // Fade in the main content
+        document.getElementById('main-content').style.display = 'block';
+        setTimeout(() => {
+          document.getElementById('main-content').style.opacity = '1';
+        }, 100); // Short delay to allow loading screen fade-out
+      }, 3000); // Loading screen duration (3 seconds)
+    };
+  </script>
+</body>
+</html>
 
