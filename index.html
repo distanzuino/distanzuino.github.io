@@ -138,8 +138,8 @@
     }
 
     .speaker-icon {
-      width: 24px;
-      height: 24px;
+      width: 30px;
+      height: 30px;
       margin-left: 15px;
       display: inline-block;
       vertical-align: middle;
@@ -155,19 +155,18 @@
       justify-content: space-evenly;
       align-items: flex-end;
       margin-top: 5px;
-      height: 20px; /* Adjusted to make the whole wave container smaller */
+      height: 15px; /* Smaller height for the whole wave container */
       width: 100%;
-      margin-top: -5px; /* Move the wave container a little up */
+      margin-top: -5px; /* Adjusted to move the wave container a little up */
     }
 
     .wave {
-      width: 3px; /* Reduced width for a more compact appearance */
-      height: 40%; /* Default full volume height */
+      width: 4px; /* Reduced width */
+      height: 0%; /* Starting point at 0% for waves */
       background-color: #ffffff;
       border-radius: 2px; /* Slightly curved edges to make it more like a line */
       transition: height 0.2s ease-in-out;
     }
-
   </style>
 </head>
 <body>
@@ -265,50 +264,78 @@
       oscillator2.connect(gainNode2).connect(audioCtx.destination);
       oscillator2.start();
 
-      document.getElementById('volume1').addEventListener('input', (e) => {
-        volume1 = parseFloat(e.target.value);
-        gainNode1.gain.setValueAtTime(volume1, audioCtx.currentTime);
-        updateWaveHeight('wave1', volume1);
-      });
-
-      document.getElementById('volume2').addEventListener('input', (e) => {
-        volume2 = parseFloat(e.target.value);
-        gainNode2.gain.setValueAtTime(volume2, audioCtx.currentTime);
-        updateWaveHeight('wave2', volume2);
-      });
-    }
-
-    function handleData(event) {
-      const value = event.target.value.getInt8(0); 
-      if (value > 0) {
-        // Update distance readings and other logic
-      }
-    }
-
-    function updateWaveHeight(waveId, volume) {
-      const waveElement = document.getElementById(waveId);
-      const waveHeight = volume * 100; 
-      waveElement.style.height = `${waveHeight}%`;
-    }
-
-    function updateUIState(connected) {
-      document.querySelectorAll('.volume-slider').forEach(slider => {
-        slider.disabled = !connected;
-        slider.classList.toggle('connected', connected);
-        slider.classList.toggle('disconnected', !connected);
-      });
+      document.getElementById('volume1').disabled = false;
+      document.getElementById('volume2').disabled = false;
+      document.getElementById('volume1').classList.remove('disconnected');
+      document.getElementById('volume2').classList.remove('disconnected');
+      document.getElementById('volume1').classList.add('connected');
+      document.getElementById('volume2').classList.add('connected');
     }
 
     document.getElementById('disconnect').addEventListener('click', async () => {
       if (bluetoothDevice) {
         bluetoothDevice.gatt.disconnect();
-        bluetoothDevice = null;
+        updateUIState(false);
       }
-      updateUIState(false);
-      document.getElementById('connect').style.opacity = '1';
-      document.getElementById('connect').style.pointerEvents = 'auto';
-      document.getElementById('disconnect').style.opacity = '0';
-      document.getElementById('disconnect').style.pointerEvents = 'none';
+    });
+
+    function updateUIState(isConnected) {
+      document.querySelectorAll('.volume-slider').forEach(slider => {
+        slider.disabled = !isConnected;
+        if (isConnected) {
+          slider.classList.remove('disconnected');
+          slider.classList.add('connected');
+        } else {
+          slider.classList.remove('connected');
+          slider.classList.add('disconnected');
+        }
+      });
+
+      document.querySelectorAll('.speaker-icon').forEach(icon => {
+        icon.classList.toggle('active', isConnected);
+      });
+
+      updateWaveHeights(isConnected);
+    }
+
+    function updateWaveHeights(isConnected) {
+      const waves1 = document.querySelectorAll('#card1 .wave');
+      const waves2 = document.querySelectorAll('#card2 .wave');
+
+      if (isConnected) {
+        waves1.forEach((wave, index) => {
+          wave.style.height = `${(volume1 * 25) * (index + 1)}%`;
+        });
+        waves2.forEach((wave, index) => {
+          wave.style.height = `${(volume2 * 25) * (index + 1)}%`;
+        });
+      } else {
+        waves1.forEach(wave => wave.style.height = '20%');
+        waves2.forEach(wave => wave.style.height = '20%');
+      }
+    }
+
+    function handleData(event) {
+      const value = new TextDecoder().decode(event.target.value);
+      const [distance1, distance2] = value.split(',');
+
+      document.getElementById('distance1').textContent = `Distance 1: ${distance1}`;
+      document.getElementById('distance2').textContent = `Distance 2: ${distance2}`;
+
+      // Update wave heights based on volume
+      updateWaveHeights(true);
+    }
+
+    document.getElementById('volume1').addEventListener('input', (e) => {
+      volume1 = e.target.value;
+      gainNode1.gain.setValueAtTime(volume1, audioCtx.currentTime);
+      updateWaveHeights(true);
+    });
+
+    document.getElementById('volume2').addEventListener('input', (e) => {
+      volume2 = e.target.value;
+      gainNode2.gain.setValueAtTime(volume2, audioCtx.currentTime);
+      updateWaveHeights(true);
     });
   </script>
 </body>
