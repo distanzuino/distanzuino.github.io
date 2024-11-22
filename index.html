@@ -102,7 +102,7 @@
       width: 100%;
       margin-top: 10px;
       appearance: none;
-      height: 20px; /* Increased thickness */
+      height: 15px; /* Increased thickness */
       border-radius: 5px;
       outline: none;
     }
@@ -117,19 +117,19 @@
 
     .volume-slider::-webkit-slider-thumb {
       appearance: none;
-      width: 0px; /* Set width to 0 to hide the thumb */
-      height: 0px; /* Set height to 0 to hide the thumb */
-      background: transparent; /* Make the thumb transparent */
-      border: none; /* Remove any border */
-      cursor: none; /* Hide cursor */
+      width: 0px;
+      height: 0px;
+      background: transparent;
+      border: none;
+      cursor: none;
     }
 
     .volume-slider::-moz-range-thumb {
-      width: 0px; /* Set width to 0 to hide the thumb */
-      height: 0px; /* Set height to 0 to hide the thumb */
-      background: transparent; /* Make the thumb transparent */
-      border: none; /* Remove any border */
-      cursor: none; /* Hide cursor */
+      width: 0px;
+      height: 0px;
+      background: transparent;
+      border: none;
+      cursor: none;
     }
 
     .volume-slider:disabled {
@@ -247,46 +247,55 @@
         const frequency = 100 + distance * 10;
         oscillator.frequency.value = frequency;
         gainNode.gain.value = distanceLabel === "1" ? volume1 : volume2; // Unmute with the correct volume
-        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
+        distanceElement.innerText = Distance ${distanceLabel}: ${distance.toFixed(2)} cm;
       } else {
-        oscillator.frequency.value = 0;
+        oscillator.frequency.value = 0; // Mute tone
         gainNode.gain.value = 0;
-        distanceElement.innerText = `Distance ${distanceLabel}: Out of range`;
+        distanceElement.innerText = Distance ${distanceLabel}: ${distance.toFixed(2)} cm;
       }
     }
 
-    function updateSliderBackground(slider, volume) {
-      const sliderClass = slider.classList.contains('connected') ? 'connected' : 'disconnected';
-      slider.style.setProperty('--volume-level', `${volume * 100}%`);
-      slider.classList.toggle('connected', sliderClass === 'connected');
-      slider.classList.toggle('disconnected', sliderClass === 'disconnected');
+    function updateSliderBackground(slider, value) {
+      slider.style.setProperty('--volume-level', ${value * 100}%);
     }
 
     document.getElementById('disconnect').addEventListener('click', () => {
       if (bluetoothDevice && bluetoothDevice.gatt.connected) {
         bluetoothDevice.gatt.disconnect();
-        resetUI();
       }
-    });
 
-    function resetUI() {
+      if (audioCtx) {
+        gainNode1.gain.value = 0;
+        gainNode2.gain.value = 0;
+      }
+
       document.getElementById('connect').style.opacity = '1';
       document.getElementById('connect').style.pointerEvents = 'auto';
       document.getElementById('disconnect').style.opacity = '0';
       document.getElementById('disconnect').style.pointerEvents = 'none';
 
       updateUIState(false);
-      if (gainNode1) gainNode1.gain.value = 0;
-      if (gainNode2) gainNode2.gain.value = 0;
-    }
+    });
 
     function updateUIState(isConnected) {
       const sliders = document.querySelectorAll('.volume-slider');
       sliders.forEach(slider => {
         slider.disabled = !isConnected;
-        slider.classList.toggle('connected', isConnected);
-        slider.classList.toggle('disconnected', !isConnected);
+        slider.className = isConnected ? 'volume-slider connected' : 'volume-slider disconnected';
+        updateSliderBackground(slider, isConnected ? slider.value : 0);
       });
+
+      if (isConnected) {
+        document.getElementById('distance1').innerText = 'Distance 1: Waiting...';
+        document.getElementById('distance2').innerText = 'Distance 2: Waiting...';
+
+        // Mute oscillators while in "Waiting" state
+        if (gainNode1) gainNode1.gain.value = 0;
+        if (gainNode2) gainNode2.gain.value = 0;
+      } else {
+        document.getElementById('distance1').innerText = 'Distance 1: Disconnected';
+        document.getElementById('distance2').innerText = 'Distance 2: Disconnected';
+      }
     }
   </script>
 </body>
