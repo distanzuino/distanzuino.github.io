@@ -99,12 +99,13 @@
     }
 
     .volume-slider {
-      width: 100%;
+      width: 80%;
       margin-top: 10px;
       appearance: none;
       height: 10px; /* Increased thickness */
       border-radius: 5px;
       outline: none;
+      display: inline-block;
     }
 
     .volume-slider.connected {
@@ -135,6 +136,50 @@
     .volume-slider:disabled {
       cursor: not-allowed;
     }
+
+    .speaker-icon {
+      width: 30px;
+      height: 30px;
+      margin-left: 15px;
+      display: inline-block;
+      vertical-align: middle;
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .speaker-icon.active {
+      transform: scale(1.2);
+    }
+
+    .waves {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 5px;
+    }
+
+    .wave {
+      width: 4px;
+      height: 6px;
+      background-color: #ffffff;
+      border-radius: 50%;
+      transition: height 0.2s ease;
+    }
+
+    .wave-1 {
+      height: 6px;
+    }
+
+    .wave-2 {
+      height: 8px;
+    }
+
+    .wave-3 {
+      height: 10px;
+    }
+
+    .wave-4 {
+      height: 12px;
+    }
   </style>
 </head>
 <body>
@@ -148,12 +193,32 @@
 
   <div id="card1" class="card">
     <p id="distance1" class="distance-display">Distance 1: Disconnected</p>
-    <input id="volume1" type="range" class="volume-slider disconnected" min="0" max="1" step="0.01" value="1" disabled>
+    <div class="volume-control">
+      <input id="volume1" type="range" class="volume-slider disconnected" min="0" max="1" step="0.01" value="1" disabled>
+      <div id="speaker1" class="speaker-icon">
+        <div class="waves">
+          <div class="wave wave-1"></div>
+          <div class="wave wave-2"></div>
+          <div class="wave wave-3"></div>
+          <div class="wave wave-4"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div id="card2" class="card">
     <p id="distance2" class="distance-display">Distance 2: Disconnected</p>
-    <input id="volume2" type="range" class="volume-slider disconnected" min="0" max="1" step="0.01" value="1" disabled>
+    <div class="volume-control">
+      <input id="volume2" type="range" class="volume-slider disconnected" min="0" max="1" step="0.01" value="1" disabled>
+      <div id="speaker2" class="speaker-icon">
+        <div class="waves">
+          <div class="wave wave-1"></div>
+          <div class="wave wave-2"></div>
+          <div class="wave wave-3"></div>
+          <div class="wave wave-4"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -216,12 +281,14 @@
         volume1 = parseFloat(e.target.value); // Remember volume
         gainNode1.gain.value = volume1 === 0 ? 0 : volume1;
         updateSliderBackground(e.target, volume1);
+        updateSpeakerIcon('speaker1', volume1);
       });
 
       document.getElementById('volume2').addEventListener('input', (e) => {
         volume2 = parseFloat(e.target.value); // Remember volume
         gainNode2.gain.value = volume2 === 0 ? 0 : volume2;
         updateSliderBackground(e.target, volume2);
+        updateSpeakerIcon('speaker2', volume2);
       });
     }
 
@@ -257,6 +324,16 @@
 
     function updateSliderBackground(slider, value) {
       slider.style.setProperty('--volume-level', `${value * 100}%`);
+    }
+
+    function updateSpeakerIcon(speakerId, volume) {
+      const speaker = document.getElementById(speakerId);
+      const waves = speaker.querySelectorAll('.wave');
+      waves.forEach((wave, index) => {
+        wave.style.height = `${(volume * 12) - (index * 3)}px`;
+      });
+
+      speaker.classList.toggle('active', volume > 0);
     }
 
     document.getElementById('disconnect').addEventListener('click', () => {
