@@ -62,7 +62,7 @@
       background-color: #ff6666;
       color: white;
       opacity: 1;
-      z-index: 10; /* Ensure it has a higher z-index when visible */
+      z-index: 1;
     }
 
     #connect:hover {
@@ -75,7 +75,7 @@
       color: white;
       opacity: 0;
       pointer-events: none;
-      z-index: 0; /* Make sure disconnect has a lower z-index */
+      z-index: 0;
     }
 
     #disconnect:hover {
@@ -247,44 +247,55 @@
         const frequency = 100 + distance * 10;
         oscillator.frequency.value = frequency;
         gainNode.gain.value = distanceLabel === "1" ? volume1 : volume2; // Unmute with the correct volume
-        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
+        distanceElement.innerText = Distance ${distanceLabel}: ${distance.toFixed(2)} cm;
       } else {
         oscillator.frequency.value = 0; // Mute tone
         gainNode.gain.value = 0;
-        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm (Out of range)`;
+        distanceElement.innerText = Distance ${distanceLabel}: ${distance.toFixed(2)} cm;
       }
     }
 
-    function updateSliderBackground(slider, volume) {
-      const percentage = (volume * 100);
-      slider.style.setProperty('--volume-level', `${percentage}%`);
+    function updateSliderBackground(slider, value) {
+      slider.style.setProperty('--volume-level', ${value * 100}%);
     }
 
-    document.getElementById('disconnect').addEventListener('click', async () => {
+    document.getElementById('disconnect').addEventListener('click', () => {
       if (bluetoothDevice && bluetoothDevice.gatt.connected) {
         bluetoothDevice.gatt.disconnect();
-        document.getElementById('connect').style.opacity = '1';
-        document.getElementById('connect').style.pointerEvents = 'auto';
-        document.getElementById('disconnect').style.opacity = '0';
-        document.getElementById('disconnect').style.pointerEvents = 'none';
-
-        updateUIState(false);
-        resetUI();
       }
+
+      if (audioCtx) {
+        gainNode1.gain.value = 0;
+        gainNode2.gain.value = 0;
+      }
+
+      document.getElementById('connect').style.opacity = '1';
+      document.getElementById('connect').style.pointerEvents = 'auto';
+      document.getElementById('disconnect').style.opacity = '0';
+      document.getElementById('disconnect').style.pointerEvents = 'none';
+
+      updateUIState(false);
     });
 
     function updateUIState(isConnected) {
-      document.getElementById('volume1').disabled = !isConnected;
-      document.getElementById('volume2').disabled = !isConnected;
-    }
+      const sliders = document.querySelectorAll('.volume-slider');
+      sliders.forEach(slider => {
+        slider.disabled = !isConnected;
+        slider.className = isConnected ? 'volume-slider connected' : 'volume-slider disconnected';
+        updateSliderBackground(slider, isConnected ? slider.value : 0);
+      });
 
-    function resetUI() {
-      document.getElementById('distance1').innerText = 'Distance 1: Disconnected';
-      document.getElementById('distance2').innerText = 'Distance 2: Disconnected';
-      document.getElementById('volume1').value = 1;
-      document.getElementById('volume2').value = 1;
-      updateSliderBackground(document.getElementById('volume1'), 1);
-      updateSliderBackground(document.getElementById('volume2'), 1);
+      if (isConnected) {
+        document.getElementById('distance1').innerText = 'Distance 1: Waiting...';
+        document.getElementById('distance2').innerText = 'Distance 2: Waiting...';
+
+        // Mute oscillators while in "Waiting" state
+        if (gainNode1) gainNode1.gain.value = 0;
+        if (gainNode2) gainNode2.gain.value = 0;
+      } else {
+        document.getElementById('distance1').innerText = 'Distance 1: Disconnected';
+        document.getElementById('distance2').innerText = 'Distance 2: Disconnected';
+      }
     }
   </script>
 </body>
