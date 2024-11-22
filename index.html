@@ -159,26 +159,26 @@
 
     .wave {
       width: 4px;
-      height: 6px;
+      height: 4px; /* Starting size for the waves at volume 0 */
       background-color: #ffffff;
       border-radius: 50%;
-      transition: height 0.2s ease;
+      transition: height 0.2s ease, width 0.2s ease; /* Smooth transition */
     }
 
     .wave-1 {
-      height: 6px;
+      width: 4px;
     }
 
     .wave-2 {
-      height: 8px;
+      width: 6px;
     }
 
     .wave-3 {
-      height: 10px;
+      width: 8px;
     }
 
     .wave-4 {
-      height: 12px;
+      width: 10px;
     }
   </style>
 </head>
@@ -278,18 +278,34 @@
       oscillator2.start();
 
       document.getElementById('volume1').addEventListener('input', (e) => {
-        volume1 = parseFloat(e.target.value); // Remember volume
+        volume1 = parseFloat(e.target.value);
         gainNode1.gain.value = volume1 === 0 ? 0 : volume1;
         updateSliderBackground(e.target, volume1);
-        updateSpeakerIcon('speaker1', volume1);
+        updateWaveHeights('speaker1', volume1);
       });
 
       document.getElementById('volume2').addEventListener('input', (e) => {
-        volume2 = parseFloat(e.target.value); // Remember volume
+        volume2 = parseFloat(e.target.value);
         gainNode2.gain.value = volume2 === 0 ? 0 : volume2;
         updateSliderBackground(e.target, volume2);
-        updateSpeakerIcon('speaker2', volume2);
+        updateWaveHeights('speaker2', volume2);
       });
+    }
+
+    function updateSliderBackground(slider, value) {
+      slider.style.setProperty('--volume-level', `${value * 100}%`);
+    }
+
+    function updateWaveHeights(speakerId, volume) {
+      const speaker = document.getElementById(speakerId);
+      const waves = speaker.querySelectorAll('.wave');
+      waves.forEach((wave, index) => {
+        const waveSize = volume * (index + 1) * 4; // Increasing wave size
+        wave.style.height = `${waveSize}px`;
+        wave.style.width = `${waveSize + 2}px`; // Longish effect on higher volume
+      });
+
+      speaker.classList.toggle('active', volume > 0);
     }
 
     function handleData(event) {
@@ -303,7 +319,6 @@
         const distance2 = parseFloat(value.substring(3)) / 10;
         adjustFrequency(distance2, oscillator2, document.getElementById('distance2'), "2", gainNode2);
       } else {
-        // If no valid data, mute oscillators
         if (gainNode1) gainNode1.gain.value = 0;
         if (gainNode2) gainNode2.gain.value = 0;
       }
@@ -313,27 +328,13 @@
       if (distance >= 1 && distance <= 50) {
         const frequency = 100 + distance * 10;
         oscillator.frequency.value = frequency;
-        gainNode.gain.value = distanceLabel === "1" ? volume1 : volume2; // Unmute with the correct volume
+        gainNode.gain.value = distanceLabel === "1" ? volume1 : volume2;
         distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
       } else {
-        oscillator.frequency.value = 0; // Mute tone
+        oscillator.frequency.value = 0;
         gainNode.gain.value = 0;
         distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
       }
-    }
-
-    function updateSliderBackground(slider, value) {
-      slider.style.setProperty('--volume-level', `${value * 100}%`);
-    }
-
-    function updateSpeakerIcon(speakerId, volume) {
-      const speaker = document.getElementById(speakerId);
-      const waves = speaker.querySelectorAll('.wave');
-      waves.forEach((wave, index) => {
-        wave.style.height = `${(volume * 12) - (index * 3)}px`;
-      });
-
-      speaker.classList.toggle('active', volume > 0);
     }
 
     document.getElementById('disconnect').addEventListener('click', () => {
@@ -365,8 +366,6 @@
       if (isConnected) {
         document.getElementById('distance1').innerText = 'Distance 1: Waiting...';
         document.getElementById('distance2').innerText = 'Distance 2: Waiting...';
-
-        // Mute oscillators while in "Waiting" state
         if (gainNode1) gainNode1.gain.value = 0;
         if (gainNode2) gainNode2.gain.value = 0;
       } else {
