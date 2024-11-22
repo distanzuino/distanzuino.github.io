@@ -184,7 +184,7 @@
 <body>
   <div id="popup">
     <div id="popup-content">
-      <p>Please note that the website may not work properly on iOS devices. We apologize for the inconvenience..</p>
+      <p>Please note that the website may not yet work properly on iOS devices. We apologize for the inconvenience.</p>
       <button id="popup-button">I understand</button>
     </div>
   </div>
@@ -213,7 +213,10 @@
       document.getElementById('popup').style.display = 'none';
     });
 
-    // Remaining JavaScript for Bluetooth, oscillators, etc., should go here
+    document.getElementById('connect').addEventListener('click', () => {
+      console.log("Connect button clicked!"); // Debug log
+      // Add your Bluetooth connection code here
+    });
   </script>
 </body>
 </html>
