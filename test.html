@@ -25,34 +25,21 @@
     </style>
 </head>
 <body>
-    <h1>Website Viewer</h1>
     <input id="urlInput" type="text" placeholder="Enter a website URL (e.g., https://example.com)" />
     <button onclick="loadWebsite()">Load Website</button>
-    <iframe id="webFrame"></iframe>
+    <iframe id="webFrame" sandbox="allow-scripts allow-forms allow-same-origin allow-popups"></iframe>
 
     <script>
-        async function loadWebsite() {
+        function loadWebsite() {
             const input = document.getElementById("urlInput").value.trim();
             const iframe = document.getElementById("webFrame");
             if (!input) {
                 alert("Please enter a URL!");
                 return;
             }
-            try {
-                // Use allorigins API to fetch the content
-                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(input)}`;
-                const response = await fetch(proxyUrl);
-                if (!response.ok) throw new Error("Failed to fetch website content.");
-                const data = await response.json();
-                const decodedHTML = data.contents;
-
-                // Create a blob URL to display the content
-                const blob = new Blob([decodedHTML], { type: "text/html" });
-                iframe.src = URL.createObjectURL(blob);
-            } catch (error) {
-                console.error("Error loading website:", error);
-                alert("Unable to load the website. It may have security restrictions.");
-            }
+            // Ensure the URL starts with http:// or https://
+            const url = input.startsWith('http://') || input.startsWith('https://') ? input : `https://${input}`;
+            iframe.src = url; // Directly load the website into the iframe
         }
     </script>
 </body>
