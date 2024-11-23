@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Website Proxy Viewer</title>
+    <title>Website Viewer</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
             text-align: center;
+            margin: 0;
+            padding: 20px;
         }
         input, button {
             margin: 10px;
@@ -25,21 +25,34 @@
     </style>
 </head>
 <body>
-    <h1>Proxy-Based Website Viewer</h1>
-    <input id="urlInput" type="text" placeholder="Enter a website URL (e.g., https://example.com)">
-    <button onclick="loadProxyWebsite()">Load Website</button>
-    <iframe id="proxyFrame"></iframe>
+    <h1>Website Viewer</h1>
+    <input id="urlInput" type="text" placeholder="Enter a website URL (e.g., https://example.com)" />
+    <button onclick="loadWebsite()">Load Website</button>
+    <iframe id="webFrame"></iframe>
 
     <script>
-        function loadProxyWebsite() {
-            const url = document.getElementById("urlInput").value.trim();
-            if (!url) {
-                alert("Please enter a valid URL!");
+        async function loadWebsite() {
+            const input = document.getElementById("urlInput").value.trim();
+            const iframe = document.getElementById("webFrame");
+            if (!input) {
+                alert("Please enter a URL!");
                 return;
             }
-            // Using a proxy service to bypass restrictions
-            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-            document.getElementById("proxyFrame").src = proxyUrl;
+            try {
+                // Use allorigins API to fetch the content
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(input)}`;
+                const response = await fetch(proxyUrl);
+                if (!response.ok) throw new Error("Failed to fetch website content.");
+                const data = await response.json();
+                const decodedHTML = data.contents;
+
+                // Create a blob URL to display the content
+                const blob = new Blob([decodedHTML], { type: "text/html" });
+                iframe.src = URL.createObjectURL(blob);
+            } catch (error) {
+                console.error("Error loading website:", error);
+                alert("Unable to load the website. It may have security restrictions.");
+            }
         }
     </script>
 </body>
