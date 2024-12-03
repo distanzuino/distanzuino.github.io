@@ -270,7 +270,7 @@
       }
     }
 
-    function adjustFrequency(distance, oscillator, distanceElement, distanceLabel, gainNode) {
+    function adjustFrequency(distance, oscillator, distanceElement, distanceLabel, gainNode, stereoPanNode) {
       let frequency = 0;
     
       // Assign frequency based on the distance and label
@@ -299,16 +299,46 @@
       // Update oscillator and UI
       oscillator.frequency.value = frequency > 0 ? frequency : oscillator.frequency.value; // Keep current frequency if out of range
       gainNode.gain.setTargetAtTime(frequency > 0 ? (distanceLabel === "1" ? volume1 : volume2) : 0, audioCtx.currentTime, 0.05); // Smooth volume adjustment
+      
+      // Panning (smooth transition between left and right stereo channels)
+      if (stereoPanNode) {
+        stereoPanNode.pan.setTargetAtTime(distanceLabel === "1" ? -1 : 1, audioCtx.currentTime, 0.05); // Left for oscillator1, right for oscillator2
+      }
     
       // Update UI to show distance, even if out of range
-      if (frequency > 0) {
-        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
-      } else {
-        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm (Out of range)`;
-      }
+      distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
     
       distanceElement.classList.add('fade-in');
     }
+    
+    // Add panning to the setupOscillators function
+    function setupOscillators() {
+      oscillator1 = audioCtx.createOscillator();
+      gainNode1 = audioCtx.createGain();
+      let panNode1 = audioCtx.createStereoPanner();
+      oscillator1.connect(gainNode1).connect(panNode1).connect(audioCtx.destination);
+      oscillator1.start();
+    
+      oscillator2 = audioCtx.createOscillator();
+      gainNode2 = audioCtx.createGain();
+      let panNode2 = audioCtx.createStereoPanner();
+      oscillator2.connect(gainNode2).connect(panNode2).connect(audioCtx.destination);
+      oscillator2.start();
+    
+      // Setting up volume sliders
+      document.getElementById('volume1').addEventListener('input', (e) => {
+        volume1 = parseFloat(e.target.value); // Remember volume
+        gainNode1.gain.value = volume1 === 0 ? 0 : volume1;
+        updateSliderBackground(e.target, volume1);
+      });
+    
+      document.getElementById('volume2').addEventListener('input', (e) => {
+        volume2 = parseFloat(e.target.value); // Remember volume
+        gainNode2.gain.value = volume2 === 0 ? 0 : volume2;
+        updateSliderBackground(e.target, volume2);
+      });
+    }
+
 
 
     function updateSliderBackground(slider, value) {
