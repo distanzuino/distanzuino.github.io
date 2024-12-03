@@ -275,25 +275,23 @@
     
       // Assign frequency based on the distance and label
       if (distanceLabel === "1") {
-        if (distance >= 5 && distance < 10) frequency = 200;
-        else if (distance >= 10 && distance < 15) frequency = 300;
-        else if (distance >= 15 && distance < 20) frequency = 400;
-        else if (distance >= 20 && distance < 25) frequency = 500;
-        else if (distance >= 25 && distance < 30) frequency = 600;
-        else if (distance >= 30 && distance < 35) frequency = 700;
-        else if (distance >= 35 && distance < 40) frequency = 800;
-        else if (distance >= 40 && distance < 45) frequency = 900;
-        else if (distance >= 45 && distance <= 50) frequency = 1000;
+        if (distance >= 3 && distance < 8.99) frequency = 133;
+        else if (distance >= 9 && distance < 14.99) frequency = 150;
+        else if (distance >= 15 && distance < 20.99) frequency = 166;
+        else if (distance >= 21 && distance < 26.99) frequency = 175;
+        else if (distance >= 27 && distance < 32.99) frequency = 200;
+        else if (distance >= 33 && distance < 38.99) frequency = 216;
+        else if (distance >= 39 && distance < 44.99) frequency = 250;
+        else if (distance >= 45 && distance <= 51) frequency = 259;
       } else if (distanceLabel === "2") {
-        if (distance >= 5 && distance < 10) frequency = 220;
-        else if (distance >= 10 && distance < 15) frequency = 320;
-        else if (distance >= 15 && distance < 20) frequency = 420;
-        else if (distance >= 20 && distance < 25) frequency = 520;
-        else if (distance >= 25 && distance < 30) frequency = 620;
-        else if (distance >= 30 && distance < 35) frequency = 720;
-        else if (distance >= 35 && distance < 40) frequency = 820;
-        else if (distance >= 40 && distance < 45) frequency = 920;
-        else if (distance >= 45 && distance <= 50) frequency = 1020;
+        if (distance >= 3 && distance < 8.99) frequency = 300;
+        else if (distance >= 9 && distance < 14.99) frequency = 400;
+        else if (distance >= 15 && distance < 20.99) frequency = 500;
+        else if (distance >= 21 && distance < 26.99) frequency = 600;
+        else if (distance >= 27 && distance < 32.99) frequency = 700;
+        else if (distance >= 33 && distance < 38.99) frequency = 800;
+        else if (distance >= 39 && distance < 44.99) frequency = 900;
+        else if (distance >= 45 && distance <= 51) frequency = 1000;
       }
     
       // Update oscillator and UI
