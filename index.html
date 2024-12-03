@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -313,26 +311,24 @@
     function setupOscillators() {
       oscillator1 = audioCtx.createOscillator();
       gainNode1 = audioCtx.createGain();
-      let panNode1 = audioCtx.createStereoPanner();
-      oscillator1.connect(gainNode1).connect(panNode1).connect(audioCtx.destination);
+      oscillator1.connect(gainNode1).connect(audioCtx.destination);
       oscillator1.start();
     
       oscillator2 = audioCtx.createOscillator();
       gainNode2 = audioCtx.createGain();
-      let panNode2 = audioCtx.createStereoPanner();
-      oscillator2.connect(gainNode2).connect(panNode2).connect(audioCtx.destination);
+      oscillator2.connect(gainNode2).connect(audioCtx.destination);
       oscillator2.start();
     
-      // Setting up volume sliders
+      // Volume sliders setup
       document.getElementById('volume1').addEventListener('input', (e) => {
-        volume1 = parseFloat(e.target.value); // Remember volume
-        gainNode1.gain.value = volume1 === 0 ? 0 : volume1;
+        volume1 = parseFloat(e.target.value);
+        gainNode1.gain.setTargetAtTime(volume1, audioCtx.currentTime, 0.05);
         updateSliderBackground(e.target, volume1);
       });
     
       document.getElementById('volume2').addEventListener('input', (e) => {
-        volume2 = parseFloat(e.target.value); // Remember volume
-        gainNode2.gain.value = volume2 === 0 ? 0 : volume2;
+        volume2 = parseFloat(e.target.value);
+        gainNode2.gain.setTargetAtTime(volume2, audioCtx.currentTime, 0.05);
         updateSliderBackground(e.target, volume2);
       });
     }
