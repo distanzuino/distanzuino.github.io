@@ -270,44 +270,44 @@
     }
 
     function adjustFrequency(distance, oscillator, distanceElement, distanceLabel, gainNode) {
-  let frequency = 0;
-
-  // Assign frequency based on the distance and label
-  if (distanceLabel === "1") {
-    if (distance >= 5 && distance < 10) frequency = 200;
-    else if (distance >= 10 && distance < 15) frequency = 300;
-    else if (distance >= 15 && distance < 20) frequency = 400;
-    else if (distance >= 20 && distance < 25) frequency = 500;
-    else if (distance >= 25 && distance < 30) frequency = 600;
-    else if (distance >= 30 && distance < 35) frequency = 700;
-    else if (distance >= 35 && distance < 40) frequency = 800;
-    else if (distance >= 40 && distance < 45) frequency = 900;
-    else if (distance >= 45 && distance <= 50) frequency = 1000;
-  } else if (distanceLabel === "2") {
-    if (distance >= 5 && distance < 10) frequency = 220;
-    else if (distance >= 10 && distance < 15) frequency = 320;
-    else if (distance >= 15 && distance < 20) frequency = 420;
-    else if (distance >= 20 && distance < 25) frequency = 520;
-    else if (distance >= 25 && distance < 30) frequency = 620;
-    else if (distance >= 30 && distance < 35) frequency = 720;
-    else if (distance >= 35 && distance < 40) frequency = 820;
-    else if (distance >= 40 && distance < 45) frequency = 920;
-    else if (distance >= 45 && distance <= 50) frequency = 1020;
-  }
-
-  // Update oscillator and UI
-  if (frequency > 0) {
-    oscillator.frequency.value = frequency; // Set frequency
-    gainNode.gain.value = distanceLabel === "1" ? volume1 : volume2; // Unmute with the correct volume
-    distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
-  } else {
-    oscillator.frequency.value = 0; // Mute tone
-    gainNode.gain.value = 0;
-    distanceElement.innerText = `Distance ${distanceLabel}: Out of range`;
-  }
-
-  distanceElement.classList.add('fade-in');
-}
+      let frequency = 0;
+    
+      // Assign frequency based on the distance and label
+      if (distanceLabel === "1") {
+        if (distance >= 5 && distance < 10) frequency = 200;
+        else if (distance >= 10 && distance < 15) frequency = 300;
+        else if (distance >= 15 && distance < 20) frequency = 400;
+        else if (distance >= 20 && distance < 25) frequency = 500;
+        else if (distance >= 25 && distance < 30) frequency = 600;
+        else if (distance >= 30 && distance < 35) frequency = 700;
+        else if (distance >= 35 && distance < 40) frequency = 800;
+        else if (distance >= 40 && distance < 45) frequency = 900;
+        else if (distance >= 45 && distance <= 50) frequency = 1000;
+      } else if (distanceLabel === "2") {
+        if (distance >= 5 && distance < 10) frequency = 220;
+        else if (distance >= 10 && distance < 15) frequency = 320;
+        else if (distance >= 15 && distance < 20) frequency = 420;
+        else if (distance >= 20 && distance < 25) frequency = 520;
+        else if (distance >= 25 && distance < 30) frequency = 620;
+        else if (distance >= 30 && distance < 35) frequency = 720;
+        else if (distance >= 35 && distance < 40) frequency = 820;
+        else if (distance >= 40 && distance < 45) frequency = 920;
+        else if (distance >= 45 && distance <= 50) frequency = 1020;
+      }
+    
+      // Update oscillator and UI
+      if (frequency > 0) {
+        oscillator.frequency.value = frequency; // Set frequency
+        gainNode.gain.value = distanceLabel === "1" ? volume1 : volume2; // Unmute with the correct volume
+        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
+      } else {
+        oscillator.frequency.value = 0; // Mute tone
+        gainNode.gain.value = 0;
+        distanceElement.innerText = `Distance ${distanceLabel}: Out of range`;
+      }
+    
+      distanceElement.classList.add('fade-in');
+    }
 
     function updateSliderBackground(slider, value) {
       slider.style.setProperty('--volume-level', `${value * 100}%`);
