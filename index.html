@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,6 +40,7 @@
       cursor: pointer;
       transition: transform 0.3s ease;
     }
+
 
     #button-container {
       position: relative;
@@ -109,7 +111,7 @@
       width: 100%;
       margin-top: 10px;
       appearance: none;
-      height: 15px;
+      height: 15px; /* Increased thickness */
       border-radius: 5px;
       outline: none;
       transition: background 0.3s ease;
@@ -120,7 +122,7 @@
     }
 
     .volume-slider.disconnected {
-      background: #777;
+      background: #777; /* Grey when disconnected */
     }
 
     .volume-slider::-webkit-slider-thumb {
@@ -194,8 +196,8 @@
     let oscillator1, oscillator2;
     let gainNode1, gainNode2;
 
-    let volume1 = 1;
-    let volume2 = 1;
+    let volume1 = 1; // Store the last volume for oscillator 1
+    let volume2 = 1; // Store the last volume for oscillator 2
 
     document.getElementById('connect').addEventListener('click', async () => {
       try {
@@ -238,13 +240,13 @@
       oscillator2.start();
 
       document.getElementById('volume1').addEventListener('input', (e) => {
-        volume1 = parseFloat(e.target.value);
+        volume1 = parseFloat(e.target.value); // Remember volume
         gainNode1.gain.value = volume1 === 0 ? 0 : volume1;
         updateSliderBackground(e.target, volume1);
       });
 
       document.getElementById('volume2').addEventListener('input', (e) => {
-        volume2 = parseFloat(e.target.value);
+        volume2 = parseFloat(e.target.value); // Remember volume
         gainNode2.gain.value = volume2 === 0 ? 0 : volume2;
         updateSliderBackground(e.target, volume2);
       });
@@ -260,65 +262,94 @@
       } else if (value.startsWith('D2:')) {
         const distance2 = parseFloat(value.substring(3)) / 10;
         adjustFrequency(distance2, oscillator2, document.getElementById('distance2'), "2", gainNode2);
+      } else {
+        // If no valid data, mute oscillators
+        if (gainNode1) gainNode1.gain.value = 0;
+        if (gainNode2) gainNode2.gain.value = 0;
       }
     }
 
     function adjustFrequency(distance, oscillator, distanceElement, distanceLabel, gainNode) {
-      let frequency = 0;
+  let frequency = 0;
 
-      if (distanceLabel === "1") {
-        if (distance >= 5 && distance < 10) frequency = 200;
-        else if (distance >= 10 && distance < 15) frequency = 300;
-        else if (distance >= 15 && distance < 20) frequency = 400;
-        else if (distance >= 20 && distance < 25) frequency = 500;
-        else if (distance >= 25 && distance < 30) frequency = 600;
-        else if (distance >= 30 && distance < 35) frequency = 700;
-        else if (distance >= 35 && distance < 40) frequency = 800;
-        else if (distance >= 40 && distance < 45) frequency = 900;
-        else if (distance >= 45 && distance <= 50) frequency = 1000;
-      } else if (distanceLabel === "2") {
-        if (distance >= 5 && distance < 10) frequency = 220;
-        else if (distance >= 10 && distance < 15) frequency = 320;
-        else if (distance >= 15 && distance < 20) frequency = 420;
-        else if (distance >= 20 && distance < 25) frequency = 520;
-        else if (distance >= 25 && distance < 30) frequency = 620;
-        else if (distance >= 30 && distance < 35) frequency = 720;
-        else if (distance >= 35 && distance < 40) frequency = 820;
-        else if (distance >= 40 && distance < 45) frequency = 920;
-        else if (distance >= 45 && distance <= 50) frequency = 1020;
-      }
+  // Assign frequency based on the distance and label
+  if (distanceLabel === "1") {
+    if (distance >= 5 && distance < 10) frequency = 200;
+    else if (distance >= 10 && distance < 15) frequency = 300;
+    else if (distance >= 15 && distance < 20) frequency = 400;
+    else if (distance >= 20 && distance < 25) frequency = 500;
+    else if (distance >= 25 && distance < 30) frequency = 600;
+    else if (distance >= 30 && distance < 35) frequency = 700;
+    else if (distance >= 35 && distance < 40) frequency = 800;
+    else if (distance >= 40 && distance < 45) frequency = 900;
+    else if (distance >= 45 && distance <= 50) frequency = 1000;
+  } else if (distanceLabel === "2") {
+    if (distance >= 5 && distance < 10) frequency = 220;
+    else if (distance >= 10 && distance < 15) frequency = 320;
+    else if (distance >= 15 && distance < 20) frequency = 420;
+    else if (distance >= 20 && distance < 25) frequency = 520;
+    else if (distance >= 25 && distance < 30) frequency = 620;
+    else if (distance >= 30 && distance < 35) frequency = 720;
+    else if (distance >= 35 && distance < 40) frequency = 820;
+    else if (distance >= 40 && distance < 45) frequency = 920;
+    else if (distance >= 45 && distance <= 50) frequency = 1020;
+  }
 
-      if (frequency > 0) {
-        oscillator.frequency.value = frequency;
-        gainNode.gain.value = distanceLabel === "1" ? volume1 : volume2;
-        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
-      } else {
-        oscillator.frequency.value = 0;
-        gainNode.gain.value = 0;
-        distanceElement.innerText = `Distance ${distanceLabel}: Out of range`;
-      }
+  // Update oscillator and UI
+  if (frequency > 0) {
+    oscillator.frequency.value = frequency; // Set frequency
+    gainNode.gain.value = distanceLabel === "1" ? volume1 : volume2; // Unmute with the correct volume
+    distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
+  } else {
+    oscillator.frequency.value = 0; // Mute tone
+    gainNode.gain.value = 0;
+    distanceElement.innerText = `Distance ${distanceLabel}: Out of range`;
+  }
 
-      distanceElement.classList.add('fade-in');
+  distanceElement.classList.add('fade-in');
+}
+
+    function updateSliderBackground(slider, value) {
+      slider.style.setProperty('--volume-level', `${value * 100}%`);
     }
 
     document.getElementById('disconnect').addEventListener('click', () => {
-      bluetoothDevice.gatt.disconnect();
+      if (bluetoothDevice && bluetoothDevice.gatt.connected) {
+        bluetoothDevice.gatt.disconnect();
+      }
+
+      if (audioCtx) {
+        gainNode1.gain.value = 0;
+        gainNode2.gain.value = 0;
+      }
+
+      document.getElementById('connect').style.opacity = '1';
+      document.getElementById('connect').style.pointerEvents = 'auto';
+      document.getElementById('disconnect').style.opacity = '0';
+      document.getElementById('disconnect').style.pointerEvents = 'none';
+
       updateUIState(false);
     });
 
     function updateUIState(isConnected) {
-      const sliderClass = isConnected ? 'connected' : 'disconnected';
-      document.querySelectorAll('.volume-slider').forEach(slider => {
+      const sliders = document.querySelectorAll('.volume-slider');
+      sliders.forEach(slider => {
         slider.disabled = !isConnected;
-        slider.className = `volume-slider ${sliderClass}`;
+        slider.className = isConnected ? 'volume-slider connected' : 'volume-slider disconnected';
+        updateSliderBackground(slider, isConnected ? slider.value : 0);
       });
 
-      document.getElementById('distance1').innerText = isConnected ? 'Waiting for data...' : 'Distance 1: Disconnected';
-      document.getElementById('distance2').innerText = isConnected ? 'Waiting for data...' : 'Distance 2: Disconnected';
-    }
+      if (isConnected) {
+        document.getElementById('distance1').innerText = 'Distance 1: Waiting...';
+        document.getElementById('distance2').innerText = 'Distance 2: Waiting...';
 
-    function updateSliderBackground(slider, value) {
-      slider.style.setProperty('--volume-level', `${value * 100}%`);
+        // Mute oscillators while in "Waiting" state
+        if (gainNode1) gainNode1.gain.value = 0;
+        if (gainNode2) gainNode2.gain.value = 0;
+      } else {
+        document.getElementById('distance1').innerText = 'Distance 1: Disconnected';
+        document.getElementById('distance2').innerText = 'Distance 2: Disconnected';
+      }
     }
   </script>
 </body>
