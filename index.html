@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -296,18 +297,19 @@
       }
     
       // Update oscillator and UI
+      oscillator.frequency.value = frequency > 0 ? frequency : oscillator.frequency.value; // Keep current frequency if out of range
+      gainNode.gain.setTargetAtTime(frequency > 0 ? (distanceLabel === "1" ? volume1 : volume2) : 0, audioCtx.currentTime, 0.05); // Smooth volume adjustment
+    
+      // Update UI to show distance, even if out of range
       if (frequency > 0) {
-        oscillator.frequency.value = frequency; // Set frequency
-        gainNode.gain.value = distanceLabel === "1" ? volume1 : volume2; // Unmute with the correct volume
         distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm`;
       } else {
-        oscillator.frequency.value = 0; // Mute tone
-        gainNode.gain.value = 0;
-        distanceElement.innerText = `Distance ${distanceLabel}: Out of range`;
+        distanceElement.innerText = `Distance ${distanceLabel}: ${distance.toFixed(2)} cm (Out of range)`;
       }
     
       distanceElement.classList.add('fade-in');
     }
+
 
     function updateSliderBackground(slider, value) {
       slider.style.setProperty('--volume-level', `${value * 100}%`);
