@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Distanzuino</title>
+    <title>Premium Product</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -52,10 +53,17 @@
             padding: 20px 0;
         }
 
-        .logo img {
-            height: 50px;
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
         }
 
+        .logo-img {
+            max-height: 50px;
+            width: auto;
+        }
+        
         .nav-links {
             display: flex;
             list-style: none;
@@ -129,13 +137,43 @@
             width: 100%;
             height: 50vh;
             overflow: hidden;
+            clip-path: path('M0 0 L100% 0 Q50% 100% 0 0 Z');
         }
-
+        
         .hero-image {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            clip-path: path('M0,0 Q50,100 100,0 V100 H0 Z');
+            transform: scale(1.1);
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .hero-image-container::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: var(--secondary-color);
+            clip-path: polygon(0 0, 100% 100%, 100% 0);
+            z-index: 1;
+        }
+
+        .hero-image-container::after {
+            content: '';
+            position: absolute;
+            bottom: -50px;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: var(--secondary-color);
+            clip-path: polygon(0 100%, 100% 0, 100% 100%);
+            z-index: 1;
+        }
+
+        .hero:hover .hero-image {
+            transform: scale(1);
         }
 
         .hero-content h1 {
@@ -172,13 +210,132 @@
             transform: translateY(-3px);
             box-shadow: 0 4px 10px rgba(255, 51, 51, 0.3);
         }
+
+        .features {
+            padding: 100px 0;
+        }
+
+        .features h2 {
+            font-size: 36px;
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-item {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(255, 51, 51, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .feature-item h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .cta-section {
+            background-color: var(--primary-color);
+            padding: 100px 0;
+            text-align: center;
+        }
+
+        .cta-section h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        .cta-section .cta-button {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+        }
+
+        .cta-section .cta-button:hover {
+            background-color: #000000;
+        }
+
+        footer {
+            background-color: #000000;
+            padding: 50px 0;
+            text-align: center;
+        }
+
+        .social-links {
+            margin-bottom: 20px;
+        }
+
+        .social-links a {
+            color: var(--text-color);
+            font-size: 24px;
+            margin: 0 10px;
+            transition: color 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: var(--primary-color);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero-content h1 {
+                font-size: 3rem;
+            }
+
+            .hero-content p {
+                font-size: 1.2rem;
+            }
+
+            .hero-image-container {
+                height: 40vh;
+            }
+        }
     </style>
 </head>
 <body>
     <header>
         <nav class="container">
             <div class="logo">
-                <img src="logo.jpg" alt="Distanzuino Logo">
+                <img src="logo.jpg" alt="Distanzuino Logo" class="logo-img">
             </div>
             <ul class="nav-links">
                 <li><a href="#" class="nav-link" data-lang-key="home">Home</a></li>
@@ -204,9 +361,139 @@
                 <a href="#" class="cta-button" data-lang-key="learn-more">Learn More</a>
             </div>
             <div class="hero-image-container">
-                <img src="/20240422_191844.jpg" alt="Distanzuino Product" class="hero-image">
+                <img src="/20240422_191844.jpg?height=1080&width=1920" alt="Premium Product" class="hero-image">
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="container">
+                <h2 data-lang-key="features-title">Amazing Features</h2>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <i class="fas fa-bolt feature-icon"></i>
+                        <h3 data-lang-key="feature-1-title">Lightning Fast</h3>
+                        <p data-lang-key="feature-1-description">Experience unparalleled speed and performance.</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-shield-alt feature-icon"></i>
+                        <h3 data-lang-key="feature-2-title">Ultra Secure</h3>
+                        <p data-lang-key="feature-2-description">Your data is protected with state-of-the-art encryption.</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-magic feature-icon"></i>
+                        <h3 data-lang-key="feature-3-title">Intuitive Design</h3>
+                        <p data-lang-key="feature-3-description">User-friendly interface for seamless interaction.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-section">
+            <div class="container">
+                <h2 data-lang-key="cta-title">Ready to Get Started?</h2>
+                <a href="#" class="cta-button" data-lang-key="get-started">Get Started Now</a>
             </div>
         </section>
     </main>
+
+    <footer>
+        <div class="container">
+            <div class="social-links">
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+            </div>
+            <p>&copy; 2023 Premium Product. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Language translations
+        const translations = {
+            en: {
+                "home": "Home",
+                "features": "Features",
+                "about": "About",
+                "contact": "Contact",
+                "hero-title": "Distanzuino",
+                "hero-description": "Musical instrument with modern technology",
+                "learn-more": "Learn More",
+                "features-title": "Amazing Features",
+                "feature-1-title": "Lightning Fast",
+                "feature-1-description": "Experience unparalleled speed and performance.",
+                "feature-2-title": "Ultra Secure",
+                "feature-2-description": "Your data is protected with state-of-the-art encryption.",
+                "feature-3-title": "Intuitive Design",
+                "feature-3-description": "User-friendly interface for seamless interaction.",
+                "cta-title": "Ready to Get Started?",
+                "get-started": "Get Started Now"
+            },
+            de: {
+                "home": "Startseite",
+                "features": "Funktionen",
+                "about": "Über uns",
+                "contact": "Kontakt",
+                "hero-title": "Distanzuino",
+                "hero-description": "Musikinstrument mit moderner Technologie",
+                "learn-more": "Mehr erfahren",
+                "features-title": "Erstaunliche Funktionen",
+                "feature-1-title": "Blitzschnell",
+                "feature-1-description": "Erleben Sie unübertroffene Geschwindigkeit und Leistung.",
+                "feature-2-title": "Ultra sicher",
+                "feature-2-description": "Ihre Daten sind mit modernster Verschlüsselung geschützt.",
+                "feature-3-title": "Intuitives Design",
+                "feature-3-description": "Benutzerfreundliche Oberfläche für nahtlose Interaktion.",
+                "cta-title": "Bereit loszulegen?",
+                "get-started": "Jetzt starten"
+            },
+            hu: {
+                "home": "Kezdőlap",
+                "features": "Funkciók",
+                "about": "Rólunk",
+                "contact": "Kapcsolat",
+                "hero-title": "Distanzuino",
+                "hero-description": "Hangszer modern technológiával",
+                "learn-more": "Tudjon meg többet",
+                "features-title": "Lenyűgöző funkciók",
+                "feature-1-title": "Villámgyors",
+                "feature-1-description": "Tapasztalja meg a páratlan sebességet és teljesítményt.",
+                "feature-2-title": "Ultra biztonságos",
+                "feature-2-description": "Adatait csúcstechnológiás titkosítás védi.",
+                "feature-3-title": "Intuitív dizájn",
+                "feature-3-description": "Felhasználóbarát felület a zökkenőmentes interakcióhoz.",
+                "cta-title": "Készen áll a kezdésre?",
+                "get-started": "Kezdjen most"
+            }
+        };
+
+        // Function to update the language
+        function updateLanguage(lang) {
+            document.querySelectorAll('[data-lang-key]').forEach(element => {
+                const key = element.getAttribute('data-lang-key');
+                if (translations[lang] && translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+        }
+
+        // Language selector event listener
+        document.getElementById('language-select').addEventListener('change', function() {
+            updateLanguage(this.value);
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Initialize with English
+        updateLanguage('en');
+    </script>
 </body>
 </html>
