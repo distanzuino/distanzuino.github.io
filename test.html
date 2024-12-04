@@ -135,7 +135,7 @@
         .hero-image-container {
             position: relative;
             width: 100%;
-            height: 60vh; /* Allows more of the image to show */
+            height: 60vh; /* Adjust the height as needed */
             overflow: hidden;
         }
         
@@ -144,7 +144,9 @@
             height: 100%;
             object-fit: cover;
             transition: transform 0.5s ease-in-out;
+            clip-path: ellipse(70% 50% at 50% 0%); /* Top wave effect */
         }
+
         
         .hero-image-container::before {
             content: '';
@@ -160,12 +162,11 @@
         .hero-image-container::after {
             content: '';
             position: absolute;
-            bottom: -10px; /* Adjusts the bottom curve position */
+            bottom: 0;
             left: 0;
-            right: 0;
-            height: 50%; /* Same as top wave height */
-            background: var(--secondary-color);
-            clip-path: ellipse(70% 50% at 50% 100%); /* Smooth, curved wave effect at the bottom */
+            width: 100%;
+            height: 40%; /* Height for the transition area */
+            background: linear-gradient(to bottom, transparent, var(--secondary-color));
         }
 
         .hero:hover .hero-image {
