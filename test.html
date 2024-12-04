@@ -135,9 +135,9 @@
         .hero-image-container {
             position: relative;
             width: 100%;
-            height: 50vh;
+            height: 60vh; /* Adjusted to ensure more of the image is visible */
             overflow: hidden;
-            clip-path: path('M0,20 C20,40 80,0 100,20 L100,100 L0,100 Z');
+            clip-path: path('M0,40 C20,60 80,0 100,40 L100,100 L0,100 Z'); /* Adjusted curve for smoother wave */
         }
         
         .hero-image {
@@ -147,8 +147,8 @@
             transform: scale(1.1);
             transition: transform 0.5s ease-in-out;
         }
-
-
+        
+        
 
         .hero-image-container::before {
             content: '';
