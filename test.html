@@ -135,43 +135,37 @@
         .hero-image-container {
             position: relative;
             width: 100%;
-            height: 60vh; /* Adjusted to ensure more of the image is visible */
+            height: 60vh; /* Allows more of the image to show */
             overflow: hidden;
-            clip-path: path('M0,40 C20,60 80,0 100,40 L100,100 L0,100 Z'); /* Adjusted curve for smoother wave */
         }
         
         .hero-image {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transform: scale(1.1);
             transition: transform 0.5s ease-in-out;
         }
         
-        
-
         .hero-image-container::before {
             content: '';
             position: absolute;
-            top: -50px;
+            top: -10px; /* Slight adjustment to push the curve slightly upward */
             left: 0;
             right: 0;
-            height: 100px;
+            height: 50%; /* Adjust the height of the wave */
             background: var(--secondary-color);
-            clip-path: polygon(0 0, 100% 100%, 100% 0);
-            z-index: 1;
+            clip-path: ellipse(70% 50% at 50% 0%); /* Smooth, curved wave effect at the top */
         }
-
+        
         .hero-image-container::after {
             content: '';
             position: absolute;
-            bottom: -50px;
+            bottom: -10px; /* Adjusts the bottom curve position */
             left: 0;
             right: 0;
-            height: 100px;
+            height: 50%; /* Same as top wave height */
             background: var(--secondary-color);
-            clip-path: polygon(0 100%, 100% 0, 100% 100%);
-            z-index: 1;
+            clip-path: ellipse(70% 50% at 50% 100%); /* Smooth, curved wave effect at the bottom */
         }
 
         .hero:hover .hero-image {
