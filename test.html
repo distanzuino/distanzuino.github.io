@@ -38,7 +38,7 @@
             width: 100%;
             z-index: 1000;
             transition: all 0.3s ease;
-            padding: 30px 0; /* Thicker header on computers */
+            padding: 20px 0; /* Added padding for a thicker header */
         }
 
         header.scrolled {
@@ -50,7 +50,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 20px;
         }
 
         .logo {
@@ -63,7 +62,7 @@
             max-height: 50px;
             width: auto;
         }
-        
+
         .nav-links {
             display: flex;
             list-style: none;
@@ -131,7 +130,7 @@
             position: relative;
             z-index: 2;
         }
-        
+
         .hero-image-container {
             position: relative;
             width: 100%;
@@ -139,13 +138,13 @@
             overflow: hidden;
             margin-top: -10px;
         }
-        
+
         .hero-image {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        
+
         .hero-image-container::before {
             content: '';
             position: absolute;
@@ -153,19 +152,19 @@
             left: 0;
             right: 0;
             height: 50%; /* Adjust this value if necessary */
-            background: var(--secondary-color); /* Matches the background */
-            clip-path: ellipse(70% 50% at 50% 0%); /* Elliptical cutout at the top */
-            z-index: 1; /* Ensures this is above the image but below the content */
+            background: var(--secondary-color);
+            clip-path: ellipse(70% 50% at 50% 0%);
+            z-index: 1;
         }
-        
+
         .hero-image-container::after {
             content: '';
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 30%; /* Adjust the fade height */
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0), var(--secondary-color)); /* Smooth fade effect */
+            height: 30%;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0), var(--secondary-color));
             z-index: 2;
         }
 
@@ -314,12 +313,11 @@
             .nav-links {
                 display: none;
                 flex-direction: column;
-                width: 100%;
                 background-color: rgba(26, 26, 26, 0.95);
+                width: 100%;
                 position: absolute;
-                top: 100%;
+                top: 70px;
                 left: 0;
-                right: 0;
                 padding: 20px 0;
             }
 
@@ -332,109 +330,116 @@
                 display: flex;
             }
 
-            .menu-toggle {
+            .hamburger {
                 display: block;
-                background: none;
-                border: none;
-                color: var(--text-color);
                 font-size: 30px;
                 cursor: pointer;
             }
-        }
 
-        /* Tablet-specific styles */
-        @media (max-width: 1024px) {
             header {
-                padding: 20px 0; /* Reduced padding on tablets */
+                padding: 10px 0;
             }
 
             .hero-content h1 {
                 font-size: 3rem;
             }
 
-            .hero-content p {
-                font-size: 1.25rem;
-                max-width: 90%;
+            .cta-button {
+                padding: 10px 20px;
             }
         }
     </style>
 </head>
 <body>
-    <header>
+    <header id="header">
         <div class="container">
             <nav>
                 <div class="logo">
-                    <img class="logo-img" src="https://via.placeholder.com/150x50" alt="Distanzuino">
+                    <img class="logo-img" src="logo.png" alt="Distanzuino Logo">
                 </div>
-                <button class="menu-toggle" aria-label="Toggle menu"><i class="fa fa-bars"></i></button>
+                <div class="hamburger" id="hamburger">&#9776;</div>
                 <ul class="nav-links">
-                    <li><a href="#">Home</a></li>
-                    <li><a href="#">About</a></li>
-                    <li><a href="#">Features</a></li>
-                    <li><a href="#">Contact</a></li>
-                    <li class="language-selector">
-                        <select>
-                            <option value="en">English</option>
-                            <option value="de">Deutsch</option>
-                            <option value="hu">Magyar</option>
-                        </select>
-                    </li>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
                 </ul>
+                <div class="language-selector">
+                    <select>
+                        <option value="en">English</option>
+                        <option value="de">German</option>
+                        <option value="fr">French</option>
+                    </select>
+                </div>
             </nav>
         </div>
     </header>
 
-    <div class="hero">
-        <div class="hero-image-container">
-            <img class="hero-image" src="https://via.placeholder.com/1200x600" alt="Hero Image">
-        </div>
+    <div class="hero" id="home">
         <div class="hero-content">
             <h1>Welcome to Distanzuino</h1>
-            <p>Innovative solutions for the future.</p>
-            <a href="#cta" class="cta-button">Join Us</a>
+            <p>Your one-stop destination for innovation and creativity.</p>
+            <a href="#about" class="cta-button">Learn More</a>
+        </div>
+        <div class="hero-image-container">
+            <img src="hero-image.jpg" alt="Hero Image" class="hero-image">
         </div>
     </div>
 
-    <section class="features">
-        <h2>Features</h2>
+    <div class="container features">
+        <h2>Our Features</h2>
         <div class="feature-grid">
             <div class="feature-item">
-                <div class="feature-icon"><i class="fa fa-cogs"></i></div>
-                <h3>Innovative Technology</h3>
-                <p>Cutting-edge solutions to enhance productivity.</p>
+                <div class="feature-icon">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <h3>Innovative Designs</h3>
+                <p>Explore cutting-edge technology with Distanzuino.</p>
             </div>
             <div class="feature-item">
-                <div class="feature-icon"><i class="fa fa-users"></i></div>
+                <div class="feature-icon">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <h3>Space Exploration</h3>
+                <p>Discover new worlds and possibilities.</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-users"></i>
+                </div>
                 <h3>Community</h3>
-                <p>A strong and growing community of innovators.</p>
-            </div>
-            <div class="feature-item">
-                <div class="feature-icon"><i class="fa fa-globe"></i></div>
-                <h3>Global Reach</h3>
-                <p>Accessible solutions around the world.</p>
+                <p>Join a thriving community of innovators.</p>
             </div>
         </div>
-    </section>
+    </div>
 
-    <section class="cta-section" id="cta">
-        <h2>Ready to get started?</h2>
-        <a href="#" class="cta-button">Join Us</a>
-    </section>
+    <div class="cta-section">
+        <h2>Get Started Today!</h2>
+        <a href="#contact" class="cta-button">Contact Us</a>
+    </div>
 
     <footer>
         <div class="social-links">
-            <a href="#" class="fa fa-facebook"></a>
-            <a href="#" class="fa fa-twitter"></a>
-            <a href="#" class="fa fa-instagram"></a>
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
         </div>
         <p>&copy; 2024 Distanzuino. All rights reserved.</p>
     </footer>
 
     <script>
-        const menuToggle = document.querySelector('.menu-toggle');
+        const header = document.getElementById('header');
+        const hamburger = document.getElementById('hamburger');
         const navLinks = document.querySelector('.nav-links');
 
-        menuToggle.addEventListener('click', () => {
+        window.onscroll = function() {
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        }
+
+        hamburger.addEventListener('click', function() {
             navLinks.classList.toggle('active');
         });
     </script>
