@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,6 +38,7 @@
             width: 100%;
             z-index: 1000;
             transition: all 0.3s ease;
+            padding: 30px 0; /* Thicker header on computers */
         }
 
         header.scrolled {
@@ -50,7 +50,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 0;
+            padding: 0 20px;
         }
 
         .logo {
@@ -144,7 +144,6 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            /* We don't apply the clip-path to the image itself anymore */
         }
         
         .hero-image-container::before {
@@ -314,6 +313,39 @@
         @media (max-width: 768px) {
             .nav-links {
                 display: none;
+                flex-direction: column;
+                width: 100%;
+                background-color: rgba(26, 26, 26, 0.95);
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                padding: 20px 0;
+            }
+
+            .nav-links li {
+                margin: 15px 0;
+                text-align: center;
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .menu-toggle {
+                display: block;
+                background: none;
+                border: none;
+                color: var(--text-color);
+                font-size: 30px;
+                cursor: pointer;
+            }
+        }
+
+        /* Tablet-specific styles */
+        @media (max-width: 1024px) {
+            header {
+                padding: 20px 0; /* Reduced padding on tablets */
             }
 
             .hero-content h1 {
@@ -321,179 +353,90 @@
             }
 
             .hero-content p {
-                font-size: 1.2rem;
-            }
-
-            .hero-image-container {
-                height: 30vh;
+                font-size: 1.25rem;
+                max-width: 90%;
             }
         }
     </style>
 </head>
 <body>
     <header>
-        <nav class="container">
-            <div class="logo">
-                <img src="logo.jpg" alt="Distanzuino Logo" class="logo-img">
-            </div>
-            <ul class="nav-links">
-                <li><a href="#" class="nav-link" data-lang-key="home">Home</a></li>
-                <li><a href="#" class="nav-link" data-lang-key="features">Features</a></li>
-                <li><a href="#" class="nav-link" data-lang-key="about">About</a></li>
-                <li><a href="#" class="nav-link" data-lang-key="contact">Contact</a></li>
-            </ul>
-            <div class="language-selector">
-                <select id="language-select">
-                    <option value="en">EN</option>
-                    <option value="de">DE</option>
-                    <option value="hu">HU</option>
-                </select>
-            </div>
-        </nav>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <img class="logo-img" src="https://via.placeholder.com/150x50" alt="Distanzuino">
+                </div>
+                <button class="menu-toggle" aria-label="Toggle menu"><i class="fa fa-bars"></i></button>
+                <ul class="nav-links">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Features</a></li>
+                    <li><a href="#">Contact</a></li>
+                    <li class="language-selector">
+                        <select>
+                            <option value="en">English</option>
+                            <option value="de">Deutsch</option>
+                            <option value="hu">Magyar</option>
+                        </select>
+                    </li>
+                </ul>
+            </nav>
+        </div>
     </header>
 
-    <main>
-        <section class="hero">
-            <div class="hero-content">
-                <h1 data-lang-key="hero-title">Distanzuino</h1>
-                <p data-lang-key="hero-description">Musical instrument with modern technology</p>
-                <a href="#" class="cta-button" data-lang-key="learn-more">Learn More</a>
-            </div>
-            <div class="hero-image-container">
-                <img class="hero-image" src="/20240422_191844.jpg?height=1080&width=1920" alt="Hero Image">
-            </div>
+    <div class="hero">
+        <div class="hero-image-container">
+            <img class="hero-image" src="https://via.placeholder.com/1200x600" alt="Hero Image">
+        </div>
+        <div class="hero-content">
+            <h1>Welcome to Distanzuino</h1>
+            <p>Innovative solutions for the future.</p>
+            <a href="#cta" class="cta-button">Join Us</a>
+        </div>
+    </div>
 
-        </section>
-
-        <section class="features">
-            <div class="container">
-                <h2 data-lang-key="features-title">Amazing Features</h2>
-                <div class="feature-grid">
-                    <div class="feature-item">
-                        <i class="fas fa-bolt feature-icon"></i>
-                        <h3 data-lang-key="feature-1-title">Lightning Fast</h3>
-                        <p data-lang-key="feature-1-description">Experience unparalleled speed and performance.</p>
-                    </div>
-                    <div class="feature-item">
-                        <i class="fas fa-shield-alt feature-icon"></i>
-                        <h3 data-lang-key="feature-2-title">Ultra Secure</h3>
-                        <p data-lang-key="feature-2-description">Your data is protected with state-of-the-art encryption.</p>
-                    </div>
-                    <div class="feature-item">
-                        <i class="fas fa-magic feature-icon"></i>
-                        <h3 data-lang-key="feature-3-title">Intuitive Design</h3>
-                        <p data-lang-key="feature-3-description">User-friendly interface for seamless interaction.</p>
-                    </div>
-                </div>
+    <section class="features">
+        <h2>Features</h2>
+        <div class="feature-grid">
+            <div class="feature-item">
+                <div class="feature-icon"><i class="fa fa-cogs"></i></div>
+                <h3>Innovative Technology</h3>
+                <p>Cutting-edge solutions to enhance productivity.</p>
             </div>
-        </section>
-
-        <section class="cta-section">
-            <div class="container">
-                <h2 data-lang-key="cta-title">Ready to Get Started?</h2>
-                <a href="#" class="cta-button" data-lang-key="get-started">Get Started Now</a>
+            <div class="feature-item">
+                <div class="feature-icon"><i class="fa fa-users"></i></div>
+                <h3>Community</h3>
+                <p>A strong and growing community of innovators.</p>
             </div>
-        </section>
-    </main>
+            <div class="feature-item">
+                <div class="feature-icon"><i class="fa fa-globe"></i></div>
+                <h3>Global Reach</h3>
+                <p>Accessible solutions around the world.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section" id="cta">
+        <h2>Ready to get started?</h2>
+        <a href="#" class="cta-button">Join Us</a>
+    </section>
 
     <footer>
-        <div class="container">
-            <div class="social-links">
-                <a href="#"><i class="fab fa-facebook"></i></a>
-                <a href="#"><i class="fab fa-twitter"></i></a>
-                <a href="#"><i class="fab fa-instagram"></i></a>
-                <a href="#"><i class="fab fa-linkedin"></i></a>
-            </div>
-            <p>&copy; 2023 Premium Product. All rights reserved.</p>
+        <div class="social-links">
+            <a href="#" class="fa fa-facebook"></a>
+            <a href="#" class="fa fa-twitter"></a>
+            <a href="#" class="fa fa-instagram"></a>
         </div>
+        <p>&copy; 2024 Distanzuino. All rights reserved.</p>
     </footer>
 
     <script>
-        // Language translations
-        const translations = {
-            en: {
-                "home": "Home",
-                "features": "Features",
-                "about": "About",
-                "contact": "Contact",
-                "hero-title": "Distanzuino",
-                "hero-description": "Musical instrument with modern technology",
-                "learn-more": "Learn More",
-                "features-title": "Amazing Features",
-                "feature-1-title": "Lightning Fast",
-                "feature-1-description": "Experience unparalleled speed and performance.",
-                "feature-2-title": "Ultra Secure",
-                "feature-2-description": "Your data is protected with state-of-the-art encryption.",
-                "feature-3-title": "Intuitive Design",
-                "feature-3-description": "User-friendly interface for seamless interaction.",
-                "cta-title": "Ready to Get Started?",
-                "get-started": "Get Started Now"
-            },
-            de: {
-                "home": "Startseite",
-                "features": "Funktionen",
-                "about": "Über uns",
-                "contact": "Kontakt",
-                "hero-title": "Distanzuino",
-                "hero-description": "Musikinstrument mit moderner Technologie",
-                "learn-more": "Mehr erfahren",
-                "features-title": "Erstaunliche Funktionen",
-                "feature-1-title": "Blitzschnell",
-                "feature-1-description": "Erleben Sie unübertroffene Geschwindigkeit und Leistung.",
-                "feature-2-title": "Ultra sicher",
-                "feature-2-description": "Ihre Daten sind mit modernster Verschlüsselung geschützt.",
-                "feature-3-title": "Intuitives Design",
-                "feature-3-description": "Benutzerfreundliche Oberfläche für nahtlose Interaktion.",
-                "cta-title": "Bereit loszulegen?",
-                "get-started": "Jetzt starten"
-            },
-            hu: {
-                "home": "Kezdőlap",
-                "features": "Funkciók",
-                "about": "Rólunk",
-                "contact": "Kapcsolat",
-                "hero-title": "Distanzuino",
-                "hero-description": "Hangszer modern technológiával",
-                "learn-more": "Tudjon meg többet",
-                "features-title": "Lenyűgöző funkciók",
-                "feature-1-title": "Villámgyors",
-                "feature-1-description": "Tapasztalja meg a páratlan sebességet és teljesítményt.",
-                "feature-2-title": "Ultra biztonságos",
-                "feature-2-description": "Adatait csúcstechnológiás titkosítás védi.",
-                "feature-3-title": "Intuitív dizájn",
-                "feature-3-description": "Felhasználóbarát felület a zökkenőmentes interakcióhoz.",
-                "cta-title": "Készen áll a kezdésre?",
-                "get-started": "Kezdjen most"
-            }
-        };
+        const menuToggle = document.querySelector('.menu-toggle');
+        const navLinks = document.querySelector('.nav-links');
 
-        // Function to update the language
-        function updateLanguage(lang) {
-            document.querySelectorAll('[data-lang-key]').forEach(element => {
-                const key = element.getAttribute('data-lang-key');
-                if (translations[lang] && translations[lang][key]) {
-                    element.textContent = translations[lang][key];
-                }
-            });
-        }
-
-        // Language selector event listener
-        document.getElementById('language-select').addEventListener('change', function() {
-            updateLanguage(this.value);
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
         });
-
-        // Header scroll effect
-        window.addEventListener('scroll', function() {
-            const header = document.querySelector('header');
-            if (window.scrollY > 50) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
-            }
-        });
-
-        // Initialize with English
-        updateLanguage('en');
     </script>
 </body>
 </html>
