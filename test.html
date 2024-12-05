@@ -135,7 +135,7 @@
         .hero-image-container {
             position: relative;
             width: 100%;
-            height: 60vh; /* Adjust the height of the image container */
+            height: 60vh; /* Adjust the height as needed */
             overflow: hidden;
         }
         
@@ -143,7 +143,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            clip-path: ellipse(70% 50% at 50% 0%); /* Curved top part (wave-like) */
+            clip-path: path("M0,30 Q50%,100 100%,30 L100%,100 L0,100 Z"); /* Wavy top outline */
         }
 
         
@@ -164,8 +164,8 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 40%; /* Height for the transition area */
-            background: linear-gradient(to bottom, transparent, var(--secondary-color)); /* Transition to transparency */
+            height: 30%; /* Adjust height of the gradient area */
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0), var(--secondary-color)); /* Smooth transition to background */
         }
 
         .hero:hover .hero-image {
