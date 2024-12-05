@@ -38,7 +38,6 @@
             width: 100%;
             z-index: 1000;
             transition: all 0.3s ease;
-            padding: 40px 0; /* Thicker header */
         }
 
         header.scrolled {
@@ -50,6 +49,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 20px 0;
         }
 
         .logo {
@@ -62,7 +62,7 @@
             max-height: 50px;
             width: auto;
         }
-
+        
         .nav-links {
             display: flex;
             list-style: none;
@@ -111,43 +111,6 @@
             pointer-events: none;
         }
 
-        .menu-toggle {
-            display: none;
-            flex-direction: column;
-            justify-content: space-between;
-            height: 20px;
-            width: 30px;
-            cursor: pointer;
-        }
-
-        .menu-toggle div {
-            background-color: var(--text-color);
-            height: 4px;
-            width: 100%;
-            border-radius: 2px;
-        }
-
-        .nav-links.open {
-            display: block;
-        }
-
-        .nav-links {
-            display: none;
-            list-style: none;
-            position: absolute;
-            top: 80px;
-            right: 0;
-            background-color: rgba(26, 26, 26, 0.95);
-            width: 100%;
-            padding: 20px;
-            text-align: right;
-        }
-
-        .nav-links li {
-            margin-left: 0;
-            margin-bottom: 20px;
-        }
-
         .hero {
             background-color: var(--secondary-color);
             min-height: 100vh;
@@ -175,11 +138,35 @@
             overflow: hidden;
             margin-top: -10px;
         }
-
+        
         .hero-image {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            /* We don't apply the clip-path to the image itself anymore */
+        }
+        
+        .hero-image-container::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 0;
+            right: 0;
+            height: 50%; /* Adjust this value if necessary */
+            background: var(--secondary-color); /* Matches the background */
+            clip-path: ellipse(70% 50% at 50% 0%); /* Elliptical cutout at the top */
+            z-index: 1; /* Ensures this is above the image but below the content */
+        }
+        
+        .hero-image-container::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30%; /* Adjust the fade height */
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0), var(--secondary-color)); /* Smooth fade effect */
+            z-index: 2;
         }
 
         .hero:hover .hero-image {
@@ -324,114 +311,188 @@
         }
 
         @media (max-width: 768px) {
-            header {
-                padding: 20px 0;
-            }
-
             .nav-links {
-                display: block;
-                position: absolute;
-                top: 80px;
-                right: 0;
-                background-color: rgba(26, 26, 26, 0.95);
-                width: 100%;
-                text-align: center;
-                padding: 20px;
+                display: none;
             }
 
-            .nav-links li {
-                margin: 10px 0;
+            .hero-content h1 {
+                font-size: 3rem;
             }
 
-            .menu-toggle {
-                display: flex;
+            .hero-content p {
+                font-size: 1.2rem;
             }
 
-            .menu-toggle.active + .nav-links {
-                display: block;
+            .hero-image-container {
+                height: 20vh;
             }
         }
     </style>
 </head>
 <body>
     <header>
-        <div class="container">
-            <nav>
-                <a href="#" class="logo">
-                    <img src="logo.png" alt="Logo" class="logo-img"> <!-- Replace with your logo -->
-                </a>
-                <div class="menu-toggle">
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                </div>
-                <ul class="nav-links">
-                    <li><a href="#">Home</a></li>
-                    <li><a href="#">About</a></li>
-                    <li><a href="#">Services</a></li>
-                    <li><a href="#">Contact</a></li>
-                    <li class="language-selector">
-                        <select name="language" id="language">
-                            <option value="en">English</option>
-                            <option value="de">German</option>
-                        </select>
-                    </li>
-                </ul>
-            </nav>
-        </div>
+        <nav class="container">
+            <div class="logo">
+                <img src="logo.jpg" alt="Distanzuino Logo" class="logo-img">
+            </div>
+            <ul class="nav-links">
+                <li><a href="#" class="nav-link" data-lang-key="home">Home</a></li>
+                <li><a href="#" class="nav-link" data-lang-key="features">Features</a></li>
+                <li><a href="#" class="nav-link" data-lang-key="about">About</a></li>
+                <li><a href="#" class="nav-link" data-lang-key="contact">Contact</a></li>
+            </ul>
+            <div class="language-selector">
+                <select id="language-select">
+                    <option value="en">EN</option>
+                    <option value="de">DE</option>
+                    <option value="hu">HU</option>
+                </select>
+            </div>
+        </nav>
     </header>
 
-    <div class="hero">
-        <div class="hero-content">
-            <h1>Welcome to Distanzuino</h1>
-            <p>Your destination for innovative technology solutions</p>
-            <a href="#" class="cta-button">Learn More</a>
-        </div>
-    </div>
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h1 data-lang-key="hero-title">Distanzuino</h1>
+                <p data-lang-key="hero-description">Musical instrument with modern technology</p>
+                <a href="#" class="cta-button" data-lang-key="learn-more">Learn More</a>
+            </div>
+            <div class="hero-image-container">
+                <img class="hero-image" src="/20240422_191844.jpg?height=1080&width=1920" alt="Hero Image">
+            </div>
 
-    <section class="features">
-        <div class="container">
-            <h2>Our Features</h2>
-            <div class="feature-grid">
-                <div class="feature-item">
-                    <div class="feature-icon">
-                        <i class="fas fa-cogs"></i>
+        </section>
+
+        <section class="features">
+            <div class="container">
+                <h2 data-lang-key="features-title">Amazing Features</h2>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <i class="fas fa-bolt feature-icon"></i>
+                        <h3 data-lang-key="feature-1-title">Lightning Fast</h3>
+                        <p data-lang-key="feature-1-description">Experience unparalleled speed and performance.</p>
                     </div>
-                    <h3>Innovative Technology</h3>
-                    <p>We provide cutting-edge solutions that push the boundaries of what's possible.</p>
-                </div>
-                <div class="feature-item">
-                    <div class="feature-icon">
-                        <i class="fas fa-users"></i>
+                    <div class="feature-item">
+                        <i class="fas fa-shield-alt feature-icon"></i>
+                        <h3 data-lang-key="feature-2-title">Ultra Secure</h3>
+                        <p data-lang-key="feature-2-description">Your data is protected with state-of-the-art encryption.</p>
                     </div>
-                    <h3>User-Centered Design</h3>
-                    <p>Our products are designed with the user experience at the forefront.</p>
+                    <div class="feature-item">
+                        <i class="fas fa-magic feature-icon"></i>
+                        <h3 data-lang-key="feature-3-title">Intuitive Design</h3>
+                        <p data-lang-key="feature-3-description">User-friendly interface for seamless interaction.</p>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="cta-section">
-        <div class="container">
-            <h2>Ready to get started?</h2>
-            <a href="#" class="cta-button">Join Us Today</a>
-        </div>
-    </section>
+        <section class="cta-section">
+            <div class="container">
+                <h2 data-lang-key="cta-title">Ready to Get Started?</h2>
+                <a href="#" class="cta-button" data-lang-key="get-started">Get Started Now</a>
+            </div>
+        </section>
+    </main>
 
     <footer>
-        <div class="social-links">
-            <a href="#"><i class="fab fa-facebook"></i></a>
-            <a href="#"><i class="fab fa-twitter"></i></a>
-            <a href="#"><i class="fab fa-linkedin"></i></a>
+        <div class="container">
+            <div class="social-links">
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+            </div>
+            <p>&copy; 2023 Premium Product. All rights reserved.</p>
         </div>
-        <p>&copy; 2024 Distanzuino. All rights reserved.</p>
     </footer>
 
     <script>
-        document.querySelector('.menu-toggle').addEventListener('click', function() {
-            this.classList.toggle('active');
-            document.querySelector('.nav-links').classList.toggle('open');
+        // Language translations
+        const translations = {
+            en: {
+                "home": "Home",
+                "features": "Features",
+                "about": "About",
+                "contact": "Contact",
+                "hero-title": "Distanzuino",
+                "hero-description": "Musical instrument with modern technology",
+                "learn-more": "Learn More",
+                "features-title": "Amazing Features",
+                "feature-1-title": "Lightning Fast",
+                "feature-1-description": "Experience unparalleled speed and performance.",
+                "feature-2-title": "Ultra Secure",
+                "feature-2-description": "Your data is protected with state-of-the-art encryption.",
+                "feature-3-title": "Intuitive Design",
+                "feature-3-description": "User-friendly interface for seamless interaction.",
+                "cta-title": "Ready to Get Started?",
+                "get-started": "Get Started Now"
+            },
+            de: {
+                "home": "Startseite",
+                "features": "Funktionen",
+                "about": "Über uns",
+                "contact": "Kontakt",
+                "hero-title": "Distanzuino",
+                "hero-description": "Musikinstrument mit moderner Technologie",
+                "learn-more": "Mehr erfahren",
+                "features-title": "Erstaunliche Funktionen",
+                "feature-1-title": "Blitzschnell",
+                "feature-1-description": "Erleben Sie unübertroffene Geschwindigkeit und Leistung.",
+                "feature-2-title": "Ultra sicher",
+                "feature-2-description": "Ihre Daten sind mit modernster Verschlüsselung geschützt.",
+                "feature-3-title": "Intuitives Design",
+                "feature-3-description": "Benutzerfreundliche Oberfläche für nahtlose Interaktion.",
+                "cta-title": "Bereit loszulegen?",
+                "get-started": "Jetzt starten"
+            },
+            hu: {
+                "home": "Kezdőlap",
+                "features": "Funkciók",
+                "about": "Rólunk",
+                "contact": "Kapcsolat",
+                "hero-title": "Distanzuino",
+                "hero-description": "Hangszer modern technológiával",
+                "learn-more": "Tudjon meg többet",
+                "features-title": "Lenyűgöző funkciók",
+                "feature-1-title": "Villámgyors",
+                "feature-1-description": "Tapasztalja meg a páratlan sebességet és teljesítményt.",
+                "feature-2-title": "Ultra biztonságos",
+                "feature-2-description": "Adatait csúcstechnológiás titkosítás védi.",
+                "feature-3-title": "Intuitív dizájn",
+                "feature-3-description": "Felhasználóbarát felület a zökkenőmentes interakcióhoz.",
+                "cta-title": "Készen áll a kezdésre?",
+                "get-started": "Kezdjen most"
+            }
+        };
+
+        // Function to update the language
+        function updateLanguage(lang) {
+            document.querySelectorAll('[data-lang-key]').forEach(element => {
+                const key = element.getAttribute('data-lang-key');
+                if (translations[lang] && translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+        }
+
+        // Language selector event listener
+        document.getElementById('language-select').addEventListener('change', function() {
+            updateLanguage(this.value);
         });
+
+        // Header scroll effect
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Initialize with English
+        updateLanguage('en');
     </script>
 </body>
 </html>
