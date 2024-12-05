@@ -135,15 +135,22 @@
         .hero-image-container {
             position: relative;
             width: 100%;
-            height: 60vh; /* Adjust the height as needed */
+            height: 60vh; /* Adjust the height to fit your layout */
             overflow: hidden;
+            background: var(--secondary-color); /* Use the page's background color for blending */
         }
         
         .hero-image {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            clip-path: path("M0,30 Q50%,100 100%,30 L100%,100 L0,100 Z"); /* Wavy top outline */
+        
+            /* Wavy top design */
+            clip-path: path("M0,30 Q50%,100 100%,30 L100%,100 L0,100 Z");
+        
+            /* Bottom transparency transition */
+            mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
+            -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0)); /* For Safari support */
         }
 
         
