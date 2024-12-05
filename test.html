@@ -137,14 +137,15 @@
             width: 100%;
             height: 60vh; /* Adjust height as needed */
             overflow: hidden;
-            background: var(--secondary-color);
+            background: var(--secondary-color); /* Background to match design */
         }
         
         .hero-image {
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            clip-path: ellipse(70% 50% at 50% 0%); /* Fixed ellipse cutout */
+            object-fit: cover; /* Ensures the image fits within the container */
+            clip-path: ellipse(70% 50% at 50% 0%); /* Maintains the ellipse cutout */
+            z-index: 1;
         }
         
         .hero-image-container::before {
@@ -154,9 +155,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: var(--secondary-color); /* Matches container background */
-            clip-path: ellipse(70% 50% at 50% 0%); /* Ensures the cutout remains consistent */
-            z-index: 2; /* Layer on top of the image */
+            background: transparent; /* Prevents blocking the image */
+            z-index: 2;
         }
         
         .hero-image-container::after {
@@ -169,6 +169,7 @@
             background: linear-gradient(to bottom, rgba(0, 0, 0, 0), var(--secondary-color)); /* Transparent to background */
             z-index: 2;
         }
+
 
         
 
