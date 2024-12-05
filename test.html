@@ -135,7 +135,7 @@
         .hero-image-container {
             position: relative;
             width: 100%;
-            height: 60vh; /* Keeps height consistent */
+            height: 60vh; /* Adjust the height as needed */
             overflow: hidden;
         }
         
@@ -143,8 +143,8 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            clip-path: path("M0,20% Q25%,50% 50%,30% T100%,20% L100%,100% L0,100% Z"); /* Always keeps the cutout shape */
-            transition: transform 0.3s ease; /* Optional hover scaling */
+            clip-path: path("M0,20% Q25%,50% 50%,30% T100%,20% L100%,100% L0,100% Z"); /* Permanent wave cutout at the top */
+            transition: transform 0.3s ease; /* Optional smooth scaling on hover */
         }
 
         
