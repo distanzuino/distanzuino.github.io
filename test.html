@@ -135,29 +135,29 @@
         .hero-image-container {
             position: relative;
             width: 100%;
-            height: 60vh; /* Adjust the height as needed */
+            height: 60vh; /* Adjust height as needed */
             overflow: hidden;
-            background: var(--secondary-color); /* Ensures smooth background integration */
+            background: var(--secondary-color);
         }
         
         .hero-image {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            clip-path: path("M0,20% Q25%,50% 50%,30% T100%,20% L100%,100% L0,100% Z"); /* Single wave cutout */
+            clip-path: ellipse(70% 50% at 50% 0%); /* Fixed ellipse cutout */
         }
-
         
-        /*.hero-image-container::before {
+        .hero-image-container::before {
             content: '';
             position: absolute;
-            top: -10px;
+            top: 0;
             left: 0;
-            right: 0;
-            height: 50%;
-            background: var(--secondary-color);
-            clip-path: ellipse(70% 50% at 50% 0%);
-        }*/
+            width: 100%;
+            height: 100%;
+            background: var(--secondary-color); /* Matches container background */
+            clip-path: ellipse(70% 50% at 50% 0%); /* Ensures the cutout remains consistent */
+            z-index: 2; /* Layer on top of the image */
+        }
         
         .hero-image-container::after {
             content: '';
@@ -169,6 +169,7 @@
             background: linear-gradient(to bottom, rgba(0, 0, 0, 0), var(--secondary-color)); /* Transparent to background */
             z-index: 2;
         }
+
         
 
         .hero:hover .hero-image {
@@ -360,7 +361,7 @@
                 <a href="#" class="cta-button" data-lang-key="learn-more">Learn More</a>
             </div>
             <div class="hero-image-container">
-                <img src="/20240422_191844.jpg?height=1080&width=1920" alt="Premium Product" class="hero-image">
+                <img src="/20240422_191844.jpg?height=1080&width=1920" alt="Distanzuino" class="hero-image">
             </div>
         </section>
 
