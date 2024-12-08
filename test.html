@@ -37,12 +37,21 @@
             position: fixed;
             width: 100%;
             z-index: 1000;
+            padding: 25px 0; /* Thicker header */
             transition: all 0.3s ease;
         }
-
+        
         header.scrolled {
             background-color: rgba(26, 26, 26, 0.95);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px 0; /* Adjust when scrolled */
+        }
+        
+        .hamburger-menu {
+            display: none;
+            font-size: 24px;
+            color: var(--text-color);
+            cursor: pointer;
         }
 
         nav {
@@ -66,6 +75,10 @@
         .nav-links {
             display: flex;
             list-style: none;
+        }
+
+        .nav-links.active {
+        display: block;
         }
 
         .nav-links li {
@@ -311,10 +324,27 @@
         }
 
         @media (max-width: 768px) {
+            .hamburger-menu {
+            display: block;
+            }
+            
             .nav-links {
                 display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                right: 20px;
+                background-color: rgba(26, 26, 26, 0.9);
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             }
 
+
+            .nav-links li {
+                margin: 10px 0;
+            }
+            
             .hero-content h1 {
                 font-size: 3rem;
             }
@@ -335,7 +365,10 @@
             <div class="logo">
                 <img src="logo.jpg" alt="Distanzuino Logo" class="logo-img">
             </div>
-            <ul class="nav-links">
+            <div class="hamburger-menu" id="hamburger-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+            <ul class="nav-links" id="nav-links">
                 <li><a href="#" class="nav-link" data-lang-key="home">Home</a></li>
                 <li><a href="#" class="nav-link" data-lang-key="features">Features</a></li>
                 <li><a href="#" class="nav-link" data-lang-key="about">About</a></li>
@@ -479,6 +512,11 @@
         // Language selector event listener
         document.getElementById('language-select').addEventListener('change', function() {
             updateLanguage(this.value);
+        });
+
+        document.getElementById('hamburger-menu').addEventListener('click', function () {
+        const navLinks = document.getElementById('nav-links');
+        navLinks.classList.toggle('active');
         });
 
         // Header scroll effect
