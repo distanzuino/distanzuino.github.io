@@ -8,9 +8,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #ff3333; /* Lighter red */
+            --primary-color: #ff3333;
             --secondary-color: #1a1a1a;
             --text-color: #ffffff;
+            --transition-speed: 0.3s;
         }
 
         * {
@@ -37,14 +38,14 @@
             position: fixed;
             width: 100%;
             z-index: 1000;
-            padding: 25px 0; /* Thicker header */
-            transition: all 0.3s ease;
+            padding: 25px 0;
+            transition: all var(--transition-speed) ease;
         }
         
         header.scrolled {
             background-color: rgba(26, 26, 26, 0.95);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 15px 0; /* Adjust when scrolled */
+            padding: 15px 0;
         }
         
         .hamburger-menu {
@@ -52,6 +53,11 @@
             font-size: 24px;
             color: var(--text-color);
             cursor: pointer;
+            transition: color var(--transition-speed) ease;
+        }
+
+        .hamburger-menu:hover {
+            color: var(--primary-color);
         }
 
         nav {
@@ -70,6 +76,11 @@
         .logo-img {
             max-height: 50px;
             width: auto;
+            transition: transform var(--transition-speed) ease;
+        }
+
+        .logo-img:hover {
+            transform: scale(1.05);
         }
         
         .nav-links {
@@ -78,7 +89,7 @@
         }
 
         .nav-links.active {
-        display: block;
+            display: block;
         }
 
         .nav-links li {
@@ -89,11 +100,28 @@
             color: var(--text-color);
             text-decoration: none;
             font-weight: 600;
-            transition: color 0.3s ease;
+            transition: color var(--transition-speed) ease;
+            position: relative;
         }
 
         .nav-links a:hover {
             color: var(--primary-color);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--primary-color);
+            transform: scaleX(0);
+            transition: transform var(--transition-speed) ease;
+        }
+
+        .nav-links a:hover::after {
+            transform: scaleX(1);
         }
 
         .language-selector {
@@ -110,6 +138,11 @@
             font-weight: 600;
             cursor: pointer;
             padding-right: 20px;
+            transition: color var(--transition-speed) ease;
+        }
+
+        .language-selector select:hover {
+            color: var(--primary-color);
         }
 
         .language-selector::after {
@@ -122,76 +155,81 @@
             transform: translateY(-50%);
             color: var(--primary-color);
             pointer-events: none;
+            transition: transform var(--transition-speed) ease;
+        }
+
+        .language-selector:hover::after {
+            transform: translateY(-50%) rotate(180deg);
         }
 
         .hero {
             background-color: var(--secondary-color);
             min-height: 100vh;
             display: flex;
-            flex-direction: row; /* Aligns content and image horizontally */
-            justify-content: space-between; /* Distributes space evenly */
-            align-items: center; /* Vertically aligns content */
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
             overflow: hidden;
         }
 
         .hero-content {
-            padding: 8rem 2rem 2rem; /* Adjust top and side padding */
+            padding: 8rem 2rem 2rem;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: flex-start;
             text-align: left;
-            margin-left: 50px; /* Moves content to the right */
-            margin-top: 30px; /* Moves content down */
+            margin-left: 50px;
+            margin-top: 30px;
             position: relative;
             z-index: 2;
         }
         
         .hero-image-container {
             position: relative;
-            width: 50%; /* Adjust width as needed */
-            height: auto; /* Maintain aspect ratio */
+            width: 50%;
+            height: auto;
             overflow: hidden;
-            margin-left: 20px; /* Moves the image slightly away from the text */
+            margin-left: 20px;
         }
         
         .hero-image {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .hero-image-container:hover .hero-image {
+            transform: scale(1.05);
         }
         
         .hero-image-container::before {
             content: '';
             position: absolute;
             top: 0;
-            left: -10px; /* Cutout starts from the left */
-            width: 50%; /* Adjust as needed */
+            left: -10px;
+            width: 50%;
             height: 100%;
             background: var(--secondary-color);
-            clip-path: ellipse(50% 70% at 0% 50%); /* Elliptical cutout from the left */
+            clip-path: ellipse(50% 70% at 0% 50%);
             z-index: 1;
         }
         
         .hero-image-container::after {
             content: '';
             position: absolute;
-            top: 0; /* Add gradient at the top */
+            top: 0;
             left: 0;
             width: 100%;
-            height: 100%; /* Gradient covers the entire height */
+            height: 100%;
             background: linear-gradient(
                 to top,
                 var(--secondary-color) 10%,
                 rgba(0, 0, 0, 0) 50%,
                 var(--secondary-color) 90%
-            ); /* Gradient fades at both top and bottom */
+            );
             z-index: 2;
-        }
-
-
-        .hero:hover .hero-image {
-            transform: scale(1);
         }
 
         .hero-content h1 {
@@ -218,10 +256,27 @@
             border-radius: 30px;
             text-decoration: none;
             font-weight: 600;
-            transition: all 0.3s ease;
+            transition: all var(--transition-speed) ease;
             animation: fadeInUp 1s ease 0.4s;
             animation-fill-mode: both;
             margin-top: 0px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: left 0.5s ease;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
         }
 
         .cta-button:hover {
@@ -251,7 +306,24 @@
             padding: 30px;
             border-radius: 10px;
             text-align: center;
-            transition: all 0.3s ease;
+            transition: all var(--transition-speed) ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-item::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), transparent);
+            transition: top 0.5s ease;
+        }
+
+        .feature-item:hover::before {
+            top: 0;
         }
 
         .feature-item:hover {
@@ -263,6 +335,11 @@
             font-size: 48px;
             color: var(--primary-color);
             margin-bottom: 20px;
+            transition: transform var(--transition-speed) ease;
+        }
+
+        .feature-item:hover .feature-icon {
+            transform: scale(1.1);
         }
 
         .feature-item h3 {
@@ -304,11 +381,12 @@
             color: var(--text-color);
             font-size: 24px;
             margin: 0 10px;
-            transition: color 0.3s ease;
+            transition: all var(--transition-speed) ease;
         }
 
         .social-links a:hover {
             color: var(--primary-color);
+            transform: translateY(-3px);
         }
 
         @keyframes fadeInUp {
@@ -333,7 +411,7 @@
 
         @media (max-width: 768px) {
             .hamburger-menu {
-            display: block;
+                display: block;
             }
             
             .nav-links {
@@ -346,8 +424,13 @@
                 padding: 20px;
                 border-radius: 10px;
                 box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+                transition: all var(--transition-speed) ease;
             }
 
+            .nav-links.active {
+                display: flex;
+                animation: fadeIn var(--transition-speed) ease;
+            }
 
             .nav-links li {
                 margin: 10px 0;
@@ -402,7 +485,6 @@
             <div class="hero-image-container">
                 <img class="hero-image" src="/20240422_191844.jpg?height=1080&width=1920" alt="Hero Image">
             </div>
-
         </section>
 
         <section class="features">
@@ -523,8 +605,8 @@
         });
 
         document.getElementById('hamburger-menu').addEventListener('click', function () {
-        const navLinks = document.getElementById('nav-links');
-        navLinks.classList.toggle('active');
+            const navLinks = document.getElementById('nav-links');
+            navLinks.classList.toggle('active');
         });
 
         // Header scroll effect
