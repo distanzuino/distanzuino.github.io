@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Distanzuino</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary-color: #ff3333;
-            --secondary-color: #1a1a1a;
-            --text-color: #ffffff;
-            --transition-speed: 0.3s;
+            --wave-color1: #9e0202;
+            --wave-color2: #e40303;
+            --wave-color3: #ff6666;
+            --wave-color4: #ffa1a1;
+            --wave-color5: #ffcccc;
+            --background-color: #ffffff;
+            --text-color: #000000;
         }
 
         * {
@@ -22,9 +25,8 @@
 
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: var(--secondary-color);
+            background-color: var(--background-color);
             color: var(--text-color);
-            line-height: 1.6;
         }
 
         .container {
@@ -34,129 +36,96 @@
         }
 
         .hero {
-            background: linear-gradient(to bottom, #000000, #333333);
-            min-height: 100vh;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
-            overflow: hidden;
-            padding-top: 60px;
+            justify-content: flex-start;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--background-color);
         }
 
         .hero-content {
             display: flex;
-            flex-direction: row; /* Align content and soundwaves side by side */
-            align-items: center;
-            z-index: 2;
-            padding: 2rem 1rem; /* Add some space on the left */
+            flex-direction: column;
+            max-width: 400px;
+            padding: 2rem;
         }
 
         .hero-content h1 {
-            font-size: 4rem;
+            font-size: 3rem;
             font-weight: 700;
             margin-bottom: 1rem;
-            line-height: 1.2;
         }
 
         .hero-content p {
-            font-size: 1.5rem;
-            margin-bottom: 30px;
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
         }
 
         .cta-button {
             display: inline-block;
             background-color: var(--primary-color);
-            color: var(--text-color);
+            color: #fff;
             padding: 12px 30px;
             border-radius: 30px;
             text-decoration: none;
             font-weight: 600;
-            margin-top: 20px;
-            transition: all var(--transition-speed) ease;
+            transition: background-color 0.3s ease;
         }
 
-        /* Soundwaves */
+        .cta-button:hover {
+            background-color: #e30303;
+        }
+
         .sound-waves {
             display: flex;
-            gap: 5px; /* Space between the sound bars */
-            align-items: flex-end;
-            margin-left: 1rem; /* Space between title and soundwaves */
+            gap: 10px;
+            margin-left: 2rem;
         }
 
-        .sound-waves span {
-            display: inline-block;
-            width: 4px; /* Width of each bar */
-            height: 20px; /* Initial height */
-            background-color: var(--primary-color);
-            animation: wave 1s infinite ease-in-out;
+        .wave {
+            width: 40px;
+            height: 150px;
+            border-radius: 20px;
+            background: linear-gradient(to bottom, var(--wave-color1), var(--wave-color5));
         }
 
-        .sound-waves span:nth-child(2) {
-            animation-delay: 0.2s;
+        .wave:nth-child(2) {
+            height: 120px;
+            background: linear-gradient(to bottom, var(--wave-color2), var(--wave-color5));
         }
 
-        .sound-waves span:nth-child(3) {
-            animation-delay: 0.4s;
+        .wave:nth-child(3) {
+            height: 100px;
+            background: linear-gradient(to bottom, var(--wave-color3), var(--wave-color5));
         }
 
-        .sound-waves span:nth-child(4) {
-            animation-delay: 0.6s;
+        .wave:nth-child(4) {
+            height: 80px;
+            background: linear-gradient(to bottom, var(--wave-color4), var(--wave-color5));
         }
 
-        .sound-waves span:nth-child(5) {
-            animation-delay: 0.8s;
-        }
-
-        @keyframes wave {
-            0%, 100% {
-                height: 20px; /* Initial height */
-            }
-            50% {
-                height: 40px; /* Peak height */
-            }
+        .wave:nth-child(5) {
+            height: 60px;
+            background: linear-gradient(to bottom, var(--wave-color5), var(--background-color));
         }
     </style>
 </head>
 <body>
-    <header>
-        <nav class="container">
-            <a href="https://distanzuino.com" class="logo">
-                <img src="logo.jpg" alt="Distanzuino Logo" class="logo-img">
-            </a>
-            <ul class="nav-links">
-                <li><a href="#" class="nav-link">Home</a></li>
-                <li><a href="#" class="nav-link">Features</a></li>
-                <li><a href="#" class="nav-link">About</a></li>
-                <li><a href="#" class="nav-link">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
-
     <main>
         <section class="hero">
-            <div class="container">
-                <div class="hero-content">
-                    <div>
-                        <h1>Distanzuino</h1>
-                        <p>Musical instrument with modern technology</p>
-                        <a href="#" class="cta-button">Learn More</a>
-                    </div>
-                    <div class="sound-waves">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </div>
-                </div>
+            <div class="hero-content">
+                <h1>Distanzuino</h1>
+                <p>Musical instrument with modern technology</p>
+                <a href="#" class="cta-button">Learn More</a>
+            </div>
+            <div class="sound-waves">
+                <div class="wave"></div>
+                <div class="wave"></div>
+                <div class="wave"></div>
+                <div class="wave"></div>
+                <div class="wave"></div>
             </div>
         </section>
     </main>
-
-    <footer>
-        <div class="container">
-            <p>&copy; 2024 Distanzuino. All rights reserved.</p>
-        </div>
-    </footer>
 </body>
 </html>
