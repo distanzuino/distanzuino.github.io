@@ -28,8 +28,9 @@
         }
 
         .container {
-            margin: 0 auto;
-            padding: 0;
+            margin: 0; /* Minden margót eltávolít a konténerből */
+            padding: 0; /* Eltávolítja a belső térközöket is */
+            max-width: 100%;
         }
 
         header {
@@ -175,11 +176,12 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            align-items: flex-start;
+            align-items: flex-start; /* Balra igazítja a tartalmat */
             z-index: 2;
-            padding: 2rem 1rem; /* Bal oldali padding minimalizálása */
-            margin-left: 0; /* Közvetlenül balra tolja a tartalmat */
-            max-width: 600px;
+            padding: 2rem 0; /* Csökkentjük vagy eltávolítjuk a bal oldali padding-et */
+            margin-left: 0; /* Bal szélére húzza a tartalmat */
+            max-width: unset; /* Megszünteti a szélességi korlátozást, hogy ne szoruljon középre */
+            width: auto; /* Biztosítja, hogy ne középre korlátozza */
         }
 
         .hero-content h1 {
